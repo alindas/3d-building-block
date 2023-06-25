@@ -1,0 +1,20 @@
+.config-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  > div {
+    margin-bottom: 0.5rem;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  .model-config,
+  .scene-config {
+    height: 100%;
+    padding: 0 0.3rem 0 0.5rem;
+  }
+}

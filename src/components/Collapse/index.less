@@ -1,0 +1,80 @@
+.collapse {
+  &-wrapper {
+    flex-shrink: 0;
+    width: 100%;
+    height: auto;
+    color: rgba(191, 191, 191, 1);
+
+    &-open {
+      flex: 1;
+      height: 0; // 高度长短交由父容器控制
+      min-height: 0; // 兼容火狐
+    }
+  }
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 11px;
+    background: rgba(82, 82, 82, 1);
+    border-radius: 2px;
+    cursor: default;
+
+    .title {
+      display: flex;
+      align-items: center;
+      color: rgba(229, 229, 229, 1);
+      font-size: 0.75rem;
+      line-height: 1.75rem;
+      cursor: move;
+
+      > img {
+        margin-right: 0.2em;
+      }
+    }
+
+    .control {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: flex-end;
+      outline: 0;
+
+      > span {
+        color: rgba(153, 153, 153, 1);
+        transition: transform 0.2s ease;
+      }
+    }
+  }
+
+  &-body {
+    padding: 5px 5px;
+    overflow: hidden;
+    background: #333333;
+    outline: 0;
+    cursor: default;
+
+    > div {
+      height: 100%;
+      overflow: auto;
+
+      // 火狐不支持自定义滑动条，将其隐藏
+      scrollbar-width: none; /* Firefox */
+
+      &::-webkit-scrollbar {
+        width: 10px;
+        background-color: #262626;
+      }
+      &::-webkit-scrollbar-track {
+        background-color: transparent;
+        border-radius: 3px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(82, 82, 82, 1);
+        border: 2px solid #262626;
+        border-radius: 4px;
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+// 编辑器 antd input 样式
+.editor-select-box(@label-width: 25%) {
+  display: flex;
+  align-items: center;
+  padding: 0.3rem 0;
+
+  > span {
+    width: @label-width;
+    color: #e6e6e6;
+    font-style: 0.75rem;
+  }
+
+  :global {
+    .ant-select {
+      flex: 1;
+    }
+
+    .ant-select-selector {
+      color: #fff !important;
+      background: #121212 !important;
+    }
+
+    .ant-select-arrow {
+      color: #fff;
+    }
+  }
+}

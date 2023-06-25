@@ -1,0 +1,13 @@
+dist
+node_modules
+public
+src/assets/*
+**/*.md
+**/*.svg
+**/*.cjs
+**/*.html
+package.json
+.umi
+.umi-production
+.umi-test
+three-correct

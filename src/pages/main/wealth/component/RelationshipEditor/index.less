@@ -1,0 +1,90 @@
+.relationship-editor {
+  height: 100%;
+
+  .import-btn {
+    padding: 3px 4px;
+  }
+
+  .tree-container {
+    height: calc(100% - 38px);
+    overflow: hidden;
+    // 火狐不支持自定义滑动条，将其隐藏
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+      background-color: #262626;
+    }
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+      border-radius: 3px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(82, 82, 82, 1);
+      border: 2px solid #262626;
+      border-radius: 4px;
+    }
+  }
+
+  :global .draggable-tree {
+    color: rgba(191, 191, 191, 1);
+    background: transparent;
+
+    .ant-tree-treenode {
+      padding: 1px 0 3px 0; // 不能乱改(内边距高度和要为 4px)，会影响内部高度计算
+
+      &:hover {
+        color: rgba(229, 229, 229, 1);
+        background: rgba(82, 82, 82, 1);
+      }
+
+      .ant-tree-node-content-wrapper:hover,
+      .ant-tree-node-selected {
+        background: none;
+      }
+    }
+
+    .dragging {
+      // 拖拽中样式
+
+      &::after {
+        display: none;
+      }
+    }
+
+    .ant-tree-treenode-selected {
+      color: rgba(229, 229, 229, 1);
+      background: rgba(82, 82, 82, 1);
+    }
+
+    .ant-tree-draggable-icon {
+      // 不展示拖拽图标
+      display: none;
+    }
+
+    .ant-tree-switcher {
+      // 收起、展开图标
+      width: 1rem;
+    }
+
+    .ant-tree-indent-unit {
+      // 子树缩进宽度
+      width: 1em;
+    }
+
+    .ant-tree-list-scrollbar {
+      width: 6px !important;
+      // 虚拟滚动条
+      background: rgba(38, 38, 38, 1);
+
+      .ant-tree-list-scrollbar-thumb {
+        // 滑动拇指
+        background: rgba(82, 82, 82, 1) !important;
+      }
+    }
+  }
+
+  :global .ant-btn-primary {
+    width: 100%;
+  }
+}

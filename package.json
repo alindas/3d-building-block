@@ -1,0 +1,72 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "umi dev",
+    "build": "umi build",
+    "postinstall": "umi generate tmp",
+    "prepare": "husky install",
+    "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
+    "stylelint": "stylelint --cache --fix \"**/*.{less,postcss,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/",
+    "test": "umi-test",
+    "test:coverage": "umi-test --coverage"
+  },
+  "lint-staged": {
+    "*.{less,css}": [
+      "prettier --write",
+      "stylelint --fix",
+      "git add"
+    ],
+    "*.{js,jsx}": [
+      "prettier --write",
+      "eslint --fix",
+      "git add"
+    ],
+    "*.{ts,tsx}": [
+      "prettier --parser=typescript --write",
+      "eslint --fix",
+      "git add"
+    ],
+    "*.js": "eslint --cache --fix",
+    "*.css": "stylelint --fix"
+  },
+  "dependencies": {
+    "@ant-design/pro-layout": "^6.5.0",
+    "@tweenjs/tween.js": "^18.6.4",
+    "@types/three": "^0.141.0",
+    "axios": "^0.27.2",
+    "jszip": "^3.10.0",
+    "react": "17.x",
+    "react-beautiful-dnd": "^13.1.0",
+    "react-color": "^2.19.3",
+    "react-dom": "17.x",
+    "three": "^0.141.0",
+    "umi": "^3.5.27"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.195",
+    "@types/react": "^17.0.0",
+    "@types/react-beautiful-dnd": "^13.1.2",
+    "@types/react-color": "^3.0.6",
+    "@types/react-dom": "^17.0.0",
+    "@types/three": "^0.141.0",
+    "@typescript-eslint/eslint-plugin": "^5.60.0",
+    "@typescript-eslint/parser": "^5.60.0",
+    "@umijs/preset-react": "1.x",
+    "@umijs/test": "^3.5.27",
+    "eslint": "^8.43.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^10.0.7",
+    "postcss-less": "^6.0.0",
+    "prettier": "^2.2.0",
+    "stylelint": "^14.16.1",
+    "stylelint-config-prettier": "^9.0.5",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-less": "^1.0.6",
+    "stylelint-prettier": "^3.0.0",
+    "typescript": "^4.1.2",
+    "yorkie": "^2.0.0"
+  }
+}

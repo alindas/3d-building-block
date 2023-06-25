@@ -1,0 +1,61 @@
+@font-face {
+  font-family: 'syhtl';
+  src: url('/font/font/SourceHanSans-Light.ttf');
+}
+@font-face {
+  font-family: 'syhtn';
+  src: url('/font/font/SourceHanSansCN-Normal.ttf');
+}
+.container {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(18, 18, 18, 1);
+  user-select: none;
+}
+
+.menu-wrap {
+  height: 4.44vh;
+  background: rgba(51, 51, 51, 1);
+  background-color: rgba(18, 18, 18, 1);
+  border: 1px solid rgba(69, 69, 69, 1);
+}
+
+.mainContent {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 95.56vh;
+  padding: 1.2vh 0.677vw;
+
+  &-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    // border: 1px solid rgb(88, 140, 182);
+
+    &-tree {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 15.63vw;
+      height: 100%;
+      // border: 1px solid rgb(88, 140, 182);
+    }
+    &-scene {
+      position: absolute;
+      top: 0;
+      left: 16vw;
+      width: 66.51vw;
+      height: 100%;
+      // border: 1px solid rgb(88, 140, 182);
+    }
+    &-attribute {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 15.63vw;
+      height: 100%;
+      // border: 1px solid rgb(88, 140, 182);
+    }
+  }
+}
