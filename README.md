@@ -1,144 +1,69 @@
 ## 通用版3d场景编辑器
 
-### 功能
+### 标注
 1. 动态导入模型、基础属性编辑（位置、模型属性）
-2. 多场景编辑
-3.
+2. 运行和定制页分离
 
 ### 目录结构
 ```
-D:\Desktop\WorkData\062023\universal-3d-editor\src
-├─global.less
+
+├─global.less  全局样式
+├─global.ts  应用根配置
 ├─utils
-|   ├─common.js
-|   ├─opConfigFile.js
-|   ├─threeD.js
-|   ├─three-correct
-|   |       ├─outlinePass.js
-|   |       ├─TGALoader.js
-|   |       ├─fbxloader
-|   |       |     ├─index.js
-|   |       |     └inflate.min.js
-|   |       ├─exporter
-|   |       |    ├─ColladaExporter.js
-|   |       |    └ColladaLoader.js
+|   ├─common.js  通用工具函数
+|   ├─threeD.js  自封装插件
+|   ├─three-correct  第三方插件
 ├─style
 |   └core.less
 ├─service
-|    ├─address.js
-|    ├─constant.js
-|    ├─runTD.ts
-|    └webSocketReq.js
+|    └ipConfig.js
 ├─pages
 |   ├─main
-|   |  ├─index.less
-|   |  ├─index.tsx
-|   |  ├─wealth
-|   |  |   ├─index.less
-|   |  |   ├─index.tsx
-|   |  |   ├─component
-|   |  |   |     ├─RelationshipEditor
-|   |  |   |     |         ├─index.less
-|   |  |   |     |         └index.tsx
-|   |  |   |     ├─ModelLibrary
-|   |  ├─topMenu
-|   |  |    ├─index.less
-|   |  |    ├─index.tsx
-|   |  |    ├─utils
-|   |  |    |   └getFileType.ts
-|   |  |    ├─js
-|   |  |    | └choiseAMenuItem.ts
-|   |  |    ├─datas
-|   |  |    |   └topMenuData.js
-|   |  |    ├─component
-|   |  |    |     ├─userImg
-|   |  |    |     |    ├─index.less
-|   |  |    |     |    └index.tsx
-|   |  |    |     ├─file
-|   |  |    |     |  ├─NewProject
-|   |  |    |     |  |     └index.tsx
-|   |  |    |     |  ├─ImpFiles
-|   |  |    |     |  |    └index.tsx
-|   |  |    |     |  ├─ExpFile
-|   |  |    |     |  |    └index.tsx
-|   |  |    |     ├─aMenuItem
-|   |  |    |     |     ├─index.less
-|   |  |    |     |     └index.tsx
-|   |  |    |     ├─aMenu
-|   |  |    |     |   ├─index.less
-|   |  |    |     |   └index.tsx
-|   |  ├─scene
-|   |  |   ├─index.less
-|   |  |   ├─index.tsx
-|   |  |   ├─component
-|   |  |   |     ├─Workbench
-|   |  |   |     |     ├─index.less
-|   |  |   |     |     └index.tsx
-|   |  |   |     ├─ToolBar
-|   |  |   |     |    ├─index.less
-|   |  |   |     |    └index.tsx
-|   |  ├─attribute
-|   |  |     ├─index.less
-|   |  |     ├─index.tsx
+|   |  ├─wealth  左侧模型库及关系树
+|   |  |   ├─RelationshipEditor
+|   |  |   ├─ModelLibrary
+|   |  ├─scene  场景渲染
+|   |  |   ├─Workbench
+|   |  |   ├─ToolBar
+|   |  ├─navigation  顶部导航栏
+|   |  |     ├─utils
+|   |  |     |   ├─exportProject.ts
+|   |  |     |   ├─getFileType.ts
+|   |  |     |   ├─newProject.ts
+|   |  |     |   └saveProjectConfig.ts
+|   |  |     ├─data
+|   |  |     |  └menuTemplate.js
 |   |  |     ├─component
-|   |  |     |     ├─SelectedModel
-|   |  |     |     |       ├─index.less
-|   |  |     |     |       └index.tsx
-|   |  |     |     ├─EnvConfig
-|   |  |     |     |     ├─index.less
-|   |  |     |     |     ├─Light.tsx
-|   |  |     |     |     └SceneMap.tsx
-|   |  |     |     ├─Editor
-|   |  |     |     |   ├─index.less
-|   |  |     |     |   └index.tsx
-|   |  |     |     ├─DataBind
-|   |  |     |     |    ├─index.less
-|   |  |     |     |    └index.tsx
+|   |  |     |     ├─userImg
+|   |  |     |     ├─SubMenu
+|   |  |     |     ├─ProjectName
+|   |  |     |     ├─NewProject
+|   |  |     |     ├─Menu
+|   |  |     |     ├─ImpFiles
+|   |  ├─attribute  右侧属性编辑面板
+|   |  |     ├─SelectedModel
+|   |  |     ├─EnvConfig
+|   |  |     ├─Editor
+|   |  |     ├─DataBind
 |   ├─login
-|   |   ├─index.less
-|   |   └index.tsx
+|   ├─error
+|   |   ├─404.tsx
+|   |   └500.tsx
 ├─models
 |   ├─attribute.ts
-|   ├─effect.js
-|   ├─menu.js
-|   ├─scene.js
-|   └tree.js
+|   ├─project.ts  工程相关
+|   └scene.ts  场景编辑相关
+├─layout
+|   └SecurityLayout.tsx
 ├─components
-|     ├─SpecialEffect
-|     |       ├─specialEffect.js
-|     |       ├─utils
-|     |       |   └index.js
-|     |       ├─libs
-|     |       |  ├─const.js
-|     |       |  ├─emitter.js
-|     |       |  ├─particle.js
-|     |       |  ├─shaders.js
-|     |       |  ├─system.js
-|     |       |  ├─tween.js
-|     |       |  ├─emitters
-|     |       |  |    └flame.js
 |     ├─RightMenu
-|     |     ├─index.less
-|     |     └index.tsx
 |     ├─ErrorBoundary
-|     |       └index.tsx
 |     ├─Collapse
-|     |    ├─index.less
-|     |    └index.tsx
 ├─common
-|   ├─globalThreeD.js
-|   └sceneConfigList.js
+|   ├─antd.ts
+|   ├─sceneConfigList.ts
+|   └type.ts
 ├─assets
-|   ├─attrRefresh.png
-|   ├─holderOutlined.png
-|   ├─tool-bar
-|   |    ├─focusBtn.png
-|   |    ├─redoBtn.png
-|   |    ├─revokeBtn.png
-|   |    ├─rotateBtn.png
-|   |    ├─scaleBtn.png
-|   |    ├─selectBtn.png
-|   |    └translateBtn.png
 ```
 
 ### 拓展
