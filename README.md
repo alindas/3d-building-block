@@ -46,6 +46,8 @@
 |   |  |     ├─Editor
 |   |  |     ├─DataBind
 |   ├─login
+|   ├─stage  场景运行页，定制参考这
+|   |   ├─exhibit.tsx 具体工程渲染数据，增加定制功能参考这  
 |   ├─error
 |   |   ├─404.tsx
 |   |   └500.tsx
