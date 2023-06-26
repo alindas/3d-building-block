@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'umi';
-import { Button } from 'antd';
+import { Button, Modal } from 'antd';
 
 import style from './index.less';
 import revokeBtn from '@/assets/tool-bar/revokeBtn.png';
@@ -19,7 +19,7 @@ type TOptionMenu = {
 };
 
 function ToolBar(props: any) {
-  const { dispatch, canRun } = props;
+  const { dispatch, project, runState } = props;
   const [selectedMenu, setSelectedMenu] = useState(['', 'select']);
 
   function demo() {
@@ -101,11 +101,43 @@ function ToolBar(props: any) {
     menu.onClick();
   }
 
-  // 本地运行
-  function localRun() {
+  // 后续可能多个地方需要，eg: 工程导出时
+  function uploadProject() {
+    // maybe 需要先 check 是否需要更新工程
     dispatch({
       type: 'scene/changeRunState',
       payload: true,
+    });
+    // todo 上传工程信息，在回调里打开新访问窗口
+    window.open(`/stage/${project.name}`, '_blank');
+  }
+
+  // 执行运行全屏展示界面
+  function localRun() {
+    // 已开启是否终止
+    if (runState) {
+      dispatch({
+        type: 'scene/changeRunState',
+        payload: false,
+      });
+      return;
+    }
+    // 生成场景访问 key，用于对外展示。todo: 上云
+    Modal.confirm({
+      title: '上传工程到云端，并开放该展示地址',
+      content: (
+        <span>
+          展示地址：
+          <span>
+            {location.origin}/stage/{project.name}
+          </span>
+        </span>
+      ),
+      transitionName: '',
+      onOk: () => {
+        // 保存当前工作台，导入新工程
+        uploadProject();
+      },
     });
   }
 
@@ -132,14 +164,14 @@ function ToolBar(props: any) {
   return (
     <div className={style['toolbar-wrapper']}>
       <div className={style['option-box']}>{renderOptionGroup}</div>
-      <div className={style['run-btn']}>
+      <div className={style['run-btn']} title="自定义展示">
         <Button
           type="primary"
           size="small"
           onClick={localRun}
-          disabled={!canRun}
+          disabled={project === null}
         >
-          运行
+          {runState ? '取消运行' : '运行'}
         </Button>
       </div>
     </div>
@@ -147,5 +179,6 @@ function ToolBar(props: any) {
 }
 
 export default connect((s: any) => ({
-  canRun: s.project.projectInfo !== null,
+  project: s.project.projectInfo,
+  runState: s.scene.runState,
 }))(ToolBar);

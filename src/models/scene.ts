@@ -17,7 +17,7 @@ export interface SceneState {
   multipleChoiceModels: any[];
 
   outlinePassModel: null | THREE.Object3D;
-  runState: false;
+  runState: boolean;
 
   allModelConfigList: [];
   cfgFileMdlUniqueKey: '';
@@ -39,7 +39,7 @@ const SceneModel: ModelType<SceneState> = {
     multipleChoiceModels: [], // 多选模型列表
 
     outlinePassModel: null, // 给 outlinePass 使用的模型，绑定 selectedModel
-    runState: false, // 是否执行场景
+    runState: false, // 是否执行场景全屏展示
     allModelConfigList: [],
     cfgFileMdlUniqueKey: '',
     sceneEnv: '', // 场景环境贴图url

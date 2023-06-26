@@ -109,7 +109,6 @@ function Workbench(
     workbenchModel,
     selectedModel,
     outlinePassModel,
-    runState,
   } = sceneModel;
 
   const { cameraConfig } = projectModel; //菜单menu中的工程数据
@@ -153,18 +152,6 @@ function Workbench(
       true,
     );
   }, []);
-
-  // 点击运行，当前工程中有绑定的模型执行动画函数
-  useEffect(() => {
-    // 当点击运行、取消运行时，触发onWindowResize方法
-    onWindowResize();
-    if (runState) {
-      dispatch({
-        type: 'scene/updateSelectedModel',
-        payload: null,
-      });
-    }
-  }, [runState]);
 
   // 模型控制器
   useEffect(() => {

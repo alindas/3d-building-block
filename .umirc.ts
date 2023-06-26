@@ -17,8 +17,8 @@ export default defineConfig({
         { path: '/', exact: true, component: '@/pages/main/index' },
         // 直接运行场景
         {
-          path: '/runTD',
-          component: '@/pages/main/scene/component/Workbench',
+          path: '/stage/:project',
+          component: '@/pages/stage/exhibit',
         },
         {
           component: '@/pages/error/404',

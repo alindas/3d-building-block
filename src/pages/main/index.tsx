@@ -37,7 +37,6 @@ function List(props: ListProps) {
 function MainPage() {
   const [wealthSequence, setWealthSequence] = useState<string[]>([]);
   const [attrSequence, setAttrSequence] = useState<string[]>([]);
-  const runState = useSelector(({ scene }: any) => scene.runState);
 
   function onDragEnd(result: any) {
     console.log(result);
@@ -74,31 +73,16 @@ function MainPage() {
 
   return (
     <div className="container">
-      {!window.location.pathname.includes('/runTD') && !runState && (
-        <div className="menu-wrap">
-          {/* 菜单 */}
-          <TopMenu />
-        </div>
-      )}
+      <div className="menu-wrap">
+        {/* 菜单 */}
+        <TopMenu />
+      </div>
 
-      <div
-        className="mainContent"
-        style={{
-          height: runState && '100vh',
-          padding: runState && 0,
-        }}
-      >
+      <div className="mainContent">
         {/* 内容 */}
         <div className="mainContent-wrap">
           <DragDropContext onDragEnd={(res) => onDragEnd(res)}>
-            <div
-              className="mainContent-wrap-tree"
-              style={
-                window.location.pathname.includes('/runTD') || runState
-                  ? { opacity: 0, position: 'absolute', zIndex: -1 }
-                  : {}
-              }
-            >
+            <div className="mainContent-wrap-tree">
               {/* 模型资产区域 */}
               <List
                 listId="wealth"
@@ -108,25 +92,12 @@ function MainPage() {
               />
             </div>
 
-            <div
-              className="mainContent-wrap-scene"
-              style={{
-                width: runState && '100vw',
-                left: runState && 0,
-              }}
-            >
+            <div className="mainContent-wrap-scene">
               {/* 3D编辑区域 */}
-              <Scene isRun={runState} />
+              <Scene />
             </div>
 
-            <div
-              className="mainContent-wrap-attribute"
-              style={
-                window.location.pathname.includes('/runTD') || runState
-                  ? { opacity: 0, position: 'absolute', zIndex: -1 }
-                  : {}
-              }
-            >
+            <div className="mainContent-wrap-attribute">
               {/* 属性编辑区域 */}
               <List
                 listId="attribute"
