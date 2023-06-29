@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, Mesh, MeshBasicMaterial } from 'three';
+import { Mesh, MeshBasicMaterial } from 'three';
 import {
   TransformArrayToHash,
   freeModelMemory,

@@ -9,6 +9,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { Space, Switch } from 'antd';
 
 import style from './index.less';
 import { OutlinePass } from '@/utils/three-correct/outlinePass';
@@ -39,9 +40,29 @@ let scene: THREE.Scene,
 
 let cameraConfig = {
   // 默认相机配置
-  position: [0, 78, 275],
-  orbitControlTarget: [0, 0, 0],
+  position: [43, 405, 365],
+  orbitControlTarget: [1, 192, 2],
 };
+
+// test 管道水流用
+const texture = new THREE.TextureLoader().load('/texture/flow.jpg');
+// const texture = new THREE.TextureLoader().load('/texture/test2.png');
+// 设置阵列模式为 RepeatWrapping
+texture.wrapS = THREE.RepeatWrapping;
+texture.wrapT = THREE.RepeatWrapping;
+texture.repeat.set(5, 1); // 重复数量
+// texture.offset.x = 0.5;
+
+const tubeMaterial = new THREE.MeshBasicMaterial({
+  map: texture,
+  transparent: true,
+  // color: 0x47d8fa,
+  // side: THREE.DoubleSide,
+  opacity: 0.4,
+});
+
+let openFlow = false; // 水流开关
+let target: THREE.Mesh;
 
 // 设置多通道，当选定模型组成部分时，高亮其边框
 function highlightModel() {
@@ -72,13 +93,26 @@ function highlightModel() {
   composer.addPass(effectFXAA);
 }
 
+function arrayToVector3(array: ArrayLike<number>) {
+  const Array = [];
+  // for(let i = 0; i <= array.length-2; i+3) {
+  //   Array.push(new THREE.Vector3(array[i], array[i+1], array[i+2]))
+  // }
+  for (let i = 0; i < array.length; i += 3) {
+    Array.push(new THREE.Vector3(array[i], array[i + 1], array[i + 2]));
+  }
+  return Array;
+}
+
 function render() {
   if (composer?.render) {
     composer.render();
   } else {
     renderer.render(scene, camera);
   }
-
+  if (openFlow) {
+    texture.offset.x += 0.01;
+  }
   orbitControl.update();
 }
 
@@ -112,26 +146,35 @@ function Exhibit(
   const threeDom = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
-    request
-      .get('/api/model?project=' + project)
-      .then((res: any) => {
-        if (res === 'no exit') {
-          setLoading('页面未开放');
-        } else {
-          console.log(res); // 按道理是配置文件和模型资源
-          cameraConfig = res;
-          // 从云资源里加载 model 和配置文件
-          const loader = new FBXLoader();
+    if (project === 'test') {
+      const loader = new FBXLoader();
 
-          loader.load(`/projects/${project}/model.fbx`, function (object) {
-            setWorkbenchModel(object);
-            setLoading('');
-          });
-        }
-      })
-      .catch(() => {
-        setLoading('页面未开放');
+      loader.load(`/projects/test_pipe/model.fbx`, function (object) {
+        setWorkbenchModel(object);
+        setLoading('');
       });
+    } else {
+      request
+        .get('/api/model?project=' + project)
+        .then((res: any) => {
+          if (res === 'no exit') {
+            setLoading('页面未开放');
+          } else {
+            console.log(res); // 按道理是配置文件和模型资源
+            cameraConfig = res;
+            // 从云资源里加载 model 和配置文件
+            const loader = new FBXLoader();
+
+            loader.load(`/projects/${project}/model.fbx`, function (object) {
+              setWorkbenchModel(object);
+              setLoading('');
+            });
+          }
+        })
+        .catch(() => {
+          setLoading('页面未开放');
+        });
+    }
   }, []);
 
   useEffect(() => {
@@ -334,6 +377,40 @@ function Exhibit(
     }
   }
 
+  // 管道液体流动(针对不同定制需要，做演示用)
+  function setFlow(checked: boolean) {
+    // 开水
+    if (!target) {
+      target = workbenchModel!.getObjectByName(
+        '3DXY_geometry_002',
+      ) as THREE.Mesh;
+
+      // 管道物体需要是 tubeGeometry
+      // const positionAttribute = target.geometry.getAttribute('position').array
+      // const path = new THREE.CatmullRomCurve3(arrayToVector3(positionAttribute))
+      // // const path = new THREE.QuadraticBezierCurve3(arrayToVector3(positionAttribute))
+      // target.geometry = new THREE.TubeGeometry(path)
+    }
+    if (checked) {
+      /**纹理坐标0~1之间随意定义*/
+      // const uvs = new Float32Array([
+      //   0, 0, //图片左下角
+      //   0.25, 0, //图片右下角
+      //   0.25, 0.25, //图片右上角
+      //   0, 0.25, //图片左上角
+      // ]);
+      // // 设置几何体attributes属性的位置normal属性
+      // target.geometry.attributes.uv = new THREE.BufferAttribute(uvs, 2); //2个为一组,表示一个顶点的纹理坐标
+      target.material = tubeMaterial;
+    } else {
+      // 关水
+      target.material = new THREE.MeshLambertMaterial({
+        color: '#000',
+      });
+    }
+    openFlow = checked;
+  }
+
   if (loading !== '') {
     return <Blank msg={loading} />;
   }
@@ -342,6 +419,15 @@ function Exhibit(
     <div className={style['stage-wrapper']}>
       <div className={style['container']}>
         <div ref={threeDom} className={style['main']}></div>
+        <div className={style['control-panel']}>
+          <Space direction="vertical">
+            <Switch
+              checkedChildren="开水"
+              unCheckedChildren="关水"
+              onChange={setFlow}
+            />
+          </Space>
+        </div>
       </div>
     </div>
   );
