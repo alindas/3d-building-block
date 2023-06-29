@@ -28,7 +28,7 @@ const MATERIAL = {
 
 type TInput = {
   type: 'position' | 'scale';
-  key: 'x' | 'y' | 'z';
+  key: string;
   value: number;
 };
 
@@ -47,6 +47,7 @@ function getSide(id: 0 | 1 | 2) {
 function Editor(props: any) {
   // console.log('Editer', props.selectedModel);
   const { position = XYZ, scale = XYZ, material } = props.selectedModel ?? {};
+  console.log(position);
   const disableEdit = props.selectedModel === null ? true : false;
 
   const [colorPickerVisibility, setColorPickerVisibility] = useState(false);
@@ -263,57 +264,25 @@ function Editor(props: any) {
           <img src={attrRefresh} />
         </div>
         <div className={style['item-body']}>
-          <div className="flex-center">
-            X
-            <InputNumber
-              value={position.x}
-              disabled={disableEdit}
-              precision={2}
-              controls={false}
-              // onPressEnter={updateModel}
-              onChange={(val) =>
-                handleInputValueChange({
-                  type: 'position',
-                  key: 'x',
-                  value: val,
-                })
-              }
-            />
-          </div>
-          <div className="flex-center">
-            Y
-            <InputNumber
-              value={position.y}
-              disabled={disableEdit}
-              precision={2}
-              controls={false}
-              // onPressEnter={updateModel}
-              onChange={(val) =>
-                handleInputValueChange({
-                  type: 'position',
-                  key: 'y',
-                  value: val,
-                })
-              }
-            />
-          </div>
-          <div className="flex-center">
-            Z
-            <InputNumber
-              value={position.z}
-              disabled={disableEdit}
-              precision={2}
-              controls={false}
-              // onPressEnter={updateModel}
-              onChange={(val) =>
-                handleInputValueChange({
-                  type: 'position',
-                  key: 'z',
-                  value: val,
-                })
-              }
-            />
-          </div>
+          {['x', 'y', 'z'].map((o) => (
+            <div className="flex-center" key={o}>
+              {o.toLocaleUpperCase()}
+              <InputNumber
+                value={position[o]}
+                disabled={disableEdit}
+                precision={2}
+                controls={false}
+                // onPressEnter={updateModel}
+                onChange={(val) =>
+                  handleInputValueChange({
+                    type: 'position',
+                    key: o,
+                    value: val,
+                  })
+                }
+              />
+            </div>
+          ))}
         </div>
       </div>
       <div className={style['scale']}>
@@ -332,60 +301,25 @@ function Editor(props: any) {
             等比缩放
           </Checkbox>
           <div>
-            <div className="flex-center">
-              X
-              <InputNumber
-                value={scale.x}
-                disabled={disableEdit}
-                controls={false}
-                // precision={isInteger(scale.x) ? 0 : 2}
-                precision={2}
-                // onPressEnter={updateModel}
-                onChange={(val) =>
-                  handleInputValueChange({
-                    type: 'scale',
-                    key: 'x',
-                    value: val,
-                  })
-                }
-              />
-            </div>
-            <div className="flex-center">
-              Y
-              <InputNumber
-                value={scale.y}
-                disabled={disableEdit}
-                controls={false}
-                // precision={isInteger(scale.y) ? 0 : 2}
-                precision={2}
-                // onPressEnter={updateModel}
-                onChange={(val) =>
-                  handleInputValueChange({
-                    type: 'scale',
-                    key: 'y',
-                    value: val,
-                  })
-                }
-              />
-            </div>
-            <div className="flex-center">
-              Z
-              <InputNumber
-                value={scale.z}
-                disabled={disableEdit}
-                controls={false}
-                // precision={isInteger(scale.z) ? 0 : 2}
-                precision={2}
-                // onPressEnter={updateModel}
-                onChange={(val) =>
-                  handleInputValueChange({
-                    type: 'scale',
-                    key: 'z',
-                    value: val,
-                  })
-                }
-              />
-            </div>
+            {['x', 'y', 'z'].map((o) => (
+              <div className="flex-center" key={o}>
+                {o.toLocaleUpperCase()}
+                <InputNumber
+                  value={scale[o]}
+                  disabled={disableEdit}
+                  precision={2}
+                  controls={false}
+                  // onPressEnter={updateModel}
+                  onChange={(val) =>
+                    handleInputValueChange({
+                      type: 'scale',
+                      key: o,
+                      value: val,
+                    })
+                  }
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>

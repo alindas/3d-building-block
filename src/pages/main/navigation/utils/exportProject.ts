@@ -2,9 +2,12 @@ import { message } from 'antd';
 import JSZip from 'jszip'; //导出压缩包方法
 import { ColladaExporter } from '@/utils/three-correct/exporter/ColladaExporter.js'; //导出成dae方法
 import { ProjectState, getDvaApp } from 'umi';
+import request from '@/service/request';
+import { getConfig } from './saveProjectConfig';
 
-// 导出按钮
-function ExportProject() {
+// 保存导出
+function ExportProject(type?: 'save' | 'export') {
+  console.log('type', type);
   const store = getDvaApp()._store.getState();
   const { projectInfo, modelsConfig, lightConfig, cameraConfig } =
     store.project as ProjectState;
@@ -35,7 +38,6 @@ function ExportProject() {
   });
 
   const workbenchModel = store.scene.workbenchModel as THREE.Object3D;
-  console.log(workbenchModel);
   // 3生成模型
   if (workbenchModel !== null) {
     try {
@@ -58,19 +60,39 @@ function ExportProject() {
   }
   console.log('build');
 
-  buildZip(ExpZipData, projectInfo.name);
+  buildZip(ExpZipData, projectInfo.name, type ?? 'export');
   message.destroy();
 }
 
 //合成压缩包
-function buildZip(data: any, name: string) {
+function buildZip(data: any, name: string, type: 'save' | 'export') {
   let zip = new JSZip(); //初始化
   for (let i = 0; i < data.length; i++) {
     let obj = data[i];
     zip.file(obj.name, obj.src);
   }
   zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
-    downloadZip(content, name);
+    // 保存到云端or导出到本地
+    if (type === 'save') {
+      // todo 上传至云端，test config
+      let config = getConfig();
+      console.log('config', config);
+      request
+        .post('/api/save', {
+          project: name,
+          config,
+        })
+        .then(() => {
+          message.destroy();
+          message.success('数据已保存到云端');
+        })
+        .catch(() => {
+          message.destroy();
+          message.error('数据保存失败');
+        });
+    } else if (type === 'export') {
+      downloadZip(content, name);
+    }
   });
 }
 

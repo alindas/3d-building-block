@@ -1,6 +1,7 @@
 import { defineConfig } from 'umi';
 
 export default defineConfig({
+  favicon: '/favicon.png',
   nodeModulesTransform: {
     type: 'none',
   },
@@ -14,13 +15,20 @@ export default defineConfig({
       component: '@/layout/SecurityLayout',
       routes: [
         // 编辑器
-        { path: '/', exact: true, component: '@/pages/main/index' },
+        {
+          path: '/',
+          exact: true,
+          title: '编辑器',
+          component: '@/pages/main/index',
+        },
         // 直接运行场景
         {
           path: '/stage/:project',
+          title: '展览',
           component: '@/pages/stage/exhibit',
         },
         {
+          title: '404',
           component: '@/pages/error/404',
         },
       ],

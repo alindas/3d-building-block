@@ -1,7 +1,7 @@
 import { getDvaApp } from 'umi';
 
-// 保存当前工程配置信息
-function saveProjectConfig() {
+// 获取当前场景配置数据
+export function getConfig() {
   let position: number[] = [0, 0, 0];
   let orbitControlTarget: any = window.orbitControl.target.toArray() ?? [
     0, 0, 0,
@@ -13,12 +13,17 @@ function saveProjectConfig() {
     }
   }
 
+  return {
+    position,
+    orbitControlTarget,
+  };
+}
+
+// 保存当前工程配置信息
+function saveProjectConfig() {
   getDvaApp()._store.dispatch({
     type: 'project/setCameraConfig',
-    payload: {
-      position,
-      orbitControlTarget,
-    },
+    payload: getConfig(),
   });
 }
 

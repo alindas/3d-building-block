@@ -1,5 +1,9 @@
-import { Mesh, MeshBasicMaterial } from 'three';
-import { TransformArrayToHash, freeModelMemory } from '@/utils/threeD';
+import { Vector3, Quaternion, Mesh, MeshBasicMaterial } from 'three';
+import {
+  TransformArrayToHash,
+  freeModelMemory,
+  calculateWorldSet,
+} from '@/utils/threeD';
 import { isUndefinedOrNull } from '@/utils/common';
 import { ModelType } from '@/common/type';
 
@@ -171,11 +175,7 @@ const SceneModel: ModelType<SceneState> = {
               opacity: 0,
             }),
           );
-          outlinePassModel.lookAt(0, 1, 0);
-          outlinePassModel.renderOrder = -1;
-          outlinePassModel.position.copy(
-            payload.getWorldPosition(window.vector3),
-          );
+          calculateWorldSet(payload, outlinePassModel);
           state.outlinePassModel = outlinePassModel;
           window.scene.add(outlinePassModel);
         }

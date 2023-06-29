@@ -1,5 +1,5 @@
-import { connect, ProjectState, SceneState } from 'umi';
-import { useEffect, useRef } from 'react';
+import { connect, ProjectState, SceneState, useParams } from 'umi';
+import { useEffect, useRef, useState } from 'react';
 import { debounce } from 'lodash';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -8,12 +8,14 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
 import style from './index.less';
 import { OutlinePass } from '@/utils/three-correct/outlinePass';
 import { getClientXY, isUndefinedOrNull } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
 import Blank from './blank';
+import request from '@/service/request';
 
 export type TMode = 'translate' | 'rotate' | 'scale';
 
@@ -35,6 +37,58 @@ let scene: THREE.Scene,
   width: number,
   height: number;
 
+let cameraConfig = {
+  // 默认相机配置
+  position: [0, 78, 275],
+  orbitControlTarget: [0, 0, 0],
+};
+
+// 设置多通道，当选定模型组成部分时，高亮其边框
+function highlightModel() {
+  renderPass = new RenderPass(scene, camera);
+  outlinePass = new OutlinePass(
+    new THREE.Vector2(width, height),
+    scene,
+    camera,
+  );
+
+  outlinePass.edgeStrength = 2.5; // 边框的亮度
+  outlinePass.edgeGlow = 1; // 光晕[0,1]
+  outlinePass.usePatternTexture = false; // 是否使用父级的材质
+  outlinePass.edgeThickness = 1.0; // 边框宽度
+  outlinePass.downSampleRatio = 2; // 边框弯曲度
+  outlinePass.pulsePeriod = 0; // 呼吸闪烁的速度
+  outlinePass.visibleEdgeColor.set(0x39ffff); // 呼吸显示的颜色
+  outlinePass.clear = true;
+
+  // 自定义的着色器通道 作为参数
+  effectFXAA = new ShaderPass(FXAAShader);
+  effectFXAA.uniforms.resolution.value.set(1 / width, 1 / height);
+  // effectFXAA.renderToScreen = true;
+
+  composer = new EffectComposer(renderer);
+  composer.addPass(renderPass);
+  composer.addPass(outlinePass);
+  composer.addPass(effectFXAA);
+}
+
+function render() {
+  if (composer?.render) {
+    composer.render();
+  } else {
+    renderer.render(scene, camera);
+  }
+
+  orbitControl.update();
+}
+
+function autoRefresh() {
+  // 使用通道渲染
+  render();
+
+  window.requestAnimationFrame(autoRefresh);
+}
+
 /**
  * 展示页。也可根据不同定制需求基于此页面开发不同版本
  * 下列数据后面要用云数据
@@ -45,73 +99,65 @@ let scene: THREE.Scene,
 function Exhibit(
   props: ConnectProps<{
     sceneModel: SceneState;
-    projectModel: ProjectState;
   }>,
 ) {
-  const { dispatch, sceneModel, projectModel } = props;
-  const { workbenchModel, selectedModel, outlinePassModel, runState } =
-    sceneModel;
-
-  if (!runState) {
-    return <Blank />;
-  }
-
-  const { cameraConfig } = projectModel; //菜单menu中的工程数据
+  const [loading, setLoading] = useState('加载中..');
+  const [workbenchModel, setWorkbenchModel] = useState<null | THREE.Object3D>(
+    null,
+  );
+  const { project }: any = useParams();
+  const { dispatch } = props;
+  const { selectedModel, outlinePassModel } = props.sceneModel;
 
   const threeDom = useRef<null | HTMLDivElement>(null);
 
-  // 初始化场景
   useEffect(() => {
-    initScene();
-    // 主场景在移动过过程中无法捕获模型
-    renderer.domElement.addEventListener(
-      'mousedown',
-      debounce(
-        () => {
-          enableCatch = true;
-          renderer.domElement.onmousemove = debounce(
-            () => {
-              enableCatch = false;
-            },
-            800,
-            { leading: true },
-          );
-        },
-        500,
-        { leading: true },
-      ),
-      true,
-    );
+    request
+      .get('/api/model?project=' + project)
+      .then((res: any) => {
+        if (res === 'no exit') {
+          setLoading('页面未开放');
+        } else {
+          console.log(res); // 按道理是配置文件和模型资源
+          cameraConfig = res;
+          // 从云资源里加载 model 和配置文件
+          const loader = new FBXLoader();
 
-    renderer.domElement.addEventListener(
-      'mouseup',
-      debounce(
-        () => {
-          renderer.domElement.onmousemove = null;
-        },
-        500,
-        { leading: true },
-      ),
-      true,
-    );
-
-    renderer.domElement.addEventListener('mouseup', onModelClick, true); // PC
-    renderer.domElement.addEventListener('touchstart', onModelClick, false); // Mobile
+          loader.load(`/projects/${project}/model.fbx`, function (object) {
+            setWorkbenchModel(object);
+            setLoading('');
+          });
+        }
+      })
+      .catch(() => {
+        setLoading('页面未开放');
+      });
   }, []);
+
+  useEffect(() => {
+    if (loading === '') {
+      initScene();
+      scene.add(workbenchModel!);
+      renderer.domElement.addEventListener('mouseup', onModelClick, true); // PC
+      renderer.domElement.addEventListener('touchstart', onModelClick, false); // Mobile
+    }
+  }, [loading]);
 
   // 高亮选中物体
   useEffect(() => {
-    if (isUndefinedOrNull(selectedModel)) {
-      outlinePass.selectedObjects = [];
-    } else {
-      // @ts-ignore
-      if (selectedModel.isMesh) {
-        // 如果选中的是某个物体
-        // console.log('outlinePass', outlinePassModel)
-        outlinePass.selectedObjects = [outlinePassModel];
-        // outlinePass.selectedObjects = [];
+    if (!isUndefinedOrNull(outlinePass)) {
+      if (isUndefinedOrNull(selectedModel)) {
+        outlinePass.selectedObjects = [];
       } else {
-        outlinePass.selectedObjects = [selectedModel];
+        // @ts-ignore
+        if (selectedModel.isMesh) {
+          // 如果选中的是某个物体
+          // console.log('outlinePass', outlinePassModel)
+          outlinePass.selectedObjects = [outlinePassModel];
+          // outlinePass.selectedObjects = [];
+        } else {
+          outlinePass.selectedObjects = [selectedModel];
+        }
       }
     }
   }, [selectedModel]);
@@ -120,14 +166,14 @@ function Exhibit(
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x333333);
 
-    scene.add(new THREE.GridHelper(150, 10, 0x000000));
+    scene.add(new THREE.GridHelper(600, 20, 0x000000));
     raycaster = new THREE.Raycaster();
     width = threeDom.current!.clientWidth;
     height = threeDom.current!.clientHeight;
     offset = getClientXY(threeDom.current!, 'leftTop') as [number, number];
 
     camera = new THREE.PerspectiveCamera(60, width / height, NEAR, FAR);
-    const [x, y, z] = cameraConfig.position;
+    const [x, y, z] = cameraConfig.position!;
     camera.position.set(x, y, z);
     scene.add(camera);
 
@@ -168,7 +214,7 @@ function Exhibit(
     highlightModel();
 
     // 设置场景控制器
-    const [_x, _y, _z] = cameraConfig.orbitControlTarget;
+    const [_x, _y, _z] = cameraConfig.orbitControlTarget!;
     orbitControl = new THREE.Scene();
     orbitControl = new OrbitControls(camera, renderer.domElement);
     orbitControl.enableDamping = true;
@@ -178,8 +224,8 @@ function Exhibit(
     orbitControl.maxPolarAngle = Math.PI / 2;
     orbitControl.target.set(_x, _y, _z);
 
-    scene.add(transformControl);
-
+    window.scene = scene;
+    window.orbitControl = orbitControl;
     window.addEventListener('resize', onWindowResize);
     window.addEventListener(
       'resize',
@@ -198,24 +244,39 @@ function Exhibit(
       }
     });
 
+    // 主场景在移动过过程中无法捕获模型
+    renderer.domElement.addEventListener(
+      'mousedown',
+      debounce(
+        () => {
+          enableCatch = true;
+          renderer.domElement.onmousemove = debounce(
+            () => {
+              enableCatch = false;
+            },
+            800,
+            { leading: true },
+          );
+        },
+        500,
+        { leading: true },
+      ),
+      true,
+    );
+
+    renderer.domElement.addEventListener(
+      'mouseup',
+      debounce(
+        () => {
+          renderer.domElement.onmousemove = null;
+        },
+        500,
+        { leading: true },
+      ),
+      true,
+    );
+
     // 渲染动画
-    window.requestAnimationFrame(autoRefresh);
-  }
-
-  function render() {
-    if (composer?.render) {
-      composer.render();
-    } else {
-      renderer.render(scene, camera);
-    }
-
-    orbitControl.update();
-  }
-
-  function autoRefresh() {
-    // 使用通道渲染
-    render();
-
     window.requestAnimationFrame(autoRefresh);
   }
 
@@ -273,33 +334,8 @@ function Exhibit(
     }
   }
 
-  // 设置多通道，当选定模型组成部分时，高亮其边框
-  function highlightModel() {
-    renderPass = new RenderPass(scene, camera);
-    outlinePass = new OutlinePass(
-      new THREE.Vector2(width, height),
-      scene,
-      camera,
-    );
-
-    outlinePass.edgeStrength = 2.5; // 边框的亮度
-    outlinePass.edgeGlow = 1; // 光晕[0,1]
-    outlinePass.usePatternTexture = false; // 是否使用父级的材质
-    outlinePass.edgeThickness = 1.0; // 边框宽度
-    outlinePass.downSampleRatio = 2; // 边框弯曲度
-    outlinePass.pulsePeriod = 0; // 呼吸闪烁的速度
-    outlinePass.visibleEdgeColor.set(0x39ffff); // 呼吸显示的颜色
-    outlinePass.clear = true;
-
-    // 自定义的着色器通道 作为参数
-    effectFXAA = new ShaderPass(FXAAShader);
-    effectFXAA.uniforms.resolution.value.set(1 / width, 1 / height);
-    // effectFXAA.renderToScreen = true;
-
-    composer = new EffectComposer(renderer);
-    composer.addPass(renderPass);
-    composer.addPass(outlinePass);
-    composer.addPass(effectFXAA);
+  if (loading !== '') {
+    return <Blank msg={loading} />;
   }
 
   return (
@@ -313,5 +349,4 @@ function Exhibit(
 
 export default connect((state: any) => ({
   sceneModel: state.scene,
-  projectModel: state.project,
 }))(Exhibit);

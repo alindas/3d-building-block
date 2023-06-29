@@ -1,4 +1,16 @@
 import * as THREE from 'three';
+
+/**
+ * 将 current 模型与 origin 模型的位置对应
+ * @param {THREE.Object3D} origin
+ * @param {THREE.Object3D} current
+ */
+export function calculateWorldSet(origin, current) {
+  current.position.copy(origin.getWorldPosition(new THREE.Vector3()));
+  current.quaternion.copy(origin.getWorldQuaternion(new THREE.Quaternion()));
+  current.scale.copy(origin.getWorldScale(new THREE.Vector3()));
+}
+
 // 将 THREE.Group 结构转换成 Hash 结构，取 id 值作为 key
 export function TransformArrayToHash(array) {
   const target = {};

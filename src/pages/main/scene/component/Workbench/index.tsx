@@ -97,21 +97,79 @@ function locateModel(model: any, config: any) {
   }
 }
 
+// 设置多通道，当选定模型组成部分时，高亮其边框
+function highlightModel() {
+  renderPass = new RenderPass(scene, camera);
+  outlinePass = new OutlinePass(
+    new THREE.Vector2(width, height),
+    scene,
+    camera,
+  );
+
+  outlinePass.edgeStrength = 2.5; // 边框的亮度
+  outlinePass.edgeGlow = 1; // 光晕[0,1]
+  outlinePass.usePatternTexture = false; // 是否使用父级的材质
+  outlinePass.edgeThickness = 1.0; // 边框宽度
+  outlinePass.downSampleRatio = 2; // 边框弯曲度
+  outlinePass.pulsePeriod = 0; // 呼吸闪烁的速度
+  outlinePass.visibleEdgeColor.set(0x39ffff); // 呼吸显示的颜色
+  outlinePass.clear = true;
+
+  // 自定义的着色器通道 作为参数
+  effectFXAA = new ShaderPass(FXAAShader);
+  effectFXAA.uniforms.resolution.value.set(1 / width, 1 / height);
+  // effectFXAA.renderToScreen = true;
+
+  composer = new EffectComposer(renderer);
+  composer.addPass(renderPass);
+  composer.addPass(outlinePass);
+  composer.addPass(effectFXAA);
+}
+
+function render() {
+  if (composer?.render) {
+    composer.render();
+  } else {
+    renderer.render(scene, camera);
+  }
+  renderAxes(orbitControl.target);
+  // 坐标轴跟随移动, 需要减去 orbitControl 的控制中心
+  // axesCamera.position.copy(camera.position.add(orbitControl.target.negate())); // Vector3.negate() 会改变自身值
+  // axesCamera.position.subVectors(camera.position, orbitControl.target);
+  // axesCamera.position.clampLength(50, 50); //限制成像大小
+  // axesCamera.lookAt(0, 0, 0);
+
+  // 默认点光源跟随移动
+  // spotLight.position.copy(camera.position);
+
+  // axesRenderer.render(axesScene, axesCamera);
+
+  orbitControl.update();
+}
+
+function autoRefresh() {
+  TWEEN.update();
+  // 使用通道渲染
+  render();
+
+  window.requestAnimationFrame(autoRefresh);
+}
+
 function Workbench(
   props: ConnectProps<{
     sceneModel: SceneState;
     projectModel: ProjectState;
   }>,
 ) {
-  const { dispatch, sceneModel, projectModel } = props;
+  const { dispatch } = props;
   const {
     transformControlMode,
     workbenchModel,
     selectedModel,
     outlinePassModel,
-  } = sceneModel;
+  } = props.sceneModel;
 
-  const { cameraConfig } = projectModel; //菜单menu中的工程数据
+  const { cameraConfig } = props.projectModel; //菜单menu中的工程数据
 
   const threeDom = useRef<null | HTMLDivElement>(null);
   const axesDom = useRef<null | HTMLDivElement>(null);
@@ -360,35 +418,6 @@ function Workbench(
     window.requestAnimationFrame(autoRefresh);
   };
 
-  function render() {
-    if (composer?.render) {
-      composer.render();
-    } else {
-      renderer.render(scene, camera);
-    }
-    renderAxes(orbitControl.target);
-    // 坐标轴跟随移动, 需要减去 orbitControl 的控制中心
-    // axesCamera.position.copy(camera.position.add(orbitControl.target.negate())); // Vector3.negate() 会改变自身值
-    // axesCamera.position.subVectors(camera.position, orbitControl.target);
-    // axesCamera.position.clampLength(50, 50); //限制成像大小
-    // axesCamera.lookAt(0, 0, 0);
-
-    // 默认点光源跟随移动
-    // spotLight.position.copy(camera.position);
-
-    // axesRenderer.render(axesScene, axesCamera);
-
-    orbitControl.update();
-  }
-
-  function autoRefresh() {
-    TWEEN.update();
-    // 使用通道渲染
-    render();
-
-    window.requestAnimationFrame(autoRefresh);
-  }
-
   // 跟踪模型的观察视觉
   function focusSelectedModel() {
     const { center, radius } = getModelCenter(selectedModel!);
@@ -455,35 +484,6 @@ function Workbench(
   function cancelModelSelect() {
     transformControl.detach();
     outlinePass.selectedObjects = [];
-  }
-
-  // 设置多通道，当选定模型组成部分时，高亮其边框
-  function highlightModel() {
-    renderPass = new RenderPass(scene, camera);
-    outlinePass = new OutlinePass(
-      new THREE.Vector2(width, height),
-      scene,
-      camera,
-    );
-
-    outlinePass.edgeStrength = 2.5; // 边框的亮度
-    outlinePass.edgeGlow = 1; // 光晕[0,1]
-    outlinePass.usePatternTexture = false; // 是否使用父级的材质
-    outlinePass.edgeThickness = 1.0; // 边框宽度
-    outlinePass.downSampleRatio = 2; // 边框弯曲度
-    outlinePass.pulsePeriod = 0; // 呼吸闪烁的速度
-    outlinePass.visibleEdgeColor.set(0x39ffff); // 呼吸显示的颜色
-    outlinePass.clear = true;
-
-    // 自定义的着色器通道 作为参数
-    effectFXAA = new ShaderPass(FXAAShader);
-    effectFXAA.uniforms.resolution.value.set(1 / width, 1 / height);
-    // effectFXAA.renderToScreen = true;
-
-    composer = new EffectComposer(renderer);
-    composer.addPass(renderPass);
-    composer.addPass(outlinePass);
-    composer.addPass(effectFXAA);
   }
 
   //取消本地运行

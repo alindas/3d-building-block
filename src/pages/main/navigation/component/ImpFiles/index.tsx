@@ -9,6 +9,7 @@ import getFileType from '@/pages/main/navigation/utils/getFileType'; //方法：
 import { ConnectProps } from '@/common/type';
 import ExportProject from '../../utils/exportProject';
 import saveProjectConfig from '../../utils/saveProjectConfig';
+import { changeCoordinate } from '@/utils/threeD';
 
 // 获取配置文件方法
 function getProjectConfigData(file: any) {
@@ -150,40 +151,7 @@ function ImpFiles(
               }
               // else if (model.children[0].type === 'Mesh') {
               // }
-
-              // model.traverse((child: any) => {
-              //   if (child.isMesh) {
-              //     // 判断是否为金属材质，本来应该从配置表中读取对应的金属材质属性的，还没来得及做
-              //     if (/^standar/.test(child.material.name)) {
-              //       const [_, metalness, roughness] = child.material.name.split(
-              //         '-',
-              //       );
-              //       child.material = new THREE.MeshStandardMaterial({
-              //         name: 'standar',
-              //         color: child.material.color,
-              //         side: THREE.DoubleSide,
-              //         metalness: parseFloat(metalness),
-              //         roughness: parseFloat(roughness),
-              //       });
-              //     } else {
-              //       child.material.side = THREE.DoubleSide;
-              //     }
-
-              //     // let temp =  child.localToWorld(child.position);
-              //     // console.log(temp);
-              //     // child.getWorldPosition();
-              //     // console.log(child.getWorldPosition(window.vector3Temp));
-
-              //     // child.position.copy(child.getWorldPosition(window.vector3));
-              //     // child.quaternion.copy(child.getWorldQuaternion(window.quaternion));
-              //     // child.parent = model;
-              //     // child.up.set(0, 1, 0);
-              //     // console.log('deirec', child.getWorldDirection(window.vector3));
-              //     // child.lookAt(window.vector3);
-              //     // child.updateMatrixWorld(true);
-              //   }
-              // });
-
+              // changeCoordinate(model)
               model.name = key.split('.')[0];
               group.add(model);
 
@@ -197,7 +165,7 @@ function ImpFiles(
                 resolve('');
               }
             },
-            () => {},
+            () => {}, // 进度回调
             () => {
               haveWrong = true;
               window.URL.revokeObjectURL(objectURLs[i]);

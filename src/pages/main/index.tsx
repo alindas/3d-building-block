@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { useSelector } from 'umi';
 
-import TopMenu from './navigation';
+import Navigation from './navigation';
 import Scene from './scene';
 import Wealth from './wealth';
 import Attribute from './attribute';
@@ -73,9 +72,9 @@ function MainPage() {
 
   return (
     <div className="container">
-      <div className="menu-wrap">
+      <div className="navigation-wrap">
         {/* 菜单 */}
-        <TopMenu />
+        <Navigation />
       </div>
 
       <div className="mainContent">
