@@ -323,15 +323,19 @@ const SceneModel: ModelType<SceneState> = {
             break;
           }
           case 'scale': {
-            state.outlinePassModel.scale.copy(state.selectedModel.scale);
+            state.outlinePassModel.scale.copy(
+              state.selectedModel.getWorldScale(window.vector3),
+            );
+            // https://github.com/alindas/3d-editor/issues/3
+            state.outlinePassModel.quaternion.copy(
+              state.selectedModel.getWorldQuaternion(window.quaternion),
+            );
             break;
           }
           case 'rotate': {
-            // console.log('selected', state.selectedModel.rotation);
-            // 由于坐标轴指向问题，直接 copy 会导致模型变形
-            state.outlinePassModel.rotation.copy(state.selectedModel.rotation);
-            state.outlinePassModel.rotateX(-Math.PI / 2);
-            // console.log('outlinePassModel', state.outlinePassModel.rotation);
+            state.outlinePassModel.quaternion.copy(
+              state.selectedModel.getWorldQuaternion(window.quaternion),
+            );
             break;
           }
           default:
