@@ -25,7 +25,7 @@ import { ConnectProps } from '@/common/type';
 export type TMode = 'translate' | 'rotate' | 'scale';
 
 const NEAR = 0.1,
-  FAR = 50000;
+  FAR = 20000;
 let scene: THREE.Scene,
   renderAxes: any,
   orbitControl: any,
@@ -292,7 +292,7 @@ function Workbench(
     scene.background = new THREE.Color(0x333333);
 
     // scene.add(new THREE.AxesHelper(388));
-    scene.add(new THREE.GridHelper(150, 10, 0x000000));
+    scene.add(new THREE.GridHelper(200, 20, 0x000000));
 
     raycaster = new THREE.Raycaster();
 
@@ -498,7 +498,6 @@ function Workbench(
   function setCamera() {
     if (workbenchModel !== null && workbenchModel.children.length > 0) {
       const { center, radius } = getModelCenter(workbenchModel!);
-
       camera.lookAt(center);
       camera.position.set(
         workbenchModel.position.x + center.x + radius * 0.8,
