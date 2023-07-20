@@ -47,7 +47,6 @@ function getSide(id: 0 | 1 | 2) {
 function Editor(props: any) {
   // console.log('Editer', props.selectedModel);
   const { position = XYZ, scale = XYZ, material } = props.selectedModel ?? {};
-  console.log(position);
   const disableEdit = props.selectedModel === null ? true : false;
 
   const [colorPickerVisibility, setColorPickerVisibility] = useState(false);

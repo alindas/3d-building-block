@@ -19,6 +19,7 @@
       height: 32px;
       margin: 0 1px;
       padding: 0;
+      overflow: hidden;
       background: rgba(77, 77, 77, 1);
       border: 0;
       border-radius: 2px;
@@ -30,7 +31,7 @@
       }
 
       &:hover {
-        filter: brightness(0.7);
+        filter: brightness(0.8);
       }
 
       &:active {
@@ -42,6 +43,16 @@
     .selected-btn {
       background: #5f8ac1;
       transform: scale(0.98);
+    }
+
+    .negative-btn > img {
+      transform: translateX(-28px);
+      filter: drop-shadow(28px 0 #666670);
+    }
+
+    .active-btn > img {
+      transform: translateX(-28px);
+      filter: drop-shadow(28px 0 #fff);
     }
   }
 }

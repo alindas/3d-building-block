@@ -1,3 +1,5 @@
+/// <reference path="src/utils/process/process.d.ts" />
+
 declare module '*.css';
 declare module '*.less';
 declare module '*.png';
@@ -24,13 +26,10 @@ declare module 'three-fbxloader-offical' {
   export default src;
 }
 
-declare interface Window {
-  simulateModel?: any;
-}
-
 interface Window {
   scene: THREE.Scene;
   orbitControl: any;
   vector3: THREE.Vector3;
   quaternion: THREE.Quaternion;
+  cmd: IProcess;
 }

@@ -14,7 +14,7 @@
     "noImplicitAny": true,
     "paths": {
       "@/*": ["src/*"],
-      "@@/*": ["src/.umi/*"]
+      "@@/*": ["src/.umi/*"],
     },
     "allowSyntheticDefaultImports": true
   },

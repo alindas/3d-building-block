@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'umi';
 import { Button, Modal } from 'antd';
+import classnames from 'classnames';
 
 import style from './index.less';
 import revokeBtn from '@/assets/tool-bar/revokeBtn.png';
@@ -10,96 +11,66 @@ import translateBtn from '@/assets/tool-bar/translateBtn.png';
 import scaleBtn from '@/assets/tool-bar/scaleBtn.png';
 import rotateBtn from '@/assets/tool-bar/rotateBtn.png';
 import focusBtn from '@/assets/tool-bar/focusBtn.png';
+import { modifyTransformControlMode } from '@/models/proxy';
 
 type TOptionMenu = {
   key: string;
   title: string;
   icon: React.ReactNode;
-  onClick: () => any;
+  click: () => any;
 };
 
 function ToolBar(props: any) {
-  const { dispatch, project, runState } = props;
-  const [selectedMenu, setSelectedMenu] = useState(['', 'select']);
+  const { dispatch, project, runState, transformControlMode } = props;
 
-  function demo() {
-    console.log('demo');
-  }
-
-  const OptionGroup = [
+  const OptionGroup: TOptionMenu[][] = [
     [
       {
         key: 'revoke',
         title: '撤回',
         icon: <img src={revokeBtn} />,
-        onClick: demo,
+        click: () => window.cmd.backup(),
       },
       {
         key: 'redo',
         title: '重做',
         icon: <img src={redoBtn} />,
-        onClick: demo,
+        click: () => window.cmd.forward(),
       },
     ],
     [
       {
-        key: 'select',
+        key: 'disable',
         title: '选择对象',
         icon: <img src={selectBtn} />,
-        onClick: () =>
-          dispatch({
-            type: 'scene/modifyTransformControlMode',
-            payload: 'disable',
-          }),
+        click: () => modifyTransformControlMode('disable'),
       },
       {
         key: 'translate',
         title: '选择并移动',
         icon: <img src={translateBtn} />,
-        onClick: () =>
-          dispatch({
-            type: 'scene/modifyTransformControlMode',
-            payload: 'translate',
-          }),
+        click: () => modifyTransformControlMode('translate'),
       },
       {
         key: 'scale',
         title: '选择并缩放',
         icon: <img src={scaleBtn} />,
-        onClick: () =>
-          dispatch({
-            type: 'scene/modifyTransformControlMode',
-            payload: 'scale',
-          }),
+        click: () => modifyTransformControlMode('scale'),
       },
       {
         key: 'rotate',
         title: '选择并旋转',
         icon: <img src={rotateBtn} />,
-        onClick: () =>
-          dispatch({
-            type: 'scene/modifyTransformControlMode',
-            payload: 'rotate',
-          }),
+        click: () => modifyTransformControlMode('rotate'),
       },
       {
         key: 'focus',
         title: '最大化显示选定对象',
         icon: <img src={focusBtn} />,
-        onClick: () =>
-          dispatch({
-            type: 'scene/modifyTransformControlMode',
-            payload: 'focus',
-          }),
+        click: () => modifyTransformControlMode('focus'),
       },
     ],
   ];
-
-  function handleMenuClick(groupId: number, menu: TOptionMenu) {
-    selectedMenu[groupId] = menu.key;
-    setSelectedMenu([...selectedMenu]);
-    menu.onClick();
-  }
 
   // 后续可能多个地方需要，eg: 工程导出时
   function uploadProject() {
@@ -147,13 +118,17 @@ function ToolBar(props: any) {
         <button
           key={item.key}
           title={item.title}
-          onClick={() => handleMenuClick(index, item)}
-          className={
-            index == 1 && selectedMenu[index] == item.key
-              ? style['selected-btn']
-              : ''
-          }
-          // style={}
+          onClick={item.click}
+          className={classnames({
+            [style['negative-btn']]: index === 0,
+            [style['active-btn']]:
+              index === 0 &&
+              ((item.key === 'revoke' && window.cmd.p > 0) ||
+                (item.key === 'redo' &&
+                  window.cmd.p < window.cmd.history.length - 1)),
+            [style['selected-btn']]:
+              index === 1 && transformControlMode === item.key,
+          })}
         >
           {item.icon}
         </button>
@@ -181,4 +156,5 @@ function ToolBar(props: any) {
 export default connect((s: any) => ({
   project: s.project.projectInfo,
   runState: s.scene.runState,
+  transformControlMode: s.scene.transformControlMode,
 }))(ToolBar);
