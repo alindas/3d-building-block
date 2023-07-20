@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'umi';
 import { Button, Modal } from 'antd';
 import classnames from 'classnames';
@@ -11,7 +11,6 @@ import translateBtn from '@/assets/tool-bar/translateBtn.png';
 import scaleBtn from '@/assets/tool-bar/scaleBtn.png';
 import rotateBtn from '@/assets/tool-bar/rotateBtn.png';
 import focusBtn from '@/assets/tool-bar/focusBtn.png';
-import { modifyTransformControlMode } from '@/models/proxy';
 
 type TOptionMenu = {
   key: string;
@@ -22,6 +21,7 @@ type TOptionMenu = {
 
 function ToolBar(props: any) {
   const { dispatch, project, runState, transformControlMode } = props;
+  const rf = useState(false)[1];
 
   const OptionGroup: TOptionMenu[][] = [
     [
@@ -43,34 +43,59 @@ function ToolBar(props: any) {
         key: 'disable',
         title: '选择对象',
         icon: <img src={selectBtn} />,
-        click: () => modifyTransformControlMode('disable'),
+        click: () =>
+          dispatch({
+            type: 'scene/modifyTransformControlMode',
+            payload: 'disable',
+          }),
       },
       {
         key: 'translate',
         title: '选择并移动',
         icon: <img src={translateBtn} />,
-        click: () => modifyTransformControlMode('translate'),
+        click: () =>
+          dispatch({
+            type: 'scene/modifyTransformControlMode',
+            payload: 'translate',
+          }),
       },
       {
         key: 'scale',
         title: '选择并缩放',
         icon: <img src={scaleBtn} />,
-        click: () => modifyTransformControlMode('scale'),
+        click: () =>
+          dispatch({
+            type: 'scene/modifyTransformControlMode',
+            payload: 'scale',
+          }),
       },
       {
         key: 'rotate',
         title: '选择并旋转',
         icon: <img src={rotateBtn} />,
-        click: () => modifyTransformControlMode('rotate'),
+        click: () =>
+          dispatch({
+            type: 'scene/modifyTransformControlMode',
+            payload: 'rotate',
+          }),
       },
       {
         key: 'focus',
         title: '最大化显示选定对象',
         icon: <img src={focusBtn} />,
-        click: () => modifyTransformControlMode('focus'),
+        click: () =>
+          dispatch({
+            type: 'scene/modifyTransformControlMode',
+            payload: 'focus',
+          }),
       },
     ],
   ];
+
+  useEffect(() => {
+    // 监听状态更新
+    window.cmd.onChange = () => rf((f) => !f);
+  }, []);
 
   // 后续可能多个地方需要，eg: 工程导出时
   function uploadProject() {
@@ -123,9 +148,8 @@ function ToolBar(props: any) {
             [style['negative-btn']]: index === 0,
             [style['active-btn']]:
               index === 0 &&
-              ((item.key === 'revoke' && window.cmd.p > 0) ||
-                (item.key === 'redo' &&
-                  window.cmd.p < window.cmd.history.length - 1)),
+              ((item.key === 'revoke' && window.cmd.canBack) ||
+                (item.key === 'redo' && window.cmd.canForward)),
             [style['selected-btn']]:
               index === 1 && transformControlMode === item.key,
           })}

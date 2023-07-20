@@ -19,6 +19,21 @@ declare interface IProcess {
   }[];
 
   /**
+   * @default false
+   */
+  canBack: boolean;
+
+  /**
+   * @default false
+   */
+  canForward: boolean;
+
+  /**
+   * @default null
+   */
+  onChange: () => any;
+
+  /**
    * @describe 添加一条命令
    */
   executeCommand(command: () => any): void;

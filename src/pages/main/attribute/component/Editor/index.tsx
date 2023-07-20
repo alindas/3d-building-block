@@ -17,6 +17,11 @@ import style from './index.less';
 import attrRefresh from '@/assets/attrRefresh.png';
 import { isInteger, isUndefinedOrNull } from '@/utils/common';
 import { checkMaterialModifyTime } from '@/utils/threeD';
+import {
+  modifySelectedModel,
+  modifySelectedModelMaterialMultiple,
+  modifySelectedModelMaterialSingle,
+} from '@/models/proxy';
 
 const { Option } = Select;
 
@@ -149,15 +154,18 @@ function Editor(props: any) {
 
     if (materialCfg.side !== -1) {
       payload.side = materialCfg.side;
-      props.dispatch({
-        type: 'scene/modifySelectedModelMaterialMultiple',
-        payload,
-      });
+      modifySelectedModelMaterialMultiple(payload);
+      // props.dispatch({
+      //   type: 'scene/modifySelectedModelMaterialMultiple',
+      //   payload,
+      // });
     } else {
-      props.dispatch({
-        type: 'scene/modifySelectedModelMaterialSingle',
-        payload,
-      });
+      modifySelectedModelMaterialSingle(payload);
+
+      // props.dispatch({
+      //   type: 'scene/modifySelectedModelMaterialSingle',
+      //   payload,
+      // });
     }
   }
 
@@ -181,15 +189,17 @@ function Editor(props: any) {
 
     if (materialCfg.side !== -1) {
       payload.side = materialCfg.side;
-      props.dispatch({
-        type: 'scene/modifySelectedModelMaterialMultiple',
-        payload,
-      });
+      modifySelectedModelMaterialMultiple(payload);
+      // props.dispatch({
+      //   type: 'scene/modifySelectedModelMaterialMultiple',
+      //   payload,
+      // });
     } else {
-      props.dispatch({
-        type: 'scene/modifySelectedModelMaterialSingle',
-        payload,
-      });
+      modifySelectedModelMaterialSingle(payload);
+      // props.dispatch({
+      //   type: 'scene/modifySelectedModelMaterialSingle',
+      //   payload,
+      // });
     }
   }
 
@@ -235,10 +245,11 @@ function Editor(props: any) {
       };
     }
 
-    props.dispatch({
-      type: 'scene/modifySelectedModel',
-      payload: modifyObj,
-    });
+    modifySelectedModel(modifyObj);
+    // props.dispatch({
+    //   type: 'scene/modifySelectedModel',
+    //   payload: modifyObj,
+    // });
 
     inputValue.current = {
       equalRadio: inputValue.current.equalRadio,
@@ -247,12 +258,15 @@ function Editor(props: any) {
 
   // 将新的模型材质更新到 model 上
   function updateModelMaterial() {
-    props.dispatch({
-      type: 'scene/modifySelectedModel',
-      payload: {
-        material: materialCfg.side == -1 ? materialCfg.current : materialCfg,
-      },
+    modifySelectedModel({
+      material: materialCfg.side == -1 ? materialCfg.current : materialCfg,
     });
+    // props.dispatch({
+    //   type: 'scene/modifySelectedModel',
+    //   payload: {
+    //     material: materialCfg.side == -1 ? materialCfg.current : materialCfg,
+    //   },
+    // });
   }
 
   return (
