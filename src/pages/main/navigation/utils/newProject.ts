@@ -9,6 +9,7 @@ function NewProject() {
 
   // 点击新建按钮时，是否需要保存当前工程
   if (store.getState().project.projectInfo !== null) {
+    window.cmd.clear();
     Modal.confirm({
       title: '是否保存当前工程到本地?',
       transitionName: '',

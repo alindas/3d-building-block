@@ -68,6 +68,15 @@ class Process {
     }
     return this.p;
   }
+
+  clear() {
+    this.p = -1;
+    this.history = [];
+    this.canBack = false;
+    this.canForward = false;
+    this.onChange = null;
+    this._base = 0;
+  }
 }
 
 // Process.prototype.addEventListener = function(ev, cb) {

@@ -17,6 +17,7 @@ import { TransformArrayToHash, updateModelFromName } from '@/utils/threeD';
 import RightMenu from '@/components/RightMenu';
 import getFileType from '@/pages/main/navigation/utils/getFileType';
 import { ConnectProps } from '@/common/type';
+import { updateSelectedModel } from '@/models/proxy';
 
 const generateData = (originalData: any, prevKey?: string): any[] => {
   const result: any[] = [];
@@ -368,10 +369,11 @@ function RelationshipEditor(
       return;
     }
 
-    dispatch({
-      type: 'scene/updateSelectedModel',
-      payload: workbenchModelHash[info.node.id],
-    });
+    updateSelectedModel(workbenchModelHash[info.node.id]);
+    // dispatch({
+    //   type: 'scene/updateSelectedModel',
+    //   payload: workbenchModelHash[info.node.id],
+    // });
 
     // 添加受控节点
     setSelectedKey(key);
@@ -487,7 +489,7 @@ function RelationshipEditor(
     let manager = new THREE.LoadingManager();
     let modelURL = '';
 
-    if (file_name && file_type === 'tdType') {
+    if (file_name && file_type === 'model') {
       message.loading('模型导入中...');
       blobsTD = { [file_name]: file };
       try {
@@ -517,24 +519,24 @@ function RelationshipEditor(
             //   /**todo */
             // }
 
-            model.traverse((child: any) => {
-              if (child.isMesh) {
-                // 判断是否为金属材质，本来应该从配置表中读取对应的金属材质属性的，还没来得及做
-                if (/^standar/.test(child.material.name)) {
-                  const [_, metalness, roughness] =
-                    child.material.name.split('-');
-                  child.material = new THREE.MeshStandardMaterial({
-                    name: 'standar',
-                    color: child.material.color,
-                    side: THREE.DoubleSide,
-                    metalness: parseFloat(metalness),
-                    roughness: parseFloat(roughness),
-                  });
-                } else {
-                  child.material.side = THREE.DoubleSide;
-                }
-              }
-            });
+            // model.traverse((child: any) => {
+            //   if (child.isMesh) {
+            //     // 判断是否为金属材质，本来应该从配置表中读取对应的金属材质属性的，还没来得及做
+            //     if (/^standar/.test(child.material.name)) {
+            //       const [_, metalness, roughness] =
+            //         child.material.name.split('-');
+            //       child.material = new THREE.MeshStandardMaterial({
+            //         name: 'standar',
+            //         color: child.material.color,
+            //         side: THREE.DoubleSide,
+            //         metalness: parseFloat(metalness),
+            //         roughness: parseFloat(roughness),
+            //       });
+            //     } else {
+            //       child.material.side = THREE.DoubleSide;
+            //     }
+            //   }
+            // });
             model.name = modelUrl.split('.')[0];
 
             // 往旧 modelList 末尾追加
@@ -552,13 +554,16 @@ function RelationshipEditor(
               },
             });
 
-            setModelList([
-              ...modelList,
-              ...generateData(groupWrapper).filter((obj) => obj !== null),
-            ]);
+            message.destroy();
+
+            // setModelList([
+            //   ...modelList,
+            //   ...generateData(groupWrapper).filter((obj) => obj !== null),
+            // ]);
           },
           () => {},
           () => {
+            window.URL.revokeObjectURL(modelURL);
             throw new Error();
           },
         );

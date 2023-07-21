@@ -9,7 +9,6 @@ import getFileType from '@/pages/main/navigation/utils/getFileType'; //方法：
 import { ConnectProps } from '@/common/type';
 import ExportProject from '../../utils/exportProject';
 import saveProjectConfig from '../../utils/saveProjectConfig';
-import { changeCoordinate } from '@/utils/threeD';
 
 // 获取配置文件方法
 function getProjectConfigData(file: any) {
@@ -42,6 +41,7 @@ function ImpFiles(
     // 点击导入按钮时，是否需要保存当前工程
     console.log('confirm', projectInfo);
     if (projectInfo !== null) {
+      window.cmd.clear();
       Modal.confirm({
         title: '是否保存当前工程到本地?',
         // 内部方法，去除对话框过渡动画

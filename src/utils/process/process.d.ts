@@ -41,4 +41,6 @@ declare interface IProcess {
   backup(): number;
 
   forward(): number;
+
+  clear(): void;
 }

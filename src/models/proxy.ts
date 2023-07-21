@@ -6,6 +6,15 @@ window.onload = () => {
   dispatch = getDvaApp()._store.dispatch;
 };
 
+export function updateSelectedModel(payload: any) {
+  window.cmd.executeCommand(() =>
+    dispatch({
+      type: 'scene/updateSelectedModel',
+      payload,
+    }),
+  );
+}
+
 // 修改复合材质
 export function modifySelectedModelMaterialMultiple(payload: any) {
   window.cmd.executeCommand(() =>

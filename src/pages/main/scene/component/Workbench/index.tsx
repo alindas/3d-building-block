@@ -21,6 +21,7 @@ import {
 import style from './index.less';
 import { isUndefinedOrNull, getClientXY } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
+import { updateSelectedModel } from '@/models/proxy';
 
 export type TMode = 'translate' | 'rotate' | 'scale';
 
@@ -407,10 +408,11 @@ function Workbench(
     window.addEventListener('mouseup', (e) => {
       // 如果键下的是鼠标右键
       if (e.button == 2 && enableCatch) {
-        dispatch({
-          type: 'scene/updateSelectedModel',
-          payload: null,
-        });
+        updateSelectedModel(null);
+        // dispatch({
+        //   type: 'scene/updateSelectedModel',
+        //   payload: null,
+        // });
       }
     });
 
@@ -474,10 +476,11 @@ function Workbench(
     // console.log('intersects', intersects);
 
     if (intersects.length > 0) {
-      dispatch({
-        type: 'scene/updateSelectedModel',
-        payload: intersects[0].object,
-      });
+      updateSelectedModel(intersects[0].object);
+      // dispatch({
+      //   type: 'scene/updateSelectedModel',
+      //   payload: intersects[0].object,
+      // });
     }
   }
 

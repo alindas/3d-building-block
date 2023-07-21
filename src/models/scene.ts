@@ -91,10 +91,10 @@ const SceneModel: ModelType<SceneState> = {
     // 动态导入模型时
     updateWorkbenchModel: (state, action) => {
       // console.log(action.payload);
-      const { model, modelHash, type = 'init', id } = action.payload;
+      const { model, modelHash, type = 'update', id } = action.payload;
 
       switch (type) {
-        case 'init': {
+        case 'update': {
           if (isUndefinedOrNull(model) && isUndefinedOrNull(modelHash)) {
             break;
           }
@@ -119,7 +119,12 @@ const SceneModel: ModelType<SceneState> = {
             break;
           }
           Object.assign(state.workbenchModelHash, modelHash);
-          state.workbenchModel!.add(model);
+          if (state.workbenchModel !== null) {
+            state.workbenchModel.add(model);
+          } else {
+            state.workbenchModel = model;
+            window.scene.add(model);
+          }
           break;
         }
         case 'delete': {
