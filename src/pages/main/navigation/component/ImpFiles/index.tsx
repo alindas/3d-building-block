@@ -151,6 +151,24 @@ function ImpFiles(
               }
               // else if (model.children[0].type === 'Mesh') {
               // }
+              // model.traverse((child: THREE.Mesh) => {
+              //   if (child.isMesh) {
+              //     // child.material = new THREE.MeshLambertMaterial({
+              //     //   color: 0x004444,
+              //     //   transparent: true,
+              //     //   opacity: 0.5,
+              //     // })
+              //     //   ;
+              //     // //模型边线设器
+              //     // const edges = new THREE.EdgesGeometry(child.geometry);
+              //     // const edgesMaterial = new THREE.LineBasicMaterial({
+              //     //   color: 0x00ffff,
+              //     // })
+              //     // const line = new THREE.LineSegments(edges, edgesMaterial);
+              //     // child.add(line);
+              //   }
+              // })
+
               // changeCoordinate(model)
               model.name = key.split('.')[0];
               group.add(model);

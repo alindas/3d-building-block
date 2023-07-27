@@ -18,6 +18,7 @@ import {
   getModelCenter,
   initAxesScene,
 } from '@/utils/threeD';
+import initViewHelper from '@/utils/viewHelper';
 import style from './index.less';
 import { isUndefinedOrNull, getClientXY } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
@@ -78,11 +79,87 @@ function animateCamera(
   );
   tween.onUpdate(function (this: any) {
     camera.position.set(this._object.x1, this._object.y1, this._object.z1);
+    // orbitControl.target.set(this._object.x2, this._object.y2, this._object.z2);
+    // orbitControl.update();
+  });
+  tween.onStop(function (this: any) {
     orbitControl.target.set(this._object.x2, this._object.y2, this._object.z2);
-    orbitControl.update();
+    // orbitControl.update();
   });
   tween.easing(TWEEN.Easing.Cubic.InOut);
   tween.start();
+}
+
+function prepareAnimationData(up: string) {
+  console.log('camera', camera.position);
+  const { x, y, z } = camera.position;
+  const { x: x2, y: y2, z: z2 } = orbitControl.target;
+  const max = Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
+  console.log('max', max);
+  switch (up) {
+    case 'posX':
+      // camera.lookAt(1, 0, 0)
+      animateCamera(
+        camera.position,
+        orbitControl.target,
+        new THREE.Vector3(max, y2, z2),
+        orbitControl.target,
+      );
+      break;
+
+    case 'posY':
+      // camera.lookAt(0, 1, 0)
+      animateCamera(
+        camera.position,
+        orbitControl.target,
+        new THREE.Vector3(x2, max, z2),
+        orbitControl.target,
+      );
+      break;
+
+    case 'posZ':
+      // camera.lookAt(0, 0, 1)
+      animateCamera(
+        camera.position,
+        orbitControl.target,
+        new THREE.Vector3(x2, y2, max),
+        orbitControl.target,
+      );
+      break;
+
+    case 'negX':
+      // camera.lookAt(-1, 0, 0)
+      animateCamera(
+        camera.position,
+        orbitControl.target,
+        new THREE.Vector3(-max, y2, z2),
+        orbitControl.target,
+      );
+      break;
+
+    case 'negY':
+      // camera.lookAt(0, -1, 0)
+      animateCamera(
+        camera.position,
+        orbitControl.target,
+        new THREE.Vector3(x2, -max, z2),
+        orbitControl.target,
+      );
+      break;
+
+    case 'negZ':
+      // camera.lookAt(0, 0, -1)
+      animateCamera(
+        camera.position,
+        orbitControl.target,
+        new THREE.Vector3(x2, y2, -max),
+        orbitControl.target,
+      );
+      break;
+
+    default:
+      console.error('ViewHelper: Invalid axis.');
+  }
 }
 
 /**
@@ -322,10 +399,13 @@ function Workbench(
     threeDom.current!.appendChild(renderer.domElement);
 
     // 设置半球光
-    scene.add(new THREE.HemisphereLight(0xffffff, 0.5));
+    // scene.add(new THREE.HemisphereLight(0xffffff, 0.5));
 
     // 设置环境光
     scene.add(new THREE.AmbientLight(0xffffff));
+
+    // 设置相机灯光
+    camera.add(new THREE.PointLight(0xffffff, 0.8));
 
     // 设置默认摄像机跟随灯光
     // spotLight = new THREE.SpotLight(0xffffff, 1);
@@ -337,18 +417,18 @@ function Workbench(
     // scene.add(spotLight);
 
     // 添加平面光
-    RectAreaLightUniformsLib.init();
-    const rectLight = new THREE.RectAreaLight(0xffffff, 1, 5000, 2000);
-    rectLight.position.set(0, 900, 1050);
-    rectLight.rotation.set(-Math.PI / 10, 0, 0);
+    // RectAreaLightUniformsLib.init();
+    // const rectLight = new THREE.RectAreaLight(0xffffff, 1, 5000, 2000);
+    // rectLight.position.set(0, 900, 1050);
+    // rectLight.rotation.set(-Math.PI / 10, 0, 0);
 
-    scene.add(rectLight);
-    const rectLight2 = new THREE.RectAreaLight(0xffffff, 0.5, 5000, 2000);
-    rectLight2.position.set(0, 900, -1350);
-    // rectLight2.position.set(0, 1600, -1850);
-    // rectLight2.rotation.set(Math.PI / 4, Math.PI, 0);
-    rectLight2.rotation.set(Math.PI / 10, Math.PI, 0);
-    scene.add(rectLight2);
+    // scene.add(rectLight);
+    // const rectLight2 = new THREE.RectAreaLight(0xffffff, 0.5, 5000, 2000);
+    // rectLight2.position.set(0, 900, -1350);
+    // // rectLight2.position.set(0, 1600, -1850);
+    // // rectLight2.rotation.set(Math.PI / 4, Math.PI, 0);
+    // rectLight2.rotation.set(Math.PI / 10, Math.PI, 0);
+    // scene.add(rectLight2);
 
     // const rectLightHelper = new RectAreaLightHelper(rectLight);
     // rectLight.add(rectLightHelper);
@@ -366,7 +446,7 @@ function Workbench(
     orbitControl.minDistance = NEAR;
     orbitControl.maxDistance = FAR;
     orbitControl.enablePan = true;
-    orbitControl.maxPolarAngle = Math.PI / 2;
+    // orbitControl.maxPolarAngle = Math.PI / 2;
 
     // 模型调整控制器
     transformControl = new TransformControls(camera, renderer.domElement);
@@ -393,7 +473,10 @@ function Workbench(
 
     scene.add(transformControl);
 
-    renderAxes = initAxesScene(axesDom.current!, camera);
+    // renderAxes = initAxesScene(axesDom.current!, camera);
+    renderAxes = initViewHelper(axesDom.current!, camera, (up: string) => {
+      prepareAnimationData(up);
+    });
     window.scene = scene;
     window.orbitControl = orbitControl;
 
