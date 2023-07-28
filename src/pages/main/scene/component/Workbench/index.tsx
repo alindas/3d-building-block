@@ -18,7 +18,7 @@ import {
   getModelCenter,
   initAxesScene,
 } from '@/utils/threeD';
-import initViewHelper from '@/utils/viewHelper';
+import ViewHelper from '@/utils/viewHelper2';
 import style from './index.less';
 import { isUndefinedOrNull, getClientXY } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
@@ -30,6 +30,7 @@ const NEAR = 0.1,
   FAR = 20000;
 let scene: THREE.Scene,
   renderAxes: any,
+  viewHelper: any,
   orbitControl: any,
   transformControl: any,
   mouse: any = new THREE.Vector2(),
@@ -48,117 +49,131 @@ let scene: THREE.Scene,
 
 /**
  * @param position1 相机当前的位置
- * @param target1 当前的controls的target
  * @param position2 相机的目标位置
- * @param target2 新的controls的target
+ * @param target 需要变更的controls的target
+ * @param quaternion 需要变更的相机的quaternion
  */
 function animateCamera(
   position1: THREE.Vector3,
-  target1: THREE.Vector3,
   position2: THREE.Vector3,
-  target2: THREE.Vector3,
+  target?: THREE.Vector3,
+  quaternion?: THREE.Quaternion,
 ) {
-  const tween = new TWEEN.Tween({
-    x1: position1.x, // 相机当前位置x
-    y1: position1.y, // 相机当前位置y
-    z1: position1.z, // 相机当前位置z
-    x2: target1.x, // 控制当前的中心点x
-    y2: target1.y, // 控制当前的中心点y
-    z2: target1.z, // 控制当前的中心点z
-  });
-  tween.to(
-    {
-      x1: position2.x, // 新的相机位置x
-      y1: position2.y, // 新的相机位置y
-      z1: position2.z, // 新的相机位置z
-      x2: target2.x, // 新的控制中心点位置x
-      y2: target2.y, // 新的控制中心点位置x
-      z2: target2.z, // 新的控制中心点位置x
-    },
-    1000,
-  );
-  tween.onUpdate(function (this: any) {
-    camera.position.set(this._object.x1, this._object.y1, this._object.z1);
-    // orbitControl.target.set(this._object.x2, this._object.y2, this._object.z2);
-    // orbitControl.update();
-  });
-  tween.onStop(function (this: any) {
-    orbitControl.target.set(this._object.x2, this._object.y2, this._object.z2);
-    // orbitControl.update();
-  });
-  tween.easing(TWEEN.Easing.Cubic.InOut);
-  tween.start();
+  const QuaternionStart = camera.quaternion.clone();
+  const QuaternionEnd = quaternion ?? camera.quaternion.clone();
+
+  new TWEEN.Tween({
+    px: position1.x, // 相机当前位置x
+    py: position1.y, // 相机当前位置y
+    pz: position1.z, // 相机当前位置z
+    t: 0,
+  })
+    .to(
+      {
+        px: position2.x, // 相机当前位置x
+        py: position2.y, // 相机当前位置y
+        pz: position2.z, // 相机当前位置z
+        t: 1,
+      },
+      1000,
+    )
+    .onStart(() => {
+      orbitControl.enabled = false;
+    })
+    .onUpdate(function (this: any) {
+      camera.position.set(this._object.px, this._object.py, this._object.pz);
+      // camera.quaternion.rotateTowards( QuaternionEnd, this.t * 2 * Math.PI );
+      // camera.quaternion.slerp(QuaternionEnd, this.t)
+      // camera.quaternion.slerpQuaternions(QuaternionStart, QuaternionEnd, this.t); // 通过slerpQuaternions实现平滑旋转
+    })
+    .onComplete(function (this: any) {
+      orbitControl.enabled = true;
+      target && orbitControl.target.copy(target);
+      quaternion && camera.quaternion.copy(quaternion);
+    })
+    .easing(TWEEN.Easing.Cubic.InOut)
+    .start();
 }
 
 function prepareAnimationData(up: string) {
-  console.log('camera', camera.position);
   const { x, y, z } = camera.position;
   const { x: x2, y: y2, z: z2 } = orbitControl.target;
   const max = Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
-  console.log('max', max);
+  const targetQuaternion = new THREE.Quaternion();
   switch (up) {
     case 'posX':
-      // camera.lookAt(1, 0, 0)
+      targetQuaternion.setFromEuler(new THREE.Euler(0, Math.PI * 0.5, 0));
+      console.log(camera.quaternion, targetQuaternion);
       animateCamera(
         camera.position,
-        orbitControl.target,
         new THREE.Vector3(max, y2, z2),
-        orbitControl.target,
+        undefined,
+        targetQuaternion,
       );
       break;
 
     case 'posY':
-      // camera.lookAt(0, 1, 0)
+      targetQuaternion.setFromEuler(new THREE.Euler(-Math.PI * 0.5, 0, 0));
       animateCamera(
         camera.position,
-        orbitControl.target,
         new THREE.Vector3(x2, max, z2),
-        orbitControl.target,
+        undefined,
+        targetQuaternion,
       );
       break;
 
     case 'posZ':
-      // camera.lookAt(0, 0, 1)
+      targetQuaternion.setFromEuler(new THREE.Euler());
       animateCamera(
         camera.position,
-        orbitControl.target,
         new THREE.Vector3(x2, y2, max),
-        orbitControl.target,
+        undefined,
+        targetQuaternion,
       );
       break;
 
     case 'negX':
-      // camera.lookAt(-1, 0, 0)
+      targetQuaternion.setFromEuler(new THREE.Euler(0, -Math.PI * 0.5, 0));
       animateCamera(
         camera.position,
-        orbitControl.target,
         new THREE.Vector3(-max, y2, z2),
-        orbitControl.target,
+        undefined,
+        targetQuaternion,
       );
       break;
 
     case 'negY':
-      // camera.lookAt(0, -1, 0)
+      targetQuaternion.setFromEuler(new THREE.Euler(Math.PI * 0.5, 0, 0));
       animateCamera(
         camera.position,
-        orbitControl.target,
         new THREE.Vector3(x2, -max, z2),
-        orbitControl.target,
+        undefined,
+        targetQuaternion,
       );
       break;
 
     case 'negZ':
-      // camera.lookAt(0, 0, -1)
+      targetQuaternion.setFromEuler(new THREE.Euler(0, Math.PI, 0));
       animateCamera(
         camera.position,
-        orbitControl.target,
         new THREE.Vector3(x2, y2, -max),
-        orbitControl.target,
+        undefined,
+        targetQuaternion,
       );
       break;
 
     default:
       console.error('ViewHelper: Invalid axis.');
+  }
+}
+const clock = new THREE.Clock();
+function animateViewHelper() {
+  const delta = clock.getDelta();
+
+  // View Helper
+
+  if (viewHelper.animating === true) {
+    viewHelper.update(delta);
   }
 }
 
@@ -210,18 +225,9 @@ function render() {
   } else {
     renderer.render(scene, camera);
   }
-  renderAxes(orbitControl.target);
-  // 坐标轴跟随移动, 需要减去 orbitControl 的控制中心
-  // axesCamera.position.copy(camera.position.add(orbitControl.target.negate())); // Vector3.negate() 会改变自身值
-  // axesCamera.position.subVectors(camera.position, orbitControl.target);
-  // axesCamera.position.clampLength(50, 50); //限制成像大小
-  // axesCamera.lookAt(0, 0, 0);
-
-  // 默认点光源跟随移动
-  // spotLight.position.copy(camera.position);
-
-  // axesRenderer.render(axesScene, axesCamera);
-
+  // renderAxes(orbitControl.target);
+  viewHelper.render(orbitControl.target);
+  animateViewHelper();
   orbitControl.update();
 }
 
@@ -474,9 +480,7 @@ function Workbench(
     scene.add(transformControl);
 
     // renderAxes = initAxesScene(axesDom.current!, camera);
-    renderAxes = initViewHelper(axesDom.current!, camera, (up: string) => {
-      prepareAnimationData(up);
-    });
+    viewHelper = new ViewHelper(camera, axesDom.current!);
     window.scene = scene;
     window.orbitControl = orbitControl;
 
@@ -508,7 +512,7 @@ function Workbench(
     const { center, radius } = getModelCenter(selectedModel!);
     const bestPos = getBestViewingPosition(workbenchModel, center, radius);
 
-    animateCamera(camera.position, orbitControl.target, bestPos, center);
+    animateCamera(camera.position, bestPos, center);
     camera.lookAt(center);
   }
 
