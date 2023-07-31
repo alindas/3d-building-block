@@ -258,12 +258,10 @@ function Exhibit(
 
     // 设置场景控制器
     const [_x, _y, _z] = cameraConfig.orbitControlTarget!;
-    orbitControl = new THREE.Scene();
     orbitControl = new OrbitControls(camera, renderer.domElement);
     orbitControl.enableDamping = true;
     orbitControl.minDistance = NEAR;
     orbitControl.maxDistance = FAR;
-    orbitControl.enablePan = true;
     orbitControl.maxPolarAngle = Math.PI / 2;
     orbitControl.target.set(_x, _y, _z);
 

@@ -10,14 +10,9 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import TWEEN from '@tweenjs/tween.js';
-import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib';
 
 import { OutlinePass } from '@/utils/three-correct/outlinePass';
-import {
-  getBestViewingPosition,
-  getModelCenter,
-  initAxesScene,
-} from '@/utils/threeD';
+import { getBestViewingPosition, getModelCenter } from '@/utils/threeD';
 import ViewHelper from '@/utils/viewHelper2';
 import style from './index.less';
 import { isUndefinedOrNull, getClientXY } from '@/utils/common';
@@ -29,7 +24,6 @@ export type TMode = 'translate' | 'rotate' | 'scale';
 const NEAR = 0.1,
   FAR = 20000;
 let scene: THREE.Scene,
-  renderAxes: any,
   viewHelper: any,
   orbitControl: any,
   transformControl: any,
@@ -51,17 +45,12 @@ let scene: THREE.Scene,
  * @param position1 相机当前的位置
  * @param position2 相机的目标位置
  * @param target 需要变更的controls的target
- * @param quaternion 需要变更的相机的quaternion
  */
 function animateCamera(
   position1: THREE.Vector3,
   position2: THREE.Vector3,
   target?: THREE.Vector3,
-  quaternion?: THREE.Quaternion,
 ) {
-  const QuaternionStart = camera.quaternion.clone();
-  const QuaternionEnd = quaternion ?? camera.quaternion.clone();
-
   new TWEEN.Tween({
     px: position1.x, // 相机当前位置x
     py: position1.y, // 相机当前位置y
@@ -82,99 +71,13 @@ function animateCamera(
     })
     .onUpdate(function (this: any) {
       camera.position.set(this._object.px, this._object.py, this._object.pz);
-      // camera.quaternion.rotateTowards( QuaternionEnd, this.t * 2 * Math.PI );
-      // camera.quaternion.slerp(QuaternionEnd, this.t)
-      // camera.quaternion.slerpQuaternions(QuaternionStart, QuaternionEnd, this.t); // 通过slerpQuaternions实现平滑旋转
     })
     .onComplete(function (this: any) {
       orbitControl.enabled = true;
       target && orbitControl.target.copy(target);
-      quaternion && camera.quaternion.copy(quaternion);
     })
     .easing(TWEEN.Easing.Cubic.InOut)
     .start();
-}
-
-function prepareAnimationData(up: string) {
-  const { x, y, z } = camera.position;
-  const { x: x2, y: y2, z: z2 } = orbitControl.target;
-  const max = Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
-  const targetQuaternion = new THREE.Quaternion();
-  switch (up) {
-    case 'posX':
-      targetQuaternion.setFromEuler(new THREE.Euler(0, Math.PI * 0.5, 0));
-      console.log(camera.quaternion, targetQuaternion);
-      animateCamera(
-        camera.position,
-        new THREE.Vector3(max, y2, z2),
-        undefined,
-        targetQuaternion,
-      );
-      break;
-
-    case 'posY':
-      targetQuaternion.setFromEuler(new THREE.Euler(-Math.PI * 0.5, 0, 0));
-      animateCamera(
-        camera.position,
-        new THREE.Vector3(x2, max, z2),
-        undefined,
-        targetQuaternion,
-      );
-      break;
-
-    case 'posZ':
-      targetQuaternion.setFromEuler(new THREE.Euler());
-      animateCamera(
-        camera.position,
-        new THREE.Vector3(x2, y2, max),
-        undefined,
-        targetQuaternion,
-      );
-      break;
-
-    case 'negX':
-      targetQuaternion.setFromEuler(new THREE.Euler(0, -Math.PI * 0.5, 0));
-      animateCamera(
-        camera.position,
-        new THREE.Vector3(-max, y2, z2),
-        undefined,
-        targetQuaternion,
-      );
-      break;
-
-    case 'negY':
-      targetQuaternion.setFromEuler(new THREE.Euler(Math.PI * 0.5, 0, 0));
-      animateCamera(
-        camera.position,
-        new THREE.Vector3(x2, -max, z2),
-        undefined,
-        targetQuaternion,
-      );
-      break;
-
-    case 'negZ':
-      targetQuaternion.setFromEuler(new THREE.Euler(0, Math.PI, 0));
-      animateCamera(
-        camera.position,
-        new THREE.Vector3(x2, y2, -max),
-        undefined,
-        targetQuaternion,
-      );
-      break;
-
-    default:
-      console.error('ViewHelper: Invalid axis.');
-  }
-}
-const clock = new THREE.Clock();
-function animateViewHelper() {
-  const delta = clock.getDelta();
-
-  // View Helper
-
-  if (viewHelper.animating === true) {
-    viewHelper.update(delta);
-  }
 }
 
 /**
@@ -225,10 +128,10 @@ function render() {
   } else {
     renderer.render(scene, camera);
   }
-  // renderAxes(orbitControl.target);
   viewHelper.render(orbitControl.target);
-  animateViewHelper();
-  orbitControl.update();
+  if (!viewHelper.animating) {
+    orbitControl.update();
+  }
 }
 
 function autoRefresh() {
@@ -446,12 +349,10 @@ function Workbench(
     highlightModel();
 
     // 设置场景控制器
-    orbitControl = new THREE.Scene();
     orbitControl = new OrbitControls(camera, renderer.domElement);
     orbitControl.enableDamping = true;
     orbitControl.minDistance = NEAR;
     orbitControl.maxDistance = FAR;
-    orbitControl.enablePan = true;
     // orbitControl.maxPolarAngle = Math.PI / 2;
 
     // 模型调整控制器
@@ -479,7 +380,6 @@ function Workbench(
 
     scene.add(transformControl);
 
-    // renderAxes = initAxesScene(axesDom.current!, camera);
     viewHelper = new ViewHelper(camera, axesDom.current!);
     window.scene = scene;
     window.orbitControl = orbitControl;
