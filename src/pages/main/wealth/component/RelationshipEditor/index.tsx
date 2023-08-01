@@ -8,14 +8,11 @@ import {
   AppstoreAddOutlined,
 } from '@ant-design/icons';
 import { Vector3 } from 'three';
-import * as THREE from 'three';
-import FBXLoader from '@/utils/three-correct/fbxloader';
 import style from './index.less';
 import { isUndefinedOrNull } from '@/utils/common';
 import { TransformArrayToHash, updateModelFromName } from '@/utils/threeD';
 
 import RightMenu from '@/components/RightMenu';
-import getFileType from '@/pages/main/navigation/utils/getFileType';
 import { ConnectProps } from '@/common/type';
 import { updateSelectedModel } from '@/models/proxy';
 
@@ -482,97 +479,17 @@ function RelationshipEditor(
 
   //添加单个模型到scene下
   function addModelToWorkbench(e: any) {
-    const file = e.target.files[0];
-    const file_name = file?.name; //读取选中文件的文件名
-    const file_type = getFileType(file_name); //选中文件的类型
-    let blobsTD: any = {};
-    let manager = new THREE.LoadingManager();
-    let modelURL = '';
-
-    if (file_name && file_type === 'model') {
-      message.loading('模型导入中...');
-      blobsTD = { [file_name]: file };
-      try {
-        manager.setURLModifier((url: any) => {
-          let binaryData: any = [];
-          if (blobsTD[url]) {
-            binaryData.push(blobsTD[url]);
-            url = window.URL.createObjectURL(new Blob(binaryData));
-            modelURL = url;
-          }
-          return url;
+    if (!window.loader.loading) {
+      window.loader.loadModel(e.target.files, (model) => {
+        dispatch({
+          type: 'scene/updateWorkbenchModel',
+          payload: {
+            model,
+            type: 'add',
+            modelHash: TransformArrayToHash(model),
+          },
         });
-        const loader = new FBXLoader(manager);
-        const blobsTDKeys = Object.keys(blobsTD);
-        const modelUrl = blobsTDKeys[0];
-
-        // 导入模拟模型
-        loader.load(
-          modelUrl,
-          (model: any) => {
-            window.URL.revokeObjectURL(modelURL);
-
-            if (model.children[0]?.type === 'Group') {
-              model = model.children[0];
-            }
-            // else if (model.children[0].type === 'Mesh') {
-            //   /**todo */
-            // }
-
-            // model.traverse((child: any) => {
-            //   if (child.isMesh) {
-            //     // 判断是否为金属材质，本来应该从配置表中读取对应的金属材质属性的，还没来得及做
-            //     if (/^standar/.test(child.material.name)) {
-            //       const [_, metalness, roughness] =
-            //         child.material.name.split('-');
-            //       child.material = new THREE.MeshStandardMaterial({
-            //         name: 'standar',
-            //         color: child.material.color,
-            //         side: THREE.DoubleSide,
-            //         metalness: parseFloat(metalness),
-            //         roughness: parseFloat(roughness),
-            //       });
-            //     } else {
-            //       child.material.side = THREE.DoubleSide;
-            //     }
-            //   }
-            // });
-            model.name = modelUrl.split('.')[0];
-
-            // 往旧 modelList 末尾追加
-            const groupWrapper = Array(modelList.length).fill(null);
-            groupWrapper.push(model);
-
-            dispatch({
-              type: 'scene/updateWorkbenchModel',
-              payload: {
-                model,
-                type: 'add',
-                modelHash: TransformArrayToHash([
-                  groupWrapper[modelList.length],
-                ]),
-              },
-            });
-
-            message.destroy();
-
-            // setModelList([
-            //   ...modelList,
-            //   ...generateData(groupWrapper).filter((obj) => obj !== null),
-            // ]);
-          },
-          () => {},
-          () => {
-            window.URL.revokeObjectURL(modelURL);
-            throw new Error();
-          },
-        );
-      } catch {
-        message.destroy();
-        message.error('模型加载失败');
-      }
-    } else {
-      message.error('您添加的不是3D模型');
+      });
     }
 
     e.target.value = '';

@@ -34,6 +34,7 @@ const ProjectState: ModelType<ProjectState> = {
     // 保存工程信息，当新建工程时
     saveProject: (state, action) => {
       const { config, ...rest } = action.payload;
+      window.projectInfo = rest;
       return {
         projectInfo: rest,
         lightConfig: config.lightConfig,

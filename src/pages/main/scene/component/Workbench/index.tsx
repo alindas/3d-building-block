@@ -12,7 +12,11 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import TWEEN from '@tweenjs/tween.js';
 
 import { OutlinePass } from '@/utils/three-correct/outlinePass';
-import { getBestViewingPosition, getModelCenter } from '@/utils/threeD';
+import {
+  getBestViewingPosition,
+  getModelCenter,
+  TransformArrayToHash,
+} from '@/utils/threeD';
 import ViewHelper from '@/utils/viewHelper2';
 import style from './index.less';
 import { isUndefinedOrNull, getClientXY } from '@/utils/common';
@@ -196,6 +200,32 @@ function Workbench(
       ),
       true,
     );
+
+    renderer.domElement.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer!.dropEffect = 'copy';
+    });
+
+    renderer.domElement.addEventListener('drop', function (e) {
+      e.preventDefault();
+      if (isUndefinedOrNull(window.projectInfo)) {
+        return;
+      }
+      if (window.loader.loading) {
+        message.info('任务正在处理');
+        return;
+      }
+      window.loader.loadModel(e.dataTransfer!.files, (model: any) => {
+        dispatch({
+          type: 'scene/updateWorkbenchModel',
+          payload: {
+            model,
+            type: 'add',
+            modelHash: TransformArrayToHash(model),
+          },
+        });
+      });
+    });
   }, []);
 
   // 模型控制器

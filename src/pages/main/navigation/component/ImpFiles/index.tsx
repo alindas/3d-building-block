@@ -3,9 +3,8 @@ import { connect, ProjectState } from 'umi';
 import { message, Modal } from 'antd';
 import * as THREE from 'three';
 
-import FBXLoader from '@/utils/three-correct/fbxloader';
 // import { ColladaLoader } from '@/utils/ColladaLoader.js'; //导入ade模型
-import getFileType from '@/pages/main/navigation/utils/getFileType'; //方法：根据文件名获取文件类型
+import getFileType from '@/utils/getFileType'; //方法：根据文件名获取文件类型
 import { ConnectProps } from '@/common/type';
 import ExportProject from '../../utils/exportProject';
 import saveProjectConfig from '../../utils/saveProjectConfig';
@@ -64,28 +63,24 @@ function ImpFiles(
 
   // 导入工程
   const initProject = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    let blobTemp: any = {}; // 模型文件
+    let model_files: File[] = []; // 模型文件
     // 没有配置文件时，模型导入后以场景全景视图为中心点
     let config = {}; // 配置文件
     const files = e.target.files; //文件夹下的文件
     const filesLength = files?.length; //文件夹长度
     // 选择了文件才往下执行
     if (filesLength && filesLength > 0 && files[0]) {
-      message.destroy();
-      message.loading('导入工程中...', 0);
       const project_name = files[0].webkitRelativePath.split('/')[0]; //文件夹名字
 
       for (let i = 0; i < filesLength; i++) {
-        console.log(files[i]);
         const file = files[i]; //文件夹下的某一个文件
         const file_name = file?.name; //读取选中文件的文件名
         const file_type = getFileType(file_name); //选中文件的类型
 
         // 3d模型文件
-        if (file_name && file_type === 'model') {
-          const blob = { [file_name]: file };
-          Object.assign(blobTemp, blob);
-        } else if (file_name && file_type === 'config') {
+        if (file_name && file_type.type === 'model') {
+          model_files.push(file);
+        } else if (file_name && file_type.type === 'config') {
           // 配置文件
           // 获取配置文件方法
           await getProjectConfigData(file)
@@ -103,9 +98,7 @@ function ImpFiles(
         },
       });
 
-      await loadModels(blobTemp).catch(() => {
-        message.error('模型加载失败');
-      });
+      await loadModels(model_files);
 
       // 清空导入input的value,防止下次不能导入同一个工程
       e.target.value = '';
@@ -116,84 +109,17 @@ function ImpFiles(
   };
 
   //  获取模型数据
-  const loadModels = (MD: any) => {
-    return new Promise((resolve, reject) => {
-      let manager = new THREE.LoadingManager();
-      let group = new THREE.Group();
-
-      let objectURLs: any = [];
-      let haveWrong = false;
-      try {
-        manager.setURLModifier((url: any) => {
-          let binaryData = [];
-          if (MD[url]) {
-            binaryData.push(MD[url]);
-
-            url = window.URL.createObjectURL(new Blob(binaryData));
-            objectURLs.push(url);
-          }
-          return url;
+  const loadModels = (files: File[]) => {
+    return new Promise((resolve) => {
+      window.loader.loadModel(files, (models) => {
+        let group = new THREE.Group();
+        models.forEach((o) => group.add(o));
+        dispatch({
+          type: 'scene/initWorkbenchModel',
+          payload: group,
         });
-
-        const loader = new FBXLoader(manager);
-        let blobsTDKeys = Object.keys(MD);
-
-        // maybe 多个模型
-        blobsTDKeys.forEach((key, i) => {
-          // 导入模拟模型
-          loader.load(
-            key,
-            (model: any) => {
-              window.URL.revokeObjectURL(objectURLs[i]);
-              // 判断是导入还是导出还需要修改优化
-              if (model.children[0]?.type === 'Group') {
-                model = model.children[0];
-              }
-              // else if (model.children[0].type === 'Mesh') {
-              // }
-              // model.traverse((child: THREE.Mesh) => {
-              //   if (child.isMesh) {
-              //     // child.material = new THREE.MeshLambertMaterial({
-              //     //   color: 0x004444,
-              //     //   transparent: true,
-              //     //   opacity: 0.5,
-              //     // })
-              //     //   ;
-              //     // //模型边线设器
-              //     // const edges = new THREE.EdgesGeometry(child.geometry);
-              //     // const edgesMaterial = new THREE.LineBasicMaterial({
-              //     //   color: 0x00ffff,
-              //     // })
-              //     // const line = new THREE.LineSegments(edges, edgesMaterial);
-              //     // child.add(line);
-              //   }
-              // })
-
-              // changeCoordinate(model)
-              model.name = key.split('.')[0];
-              group.add(model);
-
-              // 加载完所有 model
-              if (group.children.length === blobsTDKeys.length && !haveWrong) {
-                // 设置 workbenchModel
-                dispatch({
-                  type: 'scene/initWorkbenchModel',
-                  payload: group,
-                });
-                resolve('');
-              }
-            },
-            () => {}, // 进度回调
-            () => {
-              haveWrong = true;
-              window.URL.revokeObjectURL(objectURLs[i]);
-              throw new Error(`模型${key}加载失败`);
-            },
-          );
-        });
-      } catch (err) {
-        reject(err);
-      }
+        resolve('');
+      });
     });
   };
 

@@ -1,6 +1,25 @@
 import * as THREE from 'three';
 
 /**
+ * @param {*} file
+ * @returns
+ */
+export function fileToBlob(file) {
+  return new Promise((resolve, reject) => {
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve(new Blob([e.target.result], { type: file.type }));
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+}
+
+/**
  * 将 current 模型与 origin 模型的位置对应
  * @param {THREE.Object3D} origin
  * @param {THREE.Object3D} current

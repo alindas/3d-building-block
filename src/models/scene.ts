@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial } from 'three';
+import { Mesh, MeshBasicMaterial, Group } from 'three';
 import {
   TransformArrayToHash,
   freeModelMemory,
@@ -120,10 +120,12 @@ const SceneModel: ModelType<SceneState> = {
           }
           Object.assign(state.workbenchModelHash, modelHash);
           if (state.workbenchModel !== null) {
-            state.workbenchModel.add(model);
+            model.forEach((o: THREE.Object3D) => state.workbenchModel!.add(o));
           } else {
-            state.workbenchModel = model;
-            window.scene.add(model);
+            const group = new Group();
+            model.forEach((o: THREE.Object3D) => group.add(o));
+            state.workbenchModel = group;
+            window.scene.add(group);
           }
           break;
         }

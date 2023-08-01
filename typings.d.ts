@@ -1,4 +1,4 @@
-/// <reference path="src/utils/process/process.d.ts" />
+// / <reference path="src/utils/process/process.d.ts" />
 
 declare module '*.css';
 declare module '*.less';
@@ -32,4 +32,6 @@ interface Window {
   vector3: THREE.Vector3;
   quaternion: THREE.Quaternion;
   cmd: IProcess;
+  projectInfo: any;
+  loader: ILoader;
 }
