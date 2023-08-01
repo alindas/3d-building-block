@@ -1,6 +1,6 @@
 import { connect, SceneState } from 'umi';
 import { useEffect, useRef, useState, useLayoutEffect } from 'react';
-import { Tree, Button, Modal, Input, message } from 'antd';
+import { Tree, Button, Modal, Input } from 'antd';
 import type { DataNode, TreeProps } from 'antd/lib/tree';
 import {
   EditOutlined,
@@ -91,8 +91,12 @@ function RelationshipEditor(
   }>,
 ) {
   const { dispatch, canAddModel } = props;
-  const { workbenchModel, workbenchModelHash, selectedModel } =
-    props.sceneModel;
+  const {
+    workbenchModel,
+    workbenchModelHash,
+    selectedModel,
+    forceUpdateModel,
+  } = props.sceneModel;
 
   const treeContainerRef = useRef<HTMLDivElement | null>(null);
   const [modelList, setModelList] = useState<any[]>([]);
@@ -136,7 +140,7 @@ function RelationshipEditor(
     // console.log(generateData(workbenchModel?.children));
 
     setModelList(generateData(workbenchModel?.children));
-  }, [workbenchModel]);
+  }, [forceUpdateModel]);
 
   useLayoutEffect(() => {
     let height = treeContainerRef.current!.clientHeight;

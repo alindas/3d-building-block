@@ -158,6 +158,7 @@ function Workbench(
     workbenchModel,
     selectedModel,
     outlinePassModel,
+    forceUpdateModel,
   } = props.sceneModel;
 
   const { cameraConfig } = props.projectModel; //菜单menu中的工程数据
@@ -279,7 +280,7 @@ function Workbench(
         false,
       ); // Mobile
     };
-  }, [workbenchModel]);
+  }, [forceUpdateModel]);
 
   // redux 上选中的模型变化时更新
   useEffect(() => {
@@ -502,6 +503,7 @@ function Workbench(
   }
 
   function cancelModelSelect() {
+    console.log('cancel');
     transformControl.detach();
     outlinePass.selectedObjects = [];
   }

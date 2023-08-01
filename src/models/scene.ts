@@ -28,6 +28,7 @@ export interface SceneState {
   sceneEnv: string;
   customSceneEnvList: { value: string; label: string }[];
   sceneRefreshTrigger: number;
+  forceUpdateModel: boolean;
 }
 
 const SceneModel: ModelType<SceneState> = {
@@ -49,6 +50,7 @@ const SceneModel: ModelType<SceneState> = {
     sceneEnv: '', // 场景环境贴图url
     customSceneEnvList: [], // 环境贴图列表
     sceneRefreshTrigger: 0, // 用于刷新模型属性面板
+    forceUpdateModel: true, // workbenchModel 强制刷新
   },
 
   effects: {},
@@ -133,6 +135,10 @@ const SceneModel: ModelType<SceneState> = {
           if (typeof id == 'undefined') {
             break;
           }
+          // 如果当前模型被选中
+          if (state.selectedModel?.id === id) {
+            state.selectedModel = null;
+          }
           state.workbenchModelHash[id].removeFromParent();
           // freeModelMemory(state.workbenchModelHash[id]);
           state.workbenchModelHash[id].traverse((child) => {
@@ -152,6 +158,8 @@ const SceneModel: ModelType<SceneState> = {
         default:
           break;
       }
+
+      state.forceUpdateModel = !state.forceUpdateModel;
     },
 
     updateSelectedModel: (state, action) => {
