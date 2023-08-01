@@ -2,6 +2,7 @@ import { LoadingManager } from 'three';
 import { message } from 'antd';
 import FBXLoader from '../three-correct/fbxloader';
 import getFileType from '../getFileType';
+import Loading from '@/components/Loading';
 
 function getLoader(type) {
   switch (type) {
@@ -19,17 +20,25 @@ class Loader {
     this.loading = false;
 
     this.loadModel = (files, cb) => {
-      this.loading = true;
       const models = [];
-      message.loading('模型导入中...');
       const manager = new LoadingManager();
+      manager.onStart = () => {
+        this.loading = true;
+        Loading.start({ type: 'loading', msg: '模型加载中' });
+        // message.loading('模型导入中...');
+      };
       manager.onLoad = () => {
         this.loading = false;
-        message.destroy();
+        // message.destroy();
+        Loading.done();
         cb(models);
       };
       manager.onProgress = (url, loaded, total) => {
         console.log('Loaded ' + loaded + ' of ' + total + ' files.');
+        Loading.refresh(
+          undefined,
+          `模型加载中 ${((loaded / total) * 100).toFixed(2)}%`,
+        );
       };
       manager.onError = (url) => {
         window.URL.revokeObjectURL(url);
