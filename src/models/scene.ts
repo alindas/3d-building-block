@@ -88,6 +88,7 @@ const SceneModel: ModelType<SceneState> = {
         state.workbenchModel = null;
         state.workbenchModelHash = {};
       }
+      state.forceUpdateModel = !state.forceUpdateModel;
     },
 
     // 动态导入模型时

@@ -33,7 +33,7 @@ class ViewHelper {
     this.animating = false;
     this.control = new THREE.Vector3(0, 0, 0);
 
-    const { width, height, left, top } = dom.getBoundingClientRect();
+    let { width, height, left, top } = dom.getBoundingClientRect();
     const { far, near } = camera;
     const size = width > height ? height : width;
     const axis_length = size * 0.325;
@@ -201,6 +201,12 @@ class ViewHelper {
         clock.autoStart = true;
         renderer.setAnimationLoop(null);
       }
+    };
+
+    this.resize = function resize() {
+      const domSize = dom.getBoundingClientRect();
+      left = domSize.left;
+      top = domSize.top;
     };
 
     renderer.domElement.addEventListener(

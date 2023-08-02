@@ -1,6 +1,45 @@
 import newProject from '../utils/newProject';
-import SubMenu from '../component/SubMenu/index.tsx';
+import SubMenu from '../component/SubMenu';
+import MenuItem from '../component/MenuItem';
 import exportProject from '../utils/exportProject';
+
+function importProject() {
+  document.getElementById('import-btn').click();
+}
+
+function saveProject() {
+  exportProject('save');
+}
+
+function exportProj() {
+  exportProject('export');
+}
+
+function handleLeftSideBar() {
+  const node = document.querySelector('.mainContent-wrap-tree');
+  if (node.style.width === '') {
+    node.style.width = '0px';
+  } else {
+    node.style = '';
+  }
+}
+
+function handleRightSideBar() {
+  const node = document.querySelector('.mainContent-wrap-attribute');
+  if (node.style.width === '') {
+    node.style.width = '0px';
+  } else {
+    node.style = '';
+  }
+}
+
+function handleFullScreen() {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    document.documentElement.requestFullscreen();
+  }
+}
 
 // 顶部菜单栏数据
 const MenuTemplate = [
@@ -11,115 +50,112 @@ const MenuTemplate = [
         items={[
           {
             key: 'newProject',
-            label: <span onClick={newProject}>新建工程</span>,
+            label: (
+              <MenuItem
+                onclick={newProject}
+                text="新建工程"
+                shortcut="Shift+N"
+              />
+            ),
           },
           {
             key: 'importProject',
             label: (
-              <span
-                onClick={() => document.getElementById('import-btn').click()}
-              >
-                导入工程
-              </span>
+              <MenuItem
+                onclick={importProject}
+                text="导入工程"
+                shortcut="Shift+K"
+              />
             ),
           },
           {
             key: 'saveProject',
-            label: <span onClick={() => exportProject('save')}>保存</span>,
+            label: (
+              <MenuItem onclick={saveProject} text="保存" shortcut="Shift+S" />
+            ),
           },
           {
             key: 'exportProject',
-            label: <span onClick={() => exportProject('export')}>导出</span>,
+            label: (
+              <MenuItem onclick={exportProj} text="导出" shortcut="Shift+E" />
+            ),
           },
         ]}
       />
     ),
   },
   {
-    text: '设置',
+    text: '视图',
     menu: (
       <SubMenu
         items={[
           {
-            key: 'setup1',
-            label: '选项1',
+            key: 'fullScreen',
+            label: <MenuItem onclick={handleFullScreen} text="全屏" />,
           },
           {
-            key: 'setup2',
-            label: '选项2',
-          },
-        ]}
-      />
-    ),
-  },
-  {
-    text: '编辑',
-    menu: (
-      <SubMenu
-        items={[
-          {
-            key: 'edit1',
-            label: '选项1',
+            key: 'leftSidebar',
+            label: (
+              <MenuItem
+                onclick={handleLeftSideBar}
+                text="资产栏"
+                shortcut="Shift+B"
+              />
+            ),
           },
           {
-            key: 'edit2',
-            label: '选项2',
-          },
-        ]}
-      />
-    ),
-  },
-  {
-    text: '语言',
-    menu: (
-      <SubMenu
-        items={[
-          {
-            key: 'lang1',
-            label: '选项1',
-          },
-          {
-            key: 'lang2',
-            label: '选项2',
-          },
-        ]}
-      />
-    ),
-  },
-  {
-    text: '数据',
-    menu: (
-      <SubMenu
-        items={[
-          {
-            key: 'data1',
-            label: '选项1',
-          },
-          {
-            key: 'data2',
-            label: '选项2',
-          },
-        ]}
-      />
-    ),
-  },
-  {
-    text: '账户',
-    menu: (
-      <SubMenu
-        items={[
-          {
-            key: 'user1',
-            label: '选项1',
-          },
-          {
-            key: 'user2',
-            label: '选项2',
+            key: 'rightSidebar',
+            label: (
+              <MenuItem
+                onclick={handleRightSideBar}
+                text="属性栏"
+                shortcut="Shift+R"
+              />
+            ),
           },
         ]}
       />
     ),
   },
 ];
+
+document.addEventListener('keypress', (e) => {
+  if (e.shiftKey) {
+    switch (e.key) {
+      case 'N': {
+        newProject();
+        break;
+      }
+
+      case 'K': {
+        importProject();
+        break;
+      }
+
+      case 'S': {
+        saveProject();
+        break;
+      }
+
+      case 'E': {
+        exportProj();
+        break;
+      }
+
+      case 'B': {
+        handleLeftSideBar();
+        break;
+      }
+
+      case 'R': {
+        handleRightSideBar();
+        break;
+      }
+
+      default:
+        break;
+    }
+  }
+});
 
 export default MenuTemplate;

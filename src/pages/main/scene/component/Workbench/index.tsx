@@ -48,38 +48,49 @@ let scene: THREE.Scene,
 /**
  * @param position1 相机当前的位置
  * @param position2 相机的目标位置
- * @param target 需要变更的controls的target
+ * @param target1 需要变更的controls的原target
+ * @param target2 需要变更的controls的当前target
  */
 function animateCamera(
   position1: THREE.Vector3,
   position2: THREE.Vector3,
-  target?: THREE.Vector3,
+  target1: THREE.Vector3,
+  target2: THREE.Vector3,
 ) {
   new TWEEN.Tween({
-    px: position1.x, // 相机当前位置x
-    py: position1.y, // 相机当前位置y
-    pz: position1.z, // 相机当前位置z
-    t: 0,
+    px: position1.x, // 相机位置
+    py: position1.y,
+    pz: position1.z,
+    tx: target1.x, // 控制器中心
+    ty: target1.y,
+    tz: target1.z,
   })
     .to(
       {
-        px: position2.x, // 相机当前位置x
-        py: position2.y, // 相机当前位置y
-        pz: position2.z, // 相机当前位置z
-        t: 1,
+        px: position2.x,
+        py: position2.y,
+        pz: position2.z,
+        tx: target2.x,
+        ty: target2.y,
+        tz: target2.z,
       },
       1000,
     )
-    .onStart(() => {
-      orbitControl.enabled = false;
-    })
+    // .onStart(() => {
+    //   orbitControl.enabled = false;
+    // })
     .onUpdate(function (this: any) {
       camera.position.set(this._object.px, this._object.py, this._object.pz);
+      orbitControl.target.set(
+        this._object.tx,
+        this._object.ty,
+        this._object.tz,
+      );
     })
-    .onComplete(function (this: any) {
-      orbitControl.enabled = true;
-      target && orbitControl.target.copy(target);
-    })
+    // .onComplete(function (this: any) {
+    //   // orbitControl.enabled = true;
+    //   // target && orbitControl.target.copy(target);
+    // })
     .easing(TWEEN.Easing.Cubic.InOut)
     .start();
 }
@@ -203,11 +214,13 @@ function Workbench(
     );
 
     renderer.domElement.addEventListener('dragover', (e) => {
+      e.stopPropagation();
       e.preventDefault();
       e.dataTransfer!.dropEffect = 'copy';
     });
 
     renderer.domElement.addEventListener('drop', function (e) {
+      e.stopPropagation();
       e.preventDefault();
       if (isUndefinedOrNull(window.projectInfo)) {
         return;
@@ -227,6 +240,18 @@ function Workbench(
         });
       });
     });
+
+    const Performance = debounce(() => {
+      onWindowResize();
+      viewHelper.resize();
+      offset = getClientXY(threeDom.current!, 'leftTop') as [number, number];
+    }, 800);
+    const resizeObserver = new ResizeObserver(Performance);
+    resizeObserver.observe(threeDom.current!);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   // 模型控制器
@@ -342,10 +367,10 @@ function Workbench(
     // scene.add(new THREE.HemisphereLight(0xffffff, 0.5));
 
     // 设置环境光
-    scene.add(new THREE.AmbientLight(0xffffff));
+    scene.add(new THREE.AmbientLight(0xffffff, 1.8));
 
     // 设置相机灯光
-    camera.add(new THREE.PointLight(0xffffff, 0.8));
+    camera.add(new THREE.PointLight(0xffffff, 0.1));
 
     // 设置默认摄像机跟随灯光
     // spotLight = new THREE.SpotLight(0xffffff, 1);
@@ -415,14 +440,6 @@ function Workbench(
     window.scene = scene;
     window.orbitControl = orbitControl;
 
-    window.addEventListener('resize', onWindowResize);
-    window.addEventListener(
-      'resize',
-      debounce(() => {
-        offset = getClientXY(threeDom.current!, 'leftTop') as [number, number];
-      }, 800),
-    );
-
     window.addEventListener('mouseup', (e) => {
       // 如果键下的是鼠标右键
       if (e.button == 2 && enableCatch) {
@@ -443,7 +460,7 @@ function Workbench(
     const { center, radius } = getModelCenter(selectedModel!);
     const bestPos = getBestViewingPosition(workbenchModel, center, radius);
 
-    animateCamera(camera.position, bestPos, center);
+    animateCamera(camera.position, bestPos, orbitControl.target, center);
     camera.lookAt(center);
   }
 
