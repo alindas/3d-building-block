@@ -1,0 +1,34 @@
+.color-picker {
+  width: 100%;
+  height: 100%;
+}
+
+.color-picker-container {
+  width: 100%;
+  min-width: 56px;
+  height: 100%;
+  min-height: 18px;
+  border: 2px solid rgb(51, 51, 51);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.color-picker-popover {
+  position: fixed;
+
+  :global .chrome-picker {
+    position: absolute;
+    right: -118px;
+    bottom: 18px;
+    z-index: 999;
+  }
+}
+
+.color-picker-cover {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 998;
+}
