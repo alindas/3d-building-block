@@ -5,7 +5,7 @@ import { connect, SceneState } from 'umi';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { EquirectangularReflectionMapping } from 'three';
 
-import style from './index.less';
+import style from './scene.less';
 import { ConnectProps } from '@/common/type';
 const { Option, OptGroup } = Select;
 

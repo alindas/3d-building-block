@@ -1,7 +1,6 @@
 import { connect } from 'umi';
 import React, { useEffect, useRef, useState } from 'react';
 import { InputNumber, Checkbox, Select, Slider } from 'antd';
-import { ChromePicker } from 'react-color';
 import {
   MeshBasicMaterial,
   MeshLambertMaterial,
@@ -22,6 +21,7 @@ import {
   modifySelectedModelMaterialMultiple,
   modifySelectedModelMaterialSingle,
 } from '@/models/proxy';
+import ColorPicker from '@/components/ColorPicker';
 
 const { Option } = Select;
 
@@ -54,7 +54,6 @@ function Editor(props: any) {
   const { position = XYZ, scale = XYZ, material } = props.selectedModel ?? {};
   const disableEdit = props.selectedModel === null ? true : false;
 
-  const [colorPickerVisibility, setColorPickerVisibility] = useState(false);
   const [materialCfg, setMaterialCfg] = useState<{
     side: number;
     current: any;
@@ -372,23 +371,12 @@ function Editor(props: any) {
           </div>
           <div className={style['color-picker-wrapper']}>
             颜色
-            <div
-              className={style['color-picker-container']}
-              style={{ background: materialColor }}
-              onClick={() => setColorPickerVisibility(!colorPickerVisibility)}
-            ></div>
-            {colorPickerVisibility && (
-              <div className={style['color-picker-popover']}>
-                <div
-                  className={style['color-picker-cover']}
-                  onClick={() => setColorPickerVisibility(false)}
-                />
-                <ChromePicker
-                  color={materialColor}
-                  onChange={handleMaterialColorChange}
-                />
-              </div>
-            )}
+            <div className={style['color-picker-box']}>
+              <ColorPicker
+                color={materialColor}
+                onChange={handleMaterialColorChange}
+              />
+            </div>
           </div>
           {materialCfg.current.type === 'MeshStandardMaterial' && (
             <>

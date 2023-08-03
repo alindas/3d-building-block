@@ -1,0 +1,45 @@
+.out-linear {
+  height: 140px;
+  overflow: auto;
+  background-color: #ccc;
+
+  :global .ant-space {
+    width: 100%;
+  }
+
+  .ant-badge-wp {
+    display: inline-block;
+    width: 100%;
+    padding: 5px;
+  }
+}
+
+.attr-panel {
+  padding: 8px 5px;
+  background-color: #ccc;
+  border-top: 1px solid #d2d2d2;
+  .attr-item {
+    display: flex;
+    align-items: center;
+    height: 1.5rem;
+
+    &-title {
+      flex-shrink: 0;
+      width: 80px;
+      color: #666;
+    }
+
+    &-value {
+      flex: 1;
+    }
+
+    &-pos {
+      display: flex;
+
+      > span {
+        flex: 1;
+        color: #2095fc;
+      }
+    }
+  }
+}

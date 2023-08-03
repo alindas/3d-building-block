@@ -4,9 +4,8 @@ import Collapse from '@/components/Collapse';
 import style from './index.less';
 import DataBind from './component/DataBind';
 import Editor from './component/Editor';
-import Light from './component/EnvConfig/Light';
-import SceneMap from './component/EnvConfig/SceneMap';
 import SelectedModel from './component/SelectedModel';
+import EnvConfig from './component/EnvConfig';
 
 const Attribute = (props: any, ref: any) => {
   const { sequence, onSort, ...dragProps } = props;
@@ -28,13 +27,7 @@ const Attribute = (props: any, ref: any) => {
         switch (item) {
           case '属性': {
             return (
-              <Collapse
-                title="属性"
-                dragId={index}
-                key={item}
-                height="55%"
-                defaultExpand
-              >
+              <Collapse title="属性" dragId={index} key={item} defaultExpand>
                 <div className={style['model-config']}>
                   <SelectedModel>
                     <DataBind />
@@ -46,16 +39,9 @@ const Attribute = (props: any, ref: any) => {
           }
           case '环境': {
             return (
-              <Collapse
-                title="环境"
-                dragId={index}
-                key={item}
-                height="16%"
-                defaultExpand
-              >
+              <Collapse title="环境" dragId={index} key={item} defaultExpand>
                 <div className={style['scene-config']}>
-                  <Light />
-                  <SceneMap></SceneMap>
+                  <EnvConfig />
                 </div>
               </Collapse>
             );
