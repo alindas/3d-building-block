@@ -1,0 +1,32 @@
+[
+  {
+    "group": "光",
+    "data": [
+      {
+        "cover": "/model/light/ambient.png",
+        "url": "",
+        "desc": "环境光"
+      },
+      {
+        "cover": "/model/light/directional.png",
+        "url": "",
+        "desc": "平行光"
+      },
+      {
+        "cover": "/",
+        "url": "",
+        "desc": "半球光"
+      },
+      {
+        "cover": "/model/light/point.png",
+        "url": "",
+        "desc": "点光源"
+      },
+      {
+        "cover": "/model/light/spot.png",
+        "url": "",
+        "desc": "聚光灯"
+      }
+    ]
+  }
+]

@@ -222,13 +222,19 @@ function Workbench(
     renderer.domElement.addEventListener('drop', function (e) {
       e.stopPropagation();
       e.preventDefault();
-      if (isUndefinedOrNull(window.projectInfo)) {
+      if (
+        isUndefinedOrNull(window.projectInfo) ||
+        e.dataTransfer!.files.length < 1
+      ) {
         return;
       }
       if (window.loader.loading) {
         message.info('任务正在处理');
         return;
       }
+      // todo 如果是从模型库拖入的，分析出其远端真实的模型url
+      // check file
+
       window.loader.loadModel(e.dataTransfer!.files, (model: any) => {
         dispatch({
           type: 'scene/updateWorkbenchModel',

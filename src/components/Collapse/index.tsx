@@ -61,13 +61,12 @@ function Collapse(props: ICollpose) {
           }`}
           ref={provided.innerRef}
           {...provided.draggableProps}
-          {...provided.dragHandleProps}
         >
           <div
             className={style['collapse-header']}
             style={ifExpand ? { borderRadius: '2px 2px 0 0' } : {}}
           >
-            <div className={style['title']}>
+            <div className={style['title']} {...provided.dragHandleProps}>
               <img src={holderOutlined} />
               {props.title}
             </div>

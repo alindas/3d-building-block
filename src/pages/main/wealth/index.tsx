@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Collapse from '@/components/Collapse';
 import RelationshipEditor from './component/RelationshipEditor';
 import style from './index.less';
+import ModelLibrary from './component/ModelLibrary';
 
 const Wealth = (props: any, ref: any) => {
   const { sequence, onSort, ...dragProps } = props;
@@ -28,6 +29,7 @@ const Wealth = (props: any, ref: any) => {
           case '模型库': {
             return (
               <Collapse
+                defaultExpand
                 title="模型库"
                 dragId={index}
                 key={item}
@@ -35,7 +37,7 @@ const Wealth = (props: any, ref: any) => {
                   setWrapperHeightChangeTrigger(!wrapperHeightChangeTrigger)
                 }
               >
-                空
+                <ModelLibrary />
               </Collapse>
             );
           }
