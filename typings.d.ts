@@ -29,6 +29,7 @@ declare module 'three-fbxloader-offical' {
 interface Window {
   scene: THREE.Scene;
   orbitControl: any;
+  transformControl: any;
   vector3: THREE.Vector3;
   quaternion: THREE.Quaternion;
   cmd: IProcess;

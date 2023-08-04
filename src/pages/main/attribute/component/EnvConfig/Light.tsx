@@ -1,28 +1,15 @@
-import React, { useMemo, useState } from 'react';
-import { connect } from 'umi';
+import React, { useEffect, useMemo, useState } from 'react';
+import { connect, useSelector } from 'umi';
 import { Light, Euler, MathUtils, Quaternion } from 'three';
-import { Input, Badge, Space, Checkbox } from 'antd';
+import { Input, InputNumber, Badge, Space, Checkbox, Button } from 'antd';
 
 import style from './light.less';
 import ColorPicker from '@/components/ColorPicker';
 
-const colors = [
-  'pink',
-  'red',
-  'yellow',
-  'orange',
-  'cyan',
-  'green',
-  'blue',
-  'purple',
-  'geekblue',
-  'magenta',
-  'volcano',
-  'gold',
-  'lime',
-];
 let euler = new Euler();
-let rotationX: number, rotationY: number, rotationZ: number;
+let rotationX = 0;
+let rotationY = 0;
+let rotationZ = 0;
 
 function setAngleFromQuaternion(quaternion: Quaternion) {
   // 使用四元数更新 Euler 对象
@@ -34,8 +21,10 @@ function setAngleFromQuaternion(quaternion: Quaternion) {
 
 function SceneLight(props: any) {
   const { dispatch } = props;
+  const lightEffect = useSelector((s: any) => s.effect.lightEffect);
 
   const [light, setLight] = useState<Light>();
+  const rf = useState(false)[1];
   const lights = useMemo(() => {
     const temp: Light[] = [];
     console.log(window.scene);
@@ -45,24 +34,71 @@ function SceneLight(props: any) {
       }
     });
     return temp;
-  }, []);
+  }, [lightEffect]);
+
+  useEffect(() => {}, []);
 
   function selectLight(light: Light) {
     setLight(light);
     setAngleFromQuaternion(light.quaternion);
     // todo监听对象，动态刷新属性面板
+    // window.transformControl.addEventListener('change', () => {
+
+    // });
+    // 设置 control
+    window.transformControl.detach();
+    window.transformControl.attach(light);
   }
 
-  function changeName(e) {
+  function changeName(e: any) {
     console.log(e);
+    light!.name = e.target.value;
+    rf((r) => !r);
   }
 
-  function changeVisible(e) {
+  function changeShadow(e: any) {
     console.log(e);
+    light!.name = e.target.checked;
   }
 
-  function changeColor(e) {
+  function changeVisible(e: any) {
     console.log(e);
+    light!.visible = e.target.checked;
+    const helper = window.scene.getObjectById(light!.userData.helper);
+    if (typeof helper !== 'undefined') {
+      helper.visible = e.target.checked;
+    }
+  }
+
+  function changeColor({ hex }: { hex: string }) {
+    light!.color.set(hex);
+    rf((r) => !r);
+  }
+
+  function changeIntensity(val: number) {
+    console.log(val);
+    light!.intensity = val;
+    rf((r) => !r);
+  }
+
+  function changeHelper(e: any) {
+    const helper = window.scene.getObjectById(light!.userData.helper);
+    if (typeof helper !== 'undefined') {
+      helper.visible = e.target.checked;
+    }
+  }
+
+  function deleteLight() {
+    window.transformControl.detach();
+
+    const helper = window.scene.getObjectById(light!.userData.helper);
+    if (typeof helper !== 'undefined') {
+      window.scene.remove(helper);
+    }
+    window.scene.remove(light!);
+
+    setLight(undefined);
+    dispatch({ type: 'effect/updateLightEffect' });
   }
 
   return (
@@ -78,7 +114,7 @@ function SceneLight(props: any) {
             >
               <Badge
                 color={l.color.getStyle()}
-                text={l.type + (l.name === '' ? '' : `——${l.name}`)}
+                text={l.type + (l.name === '' ? '' : `—${l.name}`)}
               />
             </span>
           ))}
@@ -90,18 +126,24 @@ function SceneLight(props: any) {
             <div className={style['attr-item-title']}>
               <span>类型</span>
             </div>
-            <div className={style['attr-item-input']}>{light.type}</div>
+            <div
+              className={style['attr-item-value']}
+              style={{ color: '#6d6d6d' }}
+            >
+              {light.type}
+            </div>
           </div>
 
           <div className={style['attr-item']}>
             <div className={style['attr-item-title']}>
               <span>名称</span>
             </div>
-            <div className={style['attr-item-input']}>
+            <div className={style['attr-item-value']}>
               <Input
                 size="small"
-                defaultValue={light.name}
-                onPressEnter={changeName}
+                value={light.name}
+                // onPressEnter={changeName}
+                onChange={changeName}
               />
             </div>
           </div>
@@ -112,9 +154,9 @@ function SceneLight(props: any) {
             </div>
             <div className={style['attr-item-value']}>
               <span className={style['attr-item-pos']}>
-                <span>{light.position.x}</span>
-                <span>{light.position.y}</span>
-                <span>{light.position.z}</span>
+                <span>{light.position.x.toFixed(2)}</span>
+                <span>{light.position.y.toFixed(2)}</span>
+                <span>{light.position.z.toFixed(2)}</span>
               </span>
             </div>
           </div>
@@ -125,34 +167,35 @@ function SceneLight(props: any) {
             </div>
             <div className={style['attr-item-value']}>
               <span className={style['attr-item-pos']}>
-                <span>{rotationX}°</span>
-                <span>{rotationY}°</span>
-                <span>{rotationZ}°</span>
+                <span>{rotationX.toFixed(2)}°</span>
+                <span>{rotationY.toFixed(2)}°</span>
+                <span>{rotationZ.toFixed(2)}°</span>
               </span>
             </div>
           </div>
 
           <div className={style['attr-item']}>
             <div className={style['attr-item-title']}>
-              <span>缩放</span>
+              <span>强度</span>
             </div>
             <div className={style['attr-item-value']}>
-              <span className={style['attr-item-pos']}>
-                <span>{light.scale.x}</span>
-                <span>{light.scale.y}</span>
-                <span>{light.scale.z}</span>
-              </span>
+              <InputNumber
+                size="small"
+                step={0.1}
+                value={light.intensity}
+                onChange={changeIntensity}
+              />
             </div>
           </div>
 
           <div className={style['attr-item']}>
             <div className={style['attr-item-title']}>
-              <span>可见性</span>
+              <span>阴影</span>
             </div>
-            <div className={style['attr-item-input']}>
+            <div className={style['attr-item-value']}>
               <Checkbox
-                onChange={changeVisible}
-                defaultChecked={light.visible}
+                onChange={changeShadow}
+                defaultChecked={light.castShadow}
               />
             </div>
           </div>
@@ -161,7 +204,7 @@ function SceneLight(props: any) {
             <div className={style['attr-item-title']}>
               <span>颜色</span>
             </div>
-            <div className={style['attr-item-input']}>
+            <div className={style['attr-item-value']}>
               <ColorPicker
                 color={light.color.getStyle()}
                 onChange={changeColor}
@@ -173,11 +216,29 @@ function SceneLight(props: any) {
             <div className={style['attr-item-title']}>
               <span>辅助</span>
             </div>
-            <div className={style['attr-item-input']}>
+            <div className={style['attr-item-value']}>
+              <Checkbox onChange={changeHelper} defaultChecked={true} />
+            </div>
+          </div>
+
+          <div className={style['attr-item']}>
+            <div className={style['attr-item-title']}>
+              <span>可见性</span>
+            </div>
+            <div className={style['attr-item-value']}>
               <Checkbox
                 onChange={changeVisible}
                 defaultChecked={light.visible}
               />
+            </div>
+          </div>
+
+          <div className={style['attr-item']} style={{ height: '3rem' }}>
+            <div className={style['attr-item-title']}></div>
+            <div className={style['attr-item-value']}>
+              <Button type="dashed" size="small" danger onClick={deleteLight}>
+                删除
+              </Button>
             </div>
           </div>
         </div>

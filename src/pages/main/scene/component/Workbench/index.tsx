@@ -248,10 +248,11 @@ function Workbench(
 
           raycaster.setFromCamera(mouse, camera);
           const intersects = raycaster.intersectObjects(scene.children);
-          console.log(intersects);
           parseModelUrl(modelUrl.value, {
             position: intersects[0].point,
           });
+          dispatch({ type: 'effect/updateLightEffect' });
+
           return;
         } else {
           files = [
@@ -472,6 +473,7 @@ function Workbench(
     viewHelper = new ViewHelper(camera, axesDom.current!);
     window.scene = scene;
     window.orbitControl = orbitControl;
+    window.transformControl = transformControl;
 
     window.addEventListener('mouseup', (e) => {
       // 如果键下的是鼠标右键

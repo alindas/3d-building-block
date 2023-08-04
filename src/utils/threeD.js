@@ -29,6 +29,7 @@ export function parseModelUrl(url, config) {
 
       const pointLightHelper = new THREE.PointLightHelper(point, 5);
       pointLightHelper.position.copy(point.position);
+      point.userData.helper = pointLightHelper.id;
       window.scene.add(pointLightHelper);
 
       break;
