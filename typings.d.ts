@@ -34,4 +34,8 @@ interface Window {
   cmd: IProcess;
   projectInfo: any;
   loader: ILoader;
+  modelUrl?: {
+    value: string;
+    type: string;
+  };
 }

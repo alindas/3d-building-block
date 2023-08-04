@@ -20,6 +20,7 @@ class Loader {
     this.loading = false;
 
     this.loadModel = (files, cb) => {
+      // console.log(files)
       const models = [];
       const manager = new LoadingManager();
       manager.onStart = () => {
@@ -43,14 +44,14 @@ class Loader {
       manager.onError = (url) => {
         window.URL.revokeObjectURL(url);
         console.error('There was an error loading ' + url);
+        message.error('模型加载失败：' + url);
       };
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const file_name = file?.name; //读取选中文件的文件名
         const file_type = getFileType(file_name); //选中文件的类型
-        const modelURL = window.URL.createObjectURL(file);
-
+        const modelURL = file?.url ?? window.URL.createObjectURL(file);
         if (file_name && file_type.type === 'model') {
           try {
             const Loader = getLoader(file_type.value);
@@ -72,7 +73,7 @@ class Loader {
               models.push(model);
             });
           } catch {
-            message.error('模型加载失败：' + file_name);
+            message.error('未知错误');
           }
         } else {
           message.error(file_name + '不是3D模型');

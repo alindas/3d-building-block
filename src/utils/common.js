@@ -1,3 +1,22 @@
+/**
+ * @param {*} file
+ * @returns
+ */
+export function fileToBlob(file) {
+  return new Promise((resolve, reject) => {
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve(new Blob([e.target.result], { type: file.type }));
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+}
+
 function isUndefinedOrNull(obj) {
   return typeof obj == 'undefined' || obj === null;
 }

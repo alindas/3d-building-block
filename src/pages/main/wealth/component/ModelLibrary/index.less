@@ -1,5 +1,27 @@
 .asset-group {
-  border-bottom: 1px solid #ccc;
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 18px;
+  color: #53606c;
+  font-size: 12px;
+
+  &::before {
+    width: 6%;
+    height: 1px;
+    margin-right: 1em;
+    background-color: #474747;
+    content: '';
+  }
+
+  &::after {
+    flex: 1;
+    height: 1px;
+    margin-left: 1em;
+    background-color: #474747;
+    content: '';
+  }
 }
 
 .asset-item {
@@ -14,6 +36,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+      cursor: move;
     }
   }
 

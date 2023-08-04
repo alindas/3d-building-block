@@ -1,31 +1,48 @@
 [
   {
     "group": "光",
+    "type": "local",
     "data": [
       {
         "cover": "/model/light/ambient.png",
-        "url": "",
+        "url": "ambient",
         "desc": "环境光"
       },
       {
         "cover": "/model/light/directional.png",
-        "url": "",
+        "url": "direction",
         "desc": "平行光"
       },
       {
-        "cover": "/",
-        "url": "",
+        "cover": "/model/light/hemisphere.png",
+        "url": "hemisphere",
         "desc": "半球光"
       },
       {
         "cover": "/model/light/point.png",
-        "url": "",
+        "url": "point",
         "desc": "点光源"
       },
       {
         "cover": "/model/light/spot.png",
-        "url": "",
+        "url": "spot",
         "desc": "聚光灯"
+      }
+    ]
+  },
+  {
+    "group": "机器人",
+    "type": "origin",
+    "data": [
+      {
+        "cover": "/model/robot/rb500.png",
+        "url": "/model/robot/rb500.FBX",
+        "desc": "RB500"
+      },
+      {
+        "cover": "/model/robot/rb08.png",
+        "url": "/model/robot/rb08.FBX",
+        "desc": "RB08"
       }
     ]
   }

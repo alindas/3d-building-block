@@ -1,22 +1,58 @@
 import * as THREE from 'three';
+import { message } from 'antd';
 
-/**
- * @param {*} file
- * @returns
- */
-export function fileToBlob(file) {
-  return new Promise((resolve, reject) => {
-    try {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        resolve(new Blob([e.target.result], { type: file.type }));
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    } catch (e) {
-      console.error(e);
+export function parseModelUrl(url, config) {
+  switch (url) {
+    case 'ambient': {
+      message.info('模型缺失');
+      break;
     }
-  });
+
+    case 'direction': {
+      const direction = new THREE.DirectionalLight();
+      direction.position.copy(config.position);
+      window.scene.add(direction);
+
+      const directionalLightHelper = new THREE.DirectionalLightHelper(
+        direction,
+        5,
+      );
+      directionalLightHelper.position.copy(direction.position);
+      window.scene.add(directionalLightHelper);
+      break;
+    }
+
+    case 'point': {
+      const point = new THREE.PointLight();
+      point.position.copy(config.position);
+      window.scene.add(point);
+
+      const pointLightHelper = new THREE.PointLightHelper(point, 5);
+      pointLightHelper.position.copy(point.position);
+      window.scene.add(pointLightHelper);
+
+      break;
+    }
+
+    case 'hemisphere': {
+      message.info('模型缺失');
+      break;
+    }
+
+    case 'spot': {
+      const spot = new THREE.SpotLight();
+      spot.position.copy(config.position);
+      window.scene.add(spot);
+
+      const spotLightHelper = new THREE.SpotLightHelper(spot);
+      spotLightHelper.position.copy(spot.position);
+      window.scene.add(spotLightHelper);
+      break;
+    }
+
+    default:
+      break;
+  }
 }
 
 /**

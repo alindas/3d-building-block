@@ -15,6 +15,7 @@ import { OutlinePass } from '@/utils/three-correct/outlinePass';
 import {
   getBestViewingPosition,
   getModelCenter,
+  parseModelUrl,
   TransformArrayToHash,
 } from '@/utils/threeD';
 import ViewHelper from '@/utils/viewHelper2';
@@ -222,20 +223,46 @@ function Workbench(
     renderer.domElement.addEventListener('drop', function (e) {
       e.stopPropagation();
       e.preventDefault();
-      if (
-        isUndefinedOrNull(window.projectInfo) ||
-        e.dataTransfer!.files.length < 1
-      ) {
+      if (isUndefinedOrNull(window.projectInfo)) {
+        message.info('请先创建工程');
+        return;
+      }
+      if (e.dataTransfer!.files.length < 1) {
         return;
       }
       if (window.loader.loading) {
         message.info('任务正在处理');
         return;
       }
-      // todo 如果是从模型库拖入的，分析出其远端真实的模型url
       // check file
+      let files;
+      let modelUrl = window.modelUrl;
+      window.modelUrl = undefined;
+      if (modelUrl) {
+        // 如果是从模型库拖入的，分析出其远端真实的模型url
+        if (modelUrl.type === 'local') {
+          mouse.x =
+            ((e.clientX - offset[0]) / threeDom.current!.offsetWidth) * 2 - 1;
+          mouse.y =
+            -((e.clientY - offset[1]) / threeDom.current!.offsetHeight) * 2 + 1;
 
-      window.loader.loadModel(e.dataTransfer!.files, (model: any) => {
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObjects(scene.children);
+          console.log(intersects);
+          parseModelUrl(modelUrl.value, {
+            position: intersects[0].point,
+          });
+          return;
+        } else {
+          files = [
+            {
+              name: modelUrl.value,
+              url: modelUrl.value,
+            },
+          ];
+        }
+      }
+      window.loader.loadModel(files ?? e.dataTransfer!.files, (model: any) => {
         dispatch({
           type: 'scene/updateWorkbenchModel',
           payload: {

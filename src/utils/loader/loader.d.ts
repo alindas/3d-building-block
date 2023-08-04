@@ -8,7 +8,7 @@ declare interface ILoader {
    * @describe 添加一条命令
    */
   loadModel(
-    files: File[] | FileList,
+    files: File[] | FileList | { name: string; url: string }[],
     callback: (model: THREE.Object3D[]) => void,
   ): void;
 }
