@@ -4,7 +4,10 @@ import { message } from 'antd';
 export function parseModelUrl(url, config) {
   switch (url) {
     case 'ambient': {
-      message.info('模型缺失');
+      const ambient = new THREE.AmbientLight();
+      ambient.position.copy(config.position);
+      window.scene.add(ambient);
+
       break;
     }
 
@@ -18,6 +21,7 @@ export function parseModelUrl(url, config) {
         5,
       );
       directionalLightHelper.position.copy(direction.position);
+      direction.userData.helper = directionalLightHelper.id;
       window.scene.add(directionalLightHelper);
       break;
     }
@@ -47,6 +51,7 @@ export function parseModelUrl(url, config) {
 
       const spotLightHelper = new THREE.SpotLightHelper(spot);
       spotLightHelper.position.copy(spot.position);
+      spot.userData.helper = spotLightHelper.id;
       window.scene.add(spotLightHelper);
       break;
     }

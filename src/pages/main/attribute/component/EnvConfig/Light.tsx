@@ -19,15 +19,17 @@ function setAngleFromQuaternion(quaternion: Quaternion) {
   rotationZ = MathUtils.radToDeg(euler.z);
 }
 
+let _light: Light | null = null; // 当前编辑光源
+
 function SceneLight(props: any) {
   const { dispatch } = props;
   const lightEffect = useSelector((s: any) => s.effect.lightEffect);
 
-  const [light, setLight] = useState<Light>();
   const rf = useState(false)[1];
+
   const lights = useMemo(() => {
     const temp: Light[] = [];
-    console.log(window.scene);
+    // console.log(window.scene);
     window.scene.children.forEach((o: any) => {
       if (o.isLight) {
         temp.push(o);
@@ -36,53 +38,56 @@ function SceneLight(props: any) {
     return temp;
   }, [lightEffect]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    // todo监听对象，动态刷新属性面板
+    window.transformControl.addEventListener('objectChange', () => {
+      if (_light !== null && window.transformControl.object.id === _light.id) {
+        if (window.transformControl.mode === 'rotate') {
+          setAngleFromQuaternion(_light.quaternion);
+        }
+        rf((f) => !f);
+      }
+    });
+  }, []);
 
   function selectLight(light: Light) {
-    setLight(light);
+    _light = light;
     setAngleFromQuaternion(light.quaternion);
-    // todo监听对象，动态刷新属性面板
-    // window.transformControl.addEventListener('change', () => {
 
-    // });
     // 设置 control
-    window.transformControl.detach();
     window.transformControl.attach(light);
+    rf((r) => !r);
   }
 
   function changeName(e: any) {
-    console.log(e);
-    light!.name = e.target.value;
+    _light!.name = e.target.value;
     rf((r) => !r);
   }
 
   function changeShadow(e: any) {
-    console.log(e);
-    light!.name = e.target.checked;
+    _light!.name = e.target.checked;
   }
 
   function changeVisible(e: any) {
-    console.log(e);
-    light!.visible = e.target.checked;
-    const helper = window.scene.getObjectById(light!.userData.helper);
+    _light!.visible = e.target.checked;
+    const helper = window.scene.getObjectById(_light!.userData.helper);
     if (typeof helper !== 'undefined') {
       helper.visible = e.target.checked;
     }
   }
 
   function changeColor({ hex }: { hex: string }) {
-    light!.color.set(hex);
+    _light!.color.set(hex);
     rf((r) => !r);
   }
 
   function changeIntensity(val: number) {
-    console.log(val);
-    light!.intensity = val;
+    _light!.intensity = val;
     rf((r) => !r);
   }
 
   function changeHelper(e: any) {
-    const helper = window.scene.getObjectById(light!.userData.helper);
+    const helper = window.scene.getObjectById(_light!.userData.helper);
     if (typeof helper !== 'undefined') {
       helper.visible = e.target.checked;
     }
@@ -91,13 +96,12 @@ function SceneLight(props: any) {
   function deleteLight() {
     window.transformControl.detach();
 
-    const helper = window.scene.getObjectById(light!.userData.helper);
+    const helper = window.scene.getObjectById(_light!.userData.helper);
     if (typeof helper !== 'undefined') {
       window.scene.remove(helper);
     }
-    window.scene.remove(light!);
-
-    setLight(undefined);
+    window.scene.remove(_light!);
+    _light = null;
     dispatch({ type: 'effect/updateLightEffect' });
   }
 
@@ -110,7 +114,7 @@ function SceneLight(props: any) {
               key={l.id}
               className={style['ant-badge-wp']}
               onClick={() => selectLight(l)}
-              style={l.id === light?.id ? { backgroundColor: '#f5f5f5' } : {}}
+              style={l.id === _light?.id ? { backgroundColor: '#f5f5f5' } : {}}
             >
               <Badge
                 color={l.color.getStyle()}
@@ -120,7 +124,7 @@ function SceneLight(props: any) {
           ))}
         </Space>
       </div>
-      {typeof light !== 'undefined' && (
+      {_light !== null && (
         <div className={style['attr-panel']}>
           <div className={style['attr-item']}>
             <div className={style['attr-item-title']}>
@@ -130,7 +134,7 @@ function SceneLight(props: any) {
               className={style['attr-item-value']}
               style={{ color: '#6d6d6d' }}
             >
-              {light.type}
+              {_light.type}
             </div>
           </div>
 
@@ -141,7 +145,7 @@ function SceneLight(props: any) {
             <div className={style['attr-item-value']}>
               <Input
                 size="small"
-                value={light.name}
+                value={_light.name}
                 // onPressEnter={changeName}
                 onChange={changeName}
               />
@@ -154,9 +158,9 @@ function SceneLight(props: any) {
             </div>
             <div className={style['attr-item-value']}>
               <span className={style['attr-item-pos']}>
-                <span>{light.position.x.toFixed(2)}</span>
-                <span>{light.position.y.toFixed(2)}</span>
-                <span>{light.position.z.toFixed(2)}</span>
+                <span>{_light.position.x.toFixed(2)}</span>
+                <span>{_light.position.y.toFixed(2)}</span>
+                <span>{_light.position.z.toFixed(2)}</span>
               </span>
             </div>
           </div>
@@ -182,7 +186,7 @@ function SceneLight(props: any) {
               <InputNumber
                 size="small"
                 step={0.1}
-                value={light.intensity}
+                value={_light.intensity}
                 onChange={changeIntensity}
               />
             </div>
@@ -195,7 +199,7 @@ function SceneLight(props: any) {
             <div className={style['attr-item-value']}>
               <Checkbox
                 onChange={changeShadow}
-                defaultChecked={light.castShadow}
+                defaultChecked={_light.castShadow}
               />
             </div>
           </div>
@@ -206,7 +210,7 @@ function SceneLight(props: any) {
             </div>
             <div className={style['attr-item-value']}>
               <ColorPicker
-                color={light.color.getStyle()}
+                color={_light.color.getStyle()}
                 onChange={changeColor}
               />
             </div>
@@ -228,7 +232,7 @@ function SceneLight(props: any) {
             <div className={style['attr-item-value']}>
               <Checkbox
                 onChange={changeVisible}
-                defaultChecked={light.visible}
+                defaultChecked={_light.visible}
               />
             </div>
           </div>

@@ -452,7 +452,7 @@ function Workbench(
       obj.isTransformControls = true;
     });
     transformControl.setSize(1.3);
-    transformControl.addEventListener('change', () => {
+    transformControl.addEventListener('objectChange', () => {
       dispatch({
         type: 'scene/synchronousModelChange',
       });

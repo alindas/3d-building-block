@@ -1,18 +1,19 @@
-import React, { useEffect } from 'react';
-import { Select, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Select, message, Checkbox } from 'antd';
 import type { MessageType } from 'antd/lib/message';
 import { connect, SceneState } from 'umi';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
-import { EquirectangularReflectionMapping } from 'three';
+import { EquirectangularReflectionMapping, Color } from 'three';
 
 import style from './scene.less';
 import { ConnectProps } from '@/common/type';
+import ColorPicker from '@/components/ColorPicker';
 const { Option, OptGroup } = Select;
 
 // 默认贴图
 const DefaultEnv = [
   {
-    value: 'no',
+    value: '',
     label: '无',
   },
   {
@@ -37,13 +38,14 @@ let changeProcess: MessageType;
 
 function SceneMap(props: ConnectProps<SceneState>) {
   const { dispatch, sceneEnv, customSceneEnvList } = props;
-  // const { preProjectId } = menuProject; //菜单menu中的工程数据 当前工程id
+
+  const [bgColor, setBgColor] = useState('#333333');
 
   useEffect(() => {
     // 设置环境贴图
     if (typeof sceneEnv == 'string') {
       if (sceneEnv === '') {
-        window.scene.background = null;
+        window.scene.background = new Color(bgColor);
         window.scene.environment = null;
         // changeProcess instanceof Function && changeProcess();
       } else {
@@ -96,50 +98,78 @@ function SceneMap(props: ConnectProps<SceneState>) {
     e.target.value = '';
   }
 
+  function changeColor({ hex }: { hex: string }) {
+    setBgColor(hex);
+    if (sceneEnv === '') {
+      window.scene.background = new Color(hex);
+    }
+  }
+
+  function changeHelper(e: any) {
+    const helper = window.scene.getObjectByProperty('type', 'GridHelper');
+    if (typeof helper !== 'undefined') {
+      helper.visible = e.target.checked;
+    }
+  }
+
   return (
-    <div className={style['select-box']}>
-      <span>环境贴图</span>
-      <Select
-        className={style.select}
-        style={{ width: '75%' }}
-        value={sceneEnv}
-        size="small"
-        showArrow={true}
-        bordered={false}
-        onSelect={selectEnv}
-      >
-        <OptGroup label="默认">
-          {DefaultEnv.map((env) => (
-            <Option key={env.value} value={env.value}>
-              {env.label}
+    <div>
+      <div className={style['select-box']}>
+        <span>贴图</span>
+        <Select
+          className={style.select}
+          style={{ width: '75%' }}
+          value={sceneEnv}
+          size="small"
+          showArrow={true}
+          bordered={false}
+          onSelect={selectEnv}
+        >
+          <OptGroup label="默认">
+            {DefaultEnv.map((env) => (
+              <Option key={env.value} value={env.value}>
+                {env.label}
+              </Option>
+            ))}
+          </OptGroup>
+          <OptGroup label="自定义">
+            {customSceneEnvList.map((env) => (
+              <Option key={env.value} value={env.value}>
+                {env.label}
+              </Option>
+            ))}
+            <Option value={0}>
+              上传
+              <input
+                type="file"
+                accept=".hdr"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  opacity: 0,
+                }}
+                onChange={uploadSceneMap}
+              />
             </Option>
-          ))}
-        </OptGroup>
-        <OptGroup label="自定义">
-          {customSceneEnvList.map((env) => (
-            <Option key={env.value} value={env.value}>
-              {env.label}
-            </Option>
-          ))}
-          <Option value={0}>
-            上传
-            <input
-              type="file"
-              accept=".hdr"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0,
-                opacity: 0,
-              }}
-              onChange={uploadSceneMap}
-            />
-          </Option>
-        </OptGroup>
-      </Select>
+          </OptGroup>
+        </Select>
+      </div>
+
+      <div className={style['select-box']}>
+        <span>背景</span>
+        <div className={style['picker']}>
+          <ColorPicker color={bgColor} onChange={changeColor} />
+        </div>
+      </div>
+
+      <div className={style['select-box']}>
+        <span>网格</span>
+        <Checkbox onChange={changeHelper} defaultChecked={true} />
+      </div>
     </div>
   );
 }

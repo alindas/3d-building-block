@@ -2,6 +2,7 @@ import { Tabs } from 'antd';
 import SceneMap from './SceneMap';
 import Light from './Light';
 import './index.css';
+import Setting from './Setting';
 
 const TabPane = Tabs.TabPane;
 
@@ -19,7 +20,9 @@ export default function EnvConfig() {
       <TabPane tab="灯光" key="light">
         <Light />
       </TabPane>
-      <TabPane tab="设置" key="set"></TabPane>
+      <TabPane tab="设置" key="set">
+        <Setting />
+      </TabPane>
     </Tabs>
   );
 }

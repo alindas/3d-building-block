@@ -14,7 +14,7 @@
 }
 
 .ant-tabs-top > .ant-tabs-nav {
-  margin: 0 0 8px 0;
+  margin: 0;
 }
 
 .ant-tabs-top > .ant-tabs-nav::before {
