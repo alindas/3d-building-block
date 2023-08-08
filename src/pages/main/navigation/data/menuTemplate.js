@@ -2,6 +2,7 @@ import newProject from '../utils/newProject';
 import SubMenu from '../component/SubMenu';
 import MenuItem from '../component/MenuItem';
 import exportProject from '../utils/exportProject';
+import { showGuide, showAbout } from '../component/Helper';
 
 function importProject() {
   document.getElementById('import-btn').click();
@@ -117,6 +118,27 @@ const MenuTemplate = [
       />
     ),
   },
+  {
+    text: '帮助',
+    menu: (
+      <SubMenu
+        items={[
+          {
+            key: 'about',
+            label: (
+              <MenuItem onclick={showAbout} text="关于" shortcut="Shift+A" />
+            ),
+          },
+          {
+            key: 'help',
+            label: (
+              <MenuItem onclick={showGuide} text="手册" shortcut="Shift+H" />
+            ),
+          },
+        ]}
+      />
+    ),
+  },
 ];
 
 document.addEventListener('keypress', (e) => {
@@ -149,6 +171,16 @@ document.addEventListener('keypress', (e) => {
 
       case 'R': {
         handleRightSideBar();
+        break;
+      }
+
+      case 'A': {
+        showAbout();
+        break;
+      }
+
+      case 'H': {
+        showGuide();
         break;
       }
 

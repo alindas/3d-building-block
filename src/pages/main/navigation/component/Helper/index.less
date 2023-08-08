@@ -1,0 +1,28 @@
+.readme {
+  padding: 4px 0;
+  color: #898989;
+
+  &-wrapper {
+    max-height: 50vh;
+    overflow: auto;
+  }
+
+  &-item {
+    display: flex;
+    height: 1.5rem;
+    color: #1a2a3a;
+
+    > span {
+      &:first-child {
+        flex-shrink: 0;
+        width: 120px;
+      }
+
+      &:last-child {
+        padding: 3px 8px;
+        font-size: 12px;
+        background-color: #fff;
+      }
+    }
+  }
+}
