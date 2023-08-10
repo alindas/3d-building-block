@@ -44,7 +44,6 @@ export default defineConfig({
   theme: {
     'primary-color': '#4c4c4c',
     'border-color-base': '#d9d9d9', // 边框色"
-    'body-background': '#696969',
     'component-background': '#dddddd',
   },
 });

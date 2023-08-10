@@ -17,8 +17,7 @@ function ExportProject(type?: 'save' | 'export') {
     return;
   }
 
-  message.destroy();
-  message.loading('导出工程中...', 0);
+  message.loading('执行中，请耐心等候...', 0);
   // 将下面的导出包裹在 setTimeout 函数中
   const exporter = new ColladaExporter();
 
@@ -61,7 +60,6 @@ function ExportProject(type?: 'save' | 'export') {
   console.log('build');
 
   buildZip(ExpZipData, projectInfo.name, type ?? 'export');
-  message.destroy();
 }
 
 //合成压缩包
@@ -77,6 +75,10 @@ function buildZip(data: any, name: string, type: 'save' | 'export') {
       // todo 上传至云端，test config
       let config = getConfig();
       console.log('config', config);
+      getDvaApp()._store.dispatch({
+        type: 'project/setCameraConfig',
+        payload: config,
+      });
       request
         .post('/api/save', {
           project: name,
@@ -92,6 +94,7 @@ function buildZip(data: any, name: string, type: 'save' | 'export') {
         });
     } else if (type === 'export') {
       downloadZip(content, name);
+      message.destroy();
     }
   });
 }

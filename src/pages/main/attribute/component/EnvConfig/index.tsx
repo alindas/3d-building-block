@@ -1,5 +1,5 @@
 import { Tabs } from 'antd';
-import SceneMap from './SceneMap';
+import SceneMap from './Scene';
 import Light from './Light';
 import './index.css';
 import Setting from './Setting';
@@ -10,7 +10,7 @@ export default function EnvConfig() {
   return (
     <Tabs
       // onChange={onChange}
-      defaultActiveKey="light"
+      defaultActiveKey="set"
       type="card"
       size="small"
     >

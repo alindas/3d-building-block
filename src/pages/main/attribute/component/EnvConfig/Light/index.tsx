@@ -3,7 +3,7 @@ import { connect, useSelector } from 'umi';
 import { Light, Euler, MathUtils, Quaternion } from 'three';
 import { Input, InputNumber, Badge, Space, Checkbox, Button } from 'antd';
 
-import style from './light.less';
+import style from './index.less';
 import ColorPicker from '@/components/ColorPicker';
 
 let euler = new Euler();

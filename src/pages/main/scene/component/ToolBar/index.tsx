@@ -112,10 +112,23 @@ function ToolBar(props: any) {
   function localRun() {
     // 已开启是否终止
     if (runState) {
-      dispatch({
-        type: 'scene/changeRunState',
-        payload: false,
+      Modal.confirm({
+        title: '复制链接访问查看',
+        content: (
+          <span style={{ color: '#1b92ff' }}>
+            {location.origin}/stage/{project.name}
+          </span>
+        ),
+        transitionName: '',
+        cancelText: '取消发布',
+        onCancel: () => {
+          dispatch({
+            type: 'scene/changeRunState',
+            payload: false,
+          });
+        },
       });
+
       return;
     }
     // 生成场景访问 key，用于对外展示。todo: 上云
@@ -124,7 +137,7 @@ function ToolBar(props: any) {
       content: (
         <span>
           展示地址：
-          <span>
+          <span style={{ color: '#1b92ff' }}>
             {location.origin}/stage/{project.name}
           </span>
         </span>
@@ -170,7 +183,7 @@ function ToolBar(props: any) {
           onClick={localRun}
           disabled={project === null}
         >
-          {runState ? '取消运行' : '运行'}
+          {runState ? '展示地址' : '发布'}
         </Button>
       </div>
     </div>

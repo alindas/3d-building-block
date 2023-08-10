@@ -1,20 +1,28 @@
-import { useState } from 'react';
 import { connect } from 'umi';
-import { Input } from 'antd';
-
-import style from './setting.less';
+import { Checkbox } from 'antd';
+import style from './index.less';
+import Config from './Config';
 
 function Setting(props: any) {
+  function changeSaveMode(e: any) {
+    console.log('自动保存', e.target.checked);
+  }
+
   return (
     <div>
       <div className={style['set-panel']}>
         <div className={style['set-item']}>
           <div className={style['set-item-title']}>
-            <span>配置文件</span>
+            <div className={style['set-item-options']}>
+              <span>配置文件</span>
+              <Checkbox onChange={changeSaveMode} defaultChecked={true}>
+                自动保存
+              </Checkbox>
+            </div>
           </div>
           <div className={style['set-item-value']}>
             <div className={style['set-item-config']}>
-              <Input.TextArea allowClear autoSize defaultValue={'{}'} />
+              <Config />
             </div>
           </div>
         </div>
