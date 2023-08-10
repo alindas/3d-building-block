@@ -10,5 +10,5 @@ package.json
 .umi
 .umi-production
 .umi-test
-three-correct
+correct-package
 typings.d.ts

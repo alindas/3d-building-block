@@ -23,7 +23,7 @@
 ├─utils
 |   ├─common.js  通用工具函数
 |   ├─threeD.js  自封装插件
-|   ├─three-correct  第三方插件
+|   ├─correct-package  需要自定义调整的第三方插件
 ├─style
 |   └core.less
 ├─service
@@ -68,15 +68,12 @@
 |   └scene.ts  场景编辑相关
 ├─layout
 |   └SecurityLayout.tsx
-├─components
-|     ├─RightMenu
-|     ├─ErrorBoundary
-|     ├─Collapse
-├─common
+├─components 全局公用组件
+├─common 全局属性约束、配置文件
 |   ├─antd.ts
 |   ├─sceneConfigList.ts
 |   └type.ts
-├─assets
+├─assets 静态资源
 ```
 
 ### 拓展

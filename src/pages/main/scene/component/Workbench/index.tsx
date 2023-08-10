@@ -11,7 +11,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import TWEEN from '@tweenjs/tween.js';
 
-import { OutlinePass } from '@/utils/three-correct/outlinePass';
+import { OutlinePass } from '@/utils/correct-package/three/outlinePass';
 import {
   getBestViewingPosition,
   getModelCenter,
@@ -275,11 +275,15 @@ function Workbench(
       });
     });
 
-    const Performance = debounce(() => {
-      onWindowResize();
-      viewHelper.resize();
-      offset = getClientXY(threeDom.current!, 'leftTop') as [number, number];
-    }, 800);
+    const Performance = debounce(
+      () => {
+        onWindowResize();
+        viewHelper.resize();
+        offset = getClientXY(threeDom.current!, 'leftTop') as [number, number];
+      },
+      800,
+      { leading: true },
+    );
     const resizeObserver = new ResizeObserver(Performance);
     resizeObserver.observe(threeDom.current!);
 

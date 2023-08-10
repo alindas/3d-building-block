@@ -1,6 +1,6 @@
 import { message } from 'antd';
 import JSZip from 'jszip'; //导出压缩包方法
-import { ColladaExporter } from '@/utils/three-correct/exporter/ColladaExporter.js'; //导出成dae方法
+import { ColladaExporter } from '@/utils/correct-package/three/exporter/ColladaExporter'; //导出成dae方法
 import { ProjectState, getDvaApp } from 'umi';
 import request from '@/service/request';
 import { getConfig } from './saveProjectConfig';

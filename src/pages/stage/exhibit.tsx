@@ -12,7 +12,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { Space, Switch } from 'antd';
 
 import style from './index.less';
-import { OutlinePass } from '@/utils/three-correct/outlinePass';
+import { OutlinePass } from '@/utils/correct-package/three/outlinePass';
 import { getClientXY, isUndefinedOrNull } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
 import Blank from './blank';

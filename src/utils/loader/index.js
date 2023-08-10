@@ -1,6 +1,6 @@
 import { LoadingManager } from 'three';
 import { message } from 'antd';
-import FBXLoader from '../three-correct/fbxloader';
+import FBXLoader from '../correct-package/three/fbxloader';
 import getFileType from '../getFileType';
 import Loading from '@/components/Loading';
 
