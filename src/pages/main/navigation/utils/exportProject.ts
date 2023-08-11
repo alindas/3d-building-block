@@ -3,11 +3,11 @@ import JSZip from 'jszip'; //导出压缩包方法
 import { ColladaExporter } from '@/utils/correct-package/three/exporter/ColladaExporter'; //导出成dae方法
 import { ProjectState, getDvaApp } from 'umi';
 import request from '@/service/request';
-import { getConfig } from './saveProjectConfig';
+import saveProjectConfig from './saveProjectConfig';
 
 // 保存导出
 function ExportProject(type?: 'save' | 'export') {
-  console.log('type', type);
+  // console.log('type', type);
   const store = getDvaApp()._store.getState();
   const { projectInfo, modelsConfig, lightConfig, cameraConfig } =
     store.project as ProjectState;
@@ -57,7 +57,7 @@ function ExportProject(type?: 'save' | 'export') {
       message.error('导出模型出错，请检查模型是否标准');
     }
   }
-  console.log('build');
+  // console.log('build');
 
   buildZip(ExpZipData, projectInfo.name, type ?? 'export');
 }
@@ -73,12 +73,8 @@ function buildZip(data: any, name: string, type: 'save' | 'export') {
     // 保存到云端or导出到本地
     if (type === 'save') {
       // todo 上传至云端，test config
-      let config = getConfig();
-      console.log('config', config);
-      getDvaApp()._store.dispatch({
-        type: 'project/setCameraConfig',
-        payload: config,
-      });
+      let config = saveProjectConfig();
+      // console.log('config', config);
       request
         .post('/api/save', {
           project: name,

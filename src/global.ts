@@ -8,4 +8,5 @@ import '@/utils/correct-package/svelet-jsoneditor/themes/jse-theme-dark.css';
   window.quaternion = new Quaternion();
   window.cmd = new Process();
   window.loader = new Loader();
+  window.autoSave = true;
 })();

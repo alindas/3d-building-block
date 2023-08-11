@@ -5,7 +5,7 @@ import Config from './Config';
 
 function Setting(props: any) {
   function changeSaveMode(e: any) {
-    console.log('自动保存', e.target.checked);
+    window.autoSave = e.target.checked;
   }
 
   return (

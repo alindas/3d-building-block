@@ -43,6 +43,11 @@ const ProjectState: ModelType<ProjectState> = {
       };
     },
 
+    updateProject: (state, action) => {
+      window.projectInfo = action.payload.projectInfo;
+      return { ...state, ...action.payload };
+    },
+
     // 设置当前工程的摄像机配置
     setCameraConfig(state, action) {
       state.cameraConfig = action.payload;

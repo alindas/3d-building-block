@@ -1,13 +1,19 @@
 import MyJSONEditor from '@/components/MyJSONEditor';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { connect, ProjectState } from 'umi';
 import { ConnectProps } from '@/common/type';
 
 import style from './config.less';
 
-let controlJSON: { text: string }; // 编辑器实时编辑的内容
+let controlJSON: { json: object } | { text: string }; // 编辑器实时编辑的内容
 
-function Config(props: ConnectProps<{ Project: ProjectState }>) {
+function Config(
+  props: ConnectProps<{
+    Project: ProjectState;
+    auto: boolean;
+    configEffect: boolean;
+  }>,
+) {
   const { projectInfo, modelsConfig, lightConfig, cameraConfig } =
     props.Project;
 
@@ -16,6 +22,23 @@ function Config(props: ConnectProps<{ Project: ProjectState }>) {
   const [configJSON, setJSON] = useState<{ json: object }>({
     json: { projectInfo, modelsConfig, lightConfig, cameraConfig },
   });
+
+  /**
+   * 开启自动保存时，实时更新，并保存到本地
+   */
+  useEffect(() => {
+    // console.log('auto')
+    setJSON({
+      json: { projectInfo, modelsConfig, lightConfig, cameraConfig },
+    });
+    if (window.autoSave) {
+      // todo 保存到本地
+    }
+
+    // return () => {
+
+    // }
+  }, [props.configEffect]);
 
   function handleFloat() {}
 
@@ -27,7 +50,19 @@ function Config(props: ConnectProps<{ Project: ProjectState }>) {
         node.scrollTop = node.scrollHeight;
         return;
       } else {
-        setJSON({ json: JSON.parse(controlJSON.text) });
+        let configObj;
+        if (Reflect.has(controlJSON, 'json')) {
+          // @ts-ignore
+          configObj = controlJSON.json;
+        } else {
+          // @ts-ignore
+          configObj = JSON.parse(controlJSON.text);
+        }
+        setJSON({ json: configObj });
+        props.dispatch({
+          type: 'project/updateProject',
+          payload: configObj,
+        });
       }
     }
     setMode((m) => !m);
@@ -67,4 +102,5 @@ function Config(props: ConnectProps<{ Project: ProjectState }>) {
 
 export default connect((state: any) => ({
   Project: state.project,
+  configEffect: state.effect.configEffect,
 }))(Config);

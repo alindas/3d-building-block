@@ -46,17 +46,21 @@ function MyJSONEditor(props: TJSONEditor) {
     };
   }, []);
 
-  // 配置更新, 内容变化, 编辑模型下不受影响
+  // 配置更新
   useEffect(() => {
-    console.log('here');
+    console.log('readOnly');
     if (editor !== null) {
-      // if (props.readOnly) {
-      //   editor.update(props.content);
-
-      // }
-      editor.updateProps({ content: props.content, readOnly: props.readOnly });
+      editor.updateProps({ readOnly: props.readOnly });
     }
-  }, [props.readOnly, props.content]);
+  }, [props.readOnly]);
+
+  // 内容变化
+  useEffect(() => {
+    console.log('content');
+    if (editor !== null) {
+      editor.update(props.content);
+    }
+  }, [props.content]);
 
   return (
     <div className={styles.json_container}>

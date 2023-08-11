@@ -27,6 +27,7 @@ declare module 'three-fbxloader-offical' {
 }
 
 interface Window {
+  autoSave: boolean;
   scene: THREE.Scene;
   orbitControl: any;
   transformControl: any;
