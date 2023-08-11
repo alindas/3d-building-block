@@ -1,6 +1,7 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo } from 'react';
 import {
   Content,
+  JSONContent,
   JSONEditor,
   JSONValue,
 } from '@/utils/correct-package/svelet-jsoneditor';
@@ -16,7 +17,7 @@ type TJSONEditor = {
 
 let editor: JSONEditor | null = null;
 
-export default function MyJSONEditor(props: TJSONEditor) {
+function MyJSONEditor(props: TJSONEditor) {
   const refContainer = useRef(null);
 
   // 初始化
@@ -45,19 +46,17 @@ export default function MyJSONEditor(props: TJSONEditor) {
     };
   }, []);
 
-  // 配置更新
+  // 配置更新, 内容变化, 编辑模型下不受影响
   useEffect(() => {
+    console.log('here');
     if (editor !== null) {
-      editor.updateProps({ readOnly: props.readOnly });
-    }
-  }, [props.readOnly]);
+      // if (props.readOnly) {
+      //   editor.update(props.content);
 
-  // 内容变化
-  useEffect(() => {
-    if (editor !== null) {
-      editor.update(props.content);
+      // }
+      editor.updateProps({ content: props.content, readOnly: props.readOnly });
     }
-  }, [props.content]);
+  }, [props.readOnly, props.content]);
 
   return (
     <div className={styles.json_container}>
@@ -65,3 +64,17 @@ export default function MyJSONEditor(props: TJSONEditor) {
     </div>
   );
 }
+
+export default MyJSONEditor;
+// export default memo(MyJSONEditor, (prev, next) => {
+//   return false
+//   if (prev.readOnly === true && next.readOnly === true) {
+//     if (prev.content !== next.content) {
+//       return false
+//     } else {
+//       return true
+//     }
+//   } else {
+//     return false
+//   }
+// })
