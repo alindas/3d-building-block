@@ -1,3 +1,14 @@
+.config-box {
+  position: fixed;
+  top: 12vh;
+  right: 22vw;
+  left: 22vw;
+  max-height: 78vh;
+  padding: 12px;
+  overflow: auto;
+  background-color: #cccccc;
+}
+
 .config-options {
   display: flex;
   justify-content: space-between;
@@ -6,6 +17,10 @@
     > span {
       padding: 0 5px;
       cursor: pointer;
+
+      &:nth-child(1) i {
+        color: #4c4c4c;
+      }
 
       &:nth-child(2) i {
         color: #5f8ac1;

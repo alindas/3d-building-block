@@ -44,7 +44,7 @@ const ProjectState: ModelType<ProjectState> = {
     },
 
     updateProject: (state, action) => {
-      window.projectInfo = action.payload.projectInfo;
+      window.projectInfo = action.payload.projectInfo ?? window.projectInfo;
       return { ...state, ...action.payload };
     },
 

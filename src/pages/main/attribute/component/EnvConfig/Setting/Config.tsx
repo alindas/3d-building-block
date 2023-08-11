@@ -17,6 +17,7 @@ function Config(
   const { projectInfo, modelsConfig, lightConfig, cameraConfig } =
     props.Project;
 
+  const [isFloat, setFloat] = useState(false);
   const [readOnly, setMode] = useState(true);
   const [hasWrong, setWrong] = useState(false);
   const [configJSON, setJSON] = useState<{ json: object }>({
@@ -40,7 +41,15 @@ function Config(
     // }
   }, [props.configEffect]);
 
-  function handleFloat() {}
+  function handleFloat() {
+    const node = document.getElementById('config-box')!;
+    if (isFloat) {
+      node.classList.remove(style['config-box']);
+    } else {
+      node.classList.add(style['config-box']);
+    }
+    setFloat((f) => !f);
+  }
 
   function handleEdit() {
     if (!readOnly) {
@@ -76,18 +85,18 @@ function Config(
   }
 
   return (
-    <div>
+    <div id="config-box">
       <div className={style['config-options']}>
         <span>【{readOnly ? '只读' : '限制编辑'}】</span>
         <div className={style['config-options-btn']}>
-          <span onClick={handleFloat}>悬浮</span>
+          <span onClick={handleFloat}>{isFloat ? <i>停靠</i> : '窗口'}</span>
           <span onClick={handleEdit}>{readOnly ? '编辑' : <i>保存</i>}</span>
           {!readOnly && (
             <span onClick={() => setMode((m) => !m)}>
               <i>取消</i>
             </span>
           )}
-          <span>导入</span>
+          {/* <span>导入</span> */}
         </div>
       </div>
       <MyJSONEditor
