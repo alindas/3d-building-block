@@ -1,7 +1,7 @@
 import styles from './index.less';
 
 import Menu from './component/Menu/index';
-import UserImg from './component/userImg/index';
+import Avatar from './component/Avatar/index';
 import ImpFiles from './component/ImpFiles/index';
 
 import MenuTemplate from './data/menuTemplate';
@@ -12,7 +12,7 @@ export default function Navigation() {
     <div className={styles.navigation}>
       {/* 登录用户 */}
       <div className={styles.userImgDiv}>
-        <UserImg></UserImg>
+        <Avatar></Avatar>
       </div>
 
       {/* 菜单栏 */}

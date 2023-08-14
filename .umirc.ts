@@ -21,6 +21,12 @@ export default defineConfig({
           title: '编辑器',
           component: '@/pages/main/index',
         },
+        // 登录页
+        {
+          path: '/login',
+          title: '登录',
+          component: '@/pages/login',
+        },
         // 直接运行场景
         {
           path: '/stage/:project',

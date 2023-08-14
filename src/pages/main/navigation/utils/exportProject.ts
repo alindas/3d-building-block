@@ -6,7 +6,7 @@ import request from '@/service/request';
 import saveProjectConfig from './saveProjectConfig';
 
 // 保存导出
-function ExportProject(type?: 'save' | 'export') {
+function ExportProject(type: 'save' | 'export', onDone: any) {
   // console.log('type', type);
   const store = getDvaApp()._store.getState();
   const { projectInfo, modelsConfig, lightConfig, cameraConfig } =
@@ -14,6 +14,7 @@ function ExportProject(type?: 'save' | 'export') {
 
   if (projectInfo === null) {
     message.info('无工程');
+    onDone();
     return;
   }
 
@@ -59,11 +60,16 @@ function ExportProject(type?: 'save' | 'export') {
   }
   // console.log('build');
 
-  buildZip(ExpZipData, projectInfo.name, type ?? 'export');
+  buildZip(ExpZipData, projectInfo.name, type ?? 'export', onDone);
 }
 
 //合成压缩包
-function buildZip(data: any, name: string, type: 'save' | 'export') {
+function buildZip(
+  data: any,
+  name: string,
+  type: 'save' | 'export',
+  onDone: () => void,
+) {
   let zip = new JSZip(); //初始化
   for (let i = 0; i < data.length; i++) {
     let obj = data[i];
@@ -83,13 +89,16 @@ function buildZip(data: any, name: string, type: 'save' | 'export') {
         .then(() => {
           message.destroy();
           message.success('数据已保存到云端');
+          onDone();
         })
         .catch(() => {
           message.destroy();
           message.error('数据保存失败');
+          onDone();
         });
     } else if (type === 'export') {
       downloadZip(content, name);
+      onDone();
       message.destroy();
     }
   });
@@ -107,4 +116,10 @@ function downloadZip(content: any, proName: string) {
   document.body.removeChild(link);
 }
 
-export default ExportProject;
+function AsyncExport(type?: 'save' | 'export') {
+  return new Promise((resolve) => {
+    ExportProject((type = 'save'), resolve);
+  });
+}
+
+export default AsyncExport;
