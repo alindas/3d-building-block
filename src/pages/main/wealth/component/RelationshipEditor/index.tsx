@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import { Vector3 } from 'three';
 import style from './index.less';
-import { isUndefinedOrNull } from '@/utils/common';
+import { isEmpty } from '@/utils/common';
 import { TransformArrayToHash, updateModelFromName } from '@/utils/threeD';
 
 import RightMenu from '@/components/RightMenu';
@@ -18,12 +18,12 @@ import { updateSelectedModel } from '@/models/proxy';
 
 const generateData = (originalData: any, prevKey?: string): any[] => {
   const result: any[] = [];
-  if (!isUndefinedOrNull(originalData)) {
+  if (!isEmpty(originalData)) {
     /**
      * 将 model 数据转换成 [{title: 'anything', key: '0-0', id: number, position: number, children: []}] 的格式
      */
     originalData.forEach((child: any, index: number) => {
-      if (isUndefinedOrNull(child) || (child.parent.isMesh && child.isGroup)) {
+      if (isEmpty(child) || (child.parent.isMesh && child.isGroup)) {
         return;
       }
       let key = `${prevKey ?? '0'}-${index}`;
@@ -148,7 +148,7 @@ function RelationshipEditor(
   }, []);
 
   useEffect(() => {
-    if (isUndefinedOrNull(selectedModel)) {
+    if (isEmpty(selectedModel)) {
       setSelectedKey([]);
     }
   }, [selectedModel]);

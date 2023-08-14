@@ -4,6 +4,7 @@ import { connect, ProjectState } from 'umi';
 import { ConnectProps } from '@/common/type';
 
 import style from './config.less';
+import { handleMove } from '@/utils/common';
 
 let controlJSON: { json: object } | { text: string }; // 编辑器实时编辑的内容
 
@@ -43,9 +44,12 @@ function Config(
 
   function handleFloat() {
     const node = document.getElementById('config-box')!;
+    const handle = document.getElementById('config-box-handle')!;
     if (isFloat) {
+      handle.onmouseup = null;
       node.classList.remove(style['config-box']);
     } else {
+      handle.onmousedown = (e) => handleMove(e, handle, node);
       node.classList.add(style['config-box']);
     }
     setFloat((f) => !f);
@@ -88,6 +92,10 @@ function Config(
     <div id="config-box">
       <div className={style['config-options']}>
         <span>【{readOnly ? '只读' : '限制编辑'}】</span>
+        <span
+          id="config-box-handle"
+          className={style['config-options-handle']}
+        ></span>
         <div className={style['config-options-btn']}>
           <span onClick={handleFloat}>{isFloat ? <i>停靠</i> : '窗口'}</span>
           <span onClick={handleEdit}>{readOnly ? '编辑' : <i>保存</i>}</span>

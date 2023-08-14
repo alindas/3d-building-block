@@ -4,7 +4,7 @@ import {
   freeModelMemory,
   calculateWorldSet,
 } from '@/utils/threeD';
-import { isUndefinedOrNull } from '@/utils/common';
+import { isEmpty } from '@/utils/common';
 import { ModelType } from '@/common/type';
 
 type ModelData = THREE.Group | THREE.Mesh;
@@ -77,7 +77,7 @@ const SceneModel: ModelType<SceneState> = {
       freeModelMemory(state.workbenchModel!);
       window.scene.remove(state.workbenchModel!);
 
-      if (!isUndefinedOrNull(action.payload)) {
+      if (!isEmpty(action.payload)) {
         state.workbenchModel = action.payload;
         window.scene.add(state.workbenchModel!);
         // 保存模型所有子项到哈希表中，方便在关系列表中更快读取
@@ -98,7 +98,7 @@ const SceneModel: ModelType<SceneState> = {
 
       switch (type) {
         case 'update': {
-          if (isUndefinedOrNull(model) && isUndefinedOrNull(modelHash)) {
+          if (isEmpty(model) && isEmpty(modelHash)) {
             break;
           }
           model.forEach((item: THREE.Object3D) => {
@@ -118,7 +118,7 @@ const SceneModel: ModelType<SceneState> = {
           break;
         }
         case 'add': {
-          if (isUndefinedOrNull(model) && isUndefinedOrNull(modelHash)) {
+          if (isEmpty(model) && isEmpty(modelHash)) {
             break;
           }
           Object.assign(state.workbenchModelHash, modelHash);

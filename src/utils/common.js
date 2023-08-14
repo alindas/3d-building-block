@@ -1,4 +1,37 @@
 /**
+ * 为某元素添加移动效果
+ * @param {Event} e 鼠标事件
+ * @param {ele} handler 拖拽的手柄
+ * @param {ele} target 响应拖动效果的载体，缺失时以手柄作为目标载体
+ */
+export function handleMove(e, handler, target) {
+  if (isEmpty(handler)) {
+    // 未开启 drag
+    console.error('未设置节点');
+    return;
+  } else {
+    const initX = e.screenX;
+    const initY = e.screenY;
+    const dom = target || handler;
+    const top = dom.offsetTop;
+    const left = dom.offsetLeft;
+    dom.style.top = top + 'px';
+    dom.style.left = left + 'px';
+    dom.style.margin = '0px';
+    // console.log(top, left);
+
+    document.onmousemove = (ev) => {
+      dom.style.left = left + ev.screenX - initX + 'px';
+      dom.style.top = top + ev.screenY - initY + 'px';
+    };
+    document.onmouseup = () => {
+      document.onmousemove = null;
+      document.onmouseup = null;
+    };
+  }
+}
+
+/**
  * @param {*} file
  * @returns
  */
@@ -17,8 +50,8 @@ export function fileToBlob(file) {
   });
 }
 
-function isUndefinedOrNull(obj) {
-  return typeof obj == 'undefined' || obj === null;
+export function isEmpty(obj) {
+  return typeof obj == 'undefined' || obj === null || obj === '';
 }
 
 // 创建 classnames
@@ -206,11 +239,4 @@ const getClientXY = (ele, direction) => {
   return targetValue;
 };
 
-export {
-  isUndefinedOrNull,
-  createClassnames,
-  isInteger,
-  deepClone,
-  isEqual,
-  getClientXY,
-};
+export { createClassnames, isInteger, deepClone, isEqual, getClientXY };

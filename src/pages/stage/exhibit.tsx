@@ -13,7 +13,7 @@ import { Space, Switch } from 'antd';
 
 import style from './index.less';
 import { OutlinePass } from '@/utils/correct-package/three/outlinePass';
-import { getClientXY, isUndefinedOrNull } from '@/utils/common';
+import { getClientXY, isEmpty } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
 import Blank from './blank';
 import request from '@/service/request';
@@ -188,8 +188,8 @@ function Exhibit(
 
   // 高亮选中物体
   useEffect(() => {
-    if (!isUndefinedOrNull(outlinePass)) {
-      if (isUndefinedOrNull(selectedModel)) {
+    if (!isEmpty(outlinePass)) {
+      if (isEmpty(selectedModel)) {
         outlinePass.selectedObjects = [];
       } else {
         // @ts-ignore

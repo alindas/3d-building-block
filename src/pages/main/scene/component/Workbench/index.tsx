@@ -20,7 +20,7 @@ import {
 } from '@/utils/threeD';
 import ViewHelper from '@/utils/viewHelper2';
 import style from './index.less';
-import { isUndefinedOrNull, getClientXY } from '@/utils/common';
+import { isEmpty, getClientXY } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
 import { updateSelectedModel } from '@/models/proxy';
 
@@ -223,7 +223,7 @@ function Workbench(
     renderer.domElement.addEventListener('drop', function (e) {
       e.stopPropagation();
       e.preventDefault();
-      if (isUndefinedOrNull(window.projectInfo)) {
+      if (isEmpty(window.projectInfo)) {
         message.info('请先创建工程');
         return;
       }
@@ -312,7 +312,7 @@ function Workbench(
       transformControl.setMode(transformControlMode);
     }
 
-    if (transformControlMode === 'focus' && !isUndefinedOrNull(selectedModel)) {
+    if (transformControlMode === 'focus' && !isEmpty(selectedModel)) {
       focusSelectedModel();
     }
   }, [transformControlMode]);
@@ -349,7 +349,7 @@ function Workbench(
   useEffect(() => {
     // console.log('selectedModel', selectedModel);
 
-    if (isUndefinedOrNull(selectedModel)) {
+    if (isEmpty(selectedModel)) {
       cancelModelSelect();
     } else {
       // @ts-ignore

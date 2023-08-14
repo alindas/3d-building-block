@@ -14,7 +14,7 @@ import {
 
 import style from './index.less';
 import attrRefresh from '@/assets/attrRefresh.png';
-import { isInteger, isUndefinedOrNull } from '@/utils/common';
+import { isInteger, isEmpty } from '@/utils/common';
 import { checkMaterialModifyTime } from '@/utils/threeD';
 import {
   modifySelectedModel,
@@ -65,7 +65,7 @@ function Editor(props: any) {
   const inputValue = useRef<any>({ equalRadio: true });
 
   useEffect(() => {
-    if (!isUndefinedOrNull(material)) {
+    if (!isEmpty(material)) {
       // 如果是多面材质，则需要修改该面序列
       if (Array.isArray(material)) {
         setMaterialCfg({
@@ -207,11 +207,11 @@ function Editor(props: any) {
     const { type, key } = option;
     const value = parseFloat(option.value.toFixed(2));
 
-    if (isUndefinedOrNull(inputValue.current[type])) {
+    if (isEmpty(inputValue.current[type])) {
       inputValue.current[type] = {};
     }
 
-    if (!isUndefinedOrNull(value)) {
+    if (!isEmpty(value)) {
       if (type === 'scale' && inputValue.current.equalRadio) {
         // 当前编辑的是缩放并且开启等比
 
@@ -226,7 +226,7 @@ function Editor(props: any) {
       } else {
         inputValue.current[type][key] = value;
       }
-    } else if (!isUndefinedOrNull(inputValue.current[type][key])) {
+    } else if (!isEmpty(inputValue.current[type][key])) {
       delete inputValue.current[type][key];
     }
 

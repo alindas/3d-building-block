@@ -1,17 +1,25 @@
 .config-box {
   position: fixed;
   top: 12vh;
-  right: 22vw;
   left: 22vw;
+  width: 56vw;
   max-height: 78vh;
   padding: 12px;
   overflow: auto;
   background-color: #cccccc;
+
+  .config-options-handle {
+    margin-top: -8px;
+  }
 }
 
 .config-options {
   display: flex;
   justify-content: space-between;
+
+  &-handle {
+    flex: 1;
+  }
 
   &-btn {
     > span {
