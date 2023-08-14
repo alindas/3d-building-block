@@ -10,7 +10,7 @@ const Login = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    const loginName = localStorage.getItem('token');
+    const loginName = localStorage.getItem('user');
     form.setFieldsValue({
       name: loginName,
     });
@@ -20,7 +20,8 @@ const Login = () => {
     form.validateFields().then((value) => {
       // 模拟的。todo login
       setLoading(true);
-      localStorage.setItem('token', value.name);
+      localStorage.setItem('user', value.name);
+      localStorage.setItem('token', new Date().valueOf() + '');
       setTimeout(() => {
         message.success('登录成功');
         history.push('/');

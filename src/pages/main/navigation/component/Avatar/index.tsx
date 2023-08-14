@@ -4,11 +4,11 @@ import { LogoutOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import exportProject from '../../utils/exportProject';
 
-const UserInfo = new String(
-  localStorage.getItem('token') + '',
-)[0].toLocaleUpperCase();
-
 export default function Avatar() {
+  const UserInfo = new String(
+    localStorage.getItem('user') + '',
+  )[0].toLocaleUpperCase();
+
   const history = useHistory();
   const [info, setInfo] = useState<React.ReactNode>(UserInfo);
 

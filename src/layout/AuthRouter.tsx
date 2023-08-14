@@ -5,7 +5,6 @@ import { Redirect, useLocation } from 'react-router-dom';
 
 const AuthRouter = ({ children }: any) => {
   const { pathname } = useLocation();
-  console.log(pathname);
 
   if (localStorage.getItem('token') && pathname === '/login') {
     return <Redirect to="/" />;
