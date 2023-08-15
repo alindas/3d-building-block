@@ -11,6 +11,7 @@ import translateBtn from '@/assets/tool-bar/translateBtn.png';
 import scaleBtn from '@/assets/tool-bar/scaleBtn.png';
 import rotateBtn from '@/assets/tool-bar/rotateBtn.png';
 import focusBtn from '@/assets/tool-bar/focusBtn.png';
+import exportProject from '@/pages/main/navigation/utils/exportProject';
 
 type TOptionMenu = {
   key: string;
@@ -20,8 +21,9 @@ type TOptionMenu = {
 };
 
 function ToolBar(props: any) {
-  const { dispatch, project, runState, transformControlMode } = props;
+  const { dispatch, project, transformControlMode } = props;
   const rf = useState(false)[1];
+  const [open, setOpen] = useState(false);
 
   const OptionGroup: TOptionMenu[][] = [
     [
@@ -98,20 +100,18 @@ function ToolBar(props: any) {
   }, []);
 
   // 后续可能多个地方需要，eg: 工程导出时
-  function uploadProject() {
+  async function uploadProject() {
     // maybe 需要先 check 是否需要更新工程
-    dispatch({
-      type: 'scene/changeRunState',
-      payload: true,
-    });
+    setOpen(true);
     // todo 上传工程信息，在回调里打开新访问窗口
+    await exportProject('save');
     window.open(`/stage/${project.name}`, '_blank');
   }
 
   // 执行运行全屏展示界面
   function localRun() {
     // 已开启是否终止
-    if (runState) {
+    if (open) {
       Modal.confirm({
         title: '复制链接访问查看',
         content: (
@@ -121,12 +121,7 @@ function ToolBar(props: any) {
         ),
         transitionName: '',
         cancelText: '取消发布',
-        onCancel: () => {
-          dispatch({
-            type: 'scene/changeRunState',
-            payload: false,
-          });
-        },
+        onCancel: () => setOpen(false),
       });
 
       return;
@@ -183,7 +178,7 @@ function ToolBar(props: any) {
           onClick={localRun}
           disabled={project === null}
         >
-          {runState ? '展示地址' : '发布'}
+          {open ? '展示地址' : '发布'}
         </Button>
       </div>
     </div>
@@ -192,6 +187,5 @@ function ToolBar(props: any) {
 
 export default connect((s: any) => ({
   project: s.project.projectInfo,
-  runState: s.scene.runState,
   transformControlMode: s.scene.transformControlMode,
 }))(ToolBar);

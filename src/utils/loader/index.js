@@ -21,6 +21,9 @@ class Loader {
 
     this.loadModel = (files, cb) => {
       // console.log(files)
+      if (files.length === 0) {
+        cb([]);
+      }
       const models = [];
       const manager = new LoadingManager();
       manager.onStart = () => {

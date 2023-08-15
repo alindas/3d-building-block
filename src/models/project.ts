@@ -8,14 +8,34 @@ type ProjectObj = {
   }[];
 } | null;
 
-export interface ProjectState {
-  projectInfo: ProjectObj;
-  lightConfig: object;
-  cameraConfig: {
+export type TConfig = {
+  modelConfig?: {
+    files?: {
+      name: string;
+      url: string;
+    }[];
+  };
+  cameraConfig?: {
     position?: number[];
     orbitControlTarget?: number[];
   };
-  modelsConfig: object[];
+  lightConfig?: {
+    name: string;
+    type: 'AmbientLight' | 'DirectionalLight' | 'PointLight' | 'SpotLight';
+    position: number[];
+    rotate: number[];
+    intensity: number;
+    color: string;
+    castShadow: boolean;
+    visible: boolean;
+  }[];
+};
+
+export interface ProjectState {
+  projectInfo: ProjectObj;
+  lightConfig: TConfig['lightConfig'];
+  cameraConfig: TConfig['cameraConfig'];
+  modelsConfig: TConfig['modelConfig'];
 }
 
 const ProjectState: ModelType<ProjectState> = {
@@ -23,9 +43,9 @@ const ProjectState: ModelType<ProjectState> = {
 
   state: {
     projectInfo: null, //工程信息
-    lightConfig: {}, // 工程灯光配置
+    lightConfig: [], // 工程灯光配置
     cameraConfig: {}, // 工程相机配置
-    modelsConfig: [], //工程模型配置
+    modelsConfig: {}, //工程模型配置
   },
 
   effects: {},

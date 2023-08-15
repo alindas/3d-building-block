@@ -59,15 +59,19 @@
 |   |  |     ├─DataBind
 |   ├─login
 |   ├─stage  场景运行页，定制参考这
-|   |   ├─exhibit.tsx 具体工程渲染数据，增加定制功能参考这
+|   |   ├─exhibit_demo.tsx 增加定制功能参考这
+|   |   ├─exhibit.tsx 默认运行路由页，改动文件会导致无法响应
 |   ├─error
 |   |   ├─404.tsx
 |   |   └500.tsx
 ├─models
 |   ├─attribute.ts
+|   ├─effect.ts 对引用对象的修改的强制更新的集成
+|   ├─proxy.ts 与 redux 相关的操作回溯代理
 |   ├─project.ts  工程相关
 |   └scene.ts  场景编辑相关
 ├─layout
+|   |─AuthRouter.tsx 路由鉴权
 |   └SecurityLayout.tsx
 ├─components 全局公用组件
 ├─common 全局属性约束、配置文件

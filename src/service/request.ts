@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { backend } from './ipConfig';
 
 const request = axios.create({
+  baseURL: backend,
   timeout: 5000,
 });
 

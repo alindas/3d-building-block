@@ -25,11 +25,9 @@ export default {
     }
   },
 
-  // 保存工程配置
+  // 保存工程配置，用indexDB 作演示
   'POST /api/save': (req: any, res: any) => {
-    const { project, config } = req.body;
-    // console.log(project)
-    db_config[project] = config;
+    const { project, data } = req.body;
     res.end('ok');
   },
 };
