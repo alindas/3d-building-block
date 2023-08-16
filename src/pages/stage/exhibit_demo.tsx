@@ -1,4 +1,4 @@
-import { connect, ProjectState, SceneState, useParams } from 'umi';
+import { connect, ProjectState, SceneState, TConfig, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { debounce } from 'lodash';
 import * as THREE from 'three';
@@ -7,9 +7,6 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
-import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { Space, Switch } from 'antd';
 
 import style from './index.less';
 import { OutlinePass } from '@/utils/correct-package/three/outlinePass';
@@ -17,6 +14,8 @@ import { getClientXY, isEmpty } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
 import Blank from './blank';
 import request from '@/service/request';
+import { sse } from '@/service/ipConfig';
+import { freeModelMemory } from '@/utils/threeD';
 
 export type TMode = 'translate' | 'rotate' | 'scale';
 
@@ -38,31 +37,10 @@ let scene: THREE.Scene,
   width: number,
   height: number;
 
-let cameraConfig = {
-  // 默认相机配置
-  position: [43, 405, 365],
-  orbitControlTarget: [1, 192, 2],
-};
-
-// test 管道水流用
-const texture = new THREE.TextureLoader().load('/texture/flow.jpg');
-// const texture = new THREE.TextureLoader().load('/texture/test2.png');
-// 设置阵列模式为 RepeatWrapping
-texture.wrapS = THREE.RepeatWrapping;
-texture.wrapT = THREE.RepeatWrapping;
-texture.repeat.set(5, 1); // 重复数量
-// texture.offset.x = 0.5;
-
-const tubeMaterial = new THREE.MeshBasicMaterial({
-  map: texture,
-  transparent: true,
-  // color: 0x47d8fa,
-  // side: THREE.DoubleSide,
-  opacity: 0.4,
-});
-
-let openFlow = false; // 水流开关
-let target: THREE.Mesh;
+// 云端配置
+let config: TConfig = {};
+let workbenchModel: THREE.Object3D = new THREE.Group();
+let sseClient: EventSource;
 
 // 设置多通道，当选定模型组成部分时，高亮其边框
 function highlightModel() {
@@ -93,26 +71,13 @@ function highlightModel() {
   composer.addPass(effectFXAA);
 }
 
-function arrayToVector3(array: ArrayLike<number>) {
-  const Array = [];
-  // for(let i = 0; i <= array.length-2; i+3) {
-  //   Array.push(new THREE.Vector3(array[i], array[i+1], array[i+2]))
-  // }
-  for (let i = 0; i < array.length; i += 3) {
-    Array.push(new THREE.Vector3(array[i], array[i + 1], array[i + 2]));
-  }
-  return Array;
-}
-
 function render() {
   if (composer?.render) {
     composer.render();
   } else {
     renderer.render(scene, camera);
   }
-  if (openFlow) {
-    texture.offset.x += 0.01;
-  }
+
   orbitControl.update();
 }
 
@@ -136,53 +101,77 @@ function Exhibit(
   }>,
 ) {
   const [loading, setLoading] = useState('加载中..');
-  const [workbenchModel, setWorkbenchModel] = useState<null | THREE.Object3D>(
-    null,
-  );
   const { project }: any = useParams();
   const { dispatch } = props;
   const { selectedModel, outlinePassModel } = props.sceneModel;
 
   const threeDom = useRef<null | HTMLDivElement>(null);
 
+  // 初始化
   useEffect(() => {
-    if (project === 'test') {
-      const loader = new FBXLoader();
-
-      loader.load(`/projects/test_pipe/model.fbx`, function (object) {
-        setWorkbenchModel(object);
-        setLoading('');
-      });
+    // 如果浏览器不支持sse(没错，IE你这个垃圾, 说得就是你)
+    if (!('EventSource' in window)) {
+      alert('当前浏览器尚不支持sse 技术，请卸载它并安装Chrome 浏览器（推荐）');
     } else {
-      request
-        .get('/api/model?project=' + project)
-        .then((res: any) => {
-          if (res === 'no exit') {
-            setLoading('页面未开放');
-          } else {
-            console.log(res); // 按道理是配置文件和模型资源
-            cameraConfig = res;
-            // 从云资源里加载 model 和配置文件
-            const loader = new FBXLoader();
-
-            loader.load(`/projects/${project}/model.fbx`, function (object) {
-              setWorkbenchModel(object);
-              setLoading('');
-            });
-          }
-        })
-        .catch(() => {
-          setLoading('页面未开放');
-        });
+      // 开启sse 实时通讯用于接收服务端的动态信息
+      sseClient = new EventSource(`${sse}test/sse/status?projectId=${project}`);
+      sseClient.onopen = () => {
+        console.log('Connection Success');
+      };
+      // sse 连接出错处理
+      sseClient.onerror = (event) => {
+        console.log(`sse 连接出错--${event}`);
+      };
+      // 监听服务端实时更新的默认事件，并作出相应处理
+      sseClient.onmessage = (event) => {
+        console.log('event data', event.data);
+      };
+      // 监听服务端自定义事件，并作出相应处理
+      // 用户账号信息更新
+      sseClient.addEventListener(`${project}-status`, (event) => {
+        setLoading(JSON.parse(event.data) ? '' : '页面未开放');
+        console.log(event.type + ' 事件已响应，数据' + event.data);
+      });
     }
+    request
+      .get('test/exhibit?project=' + project)
+      .then((res: any) => {
+        if (res === 'no exit') {
+          setLoading('页面未开放');
+        } else {
+          console.log(res); // 按道理是配置文件和模型资源
+          config = res;
+          setLoading('');
+          // 从云资源里加载 model 和配置文件
+          window.loader.loadModel(
+            config?.modelConfig?.files ?? [],
+            (models) => {
+              models.forEach((o) => workbenchModel.add(o));
+            },
+          );
+        }
+      })
+      .catch(() => {
+        setLoading('页面未开放');
+      });
+
+    return () => {
+      if (typeof sseClient !== 'undefined') {
+        sseClient.close();
+      }
+    };
   }, []);
 
   useEffect(() => {
     if (loading === '') {
       initScene();
-      scene.add(workbenchModel!);
+      scene.add(workbenchModel);
       renderer.domElement.addEventListener('mouseup', onModelClick, true); // PC
       renderer.domElement.addEventListener('touchstart', onModelClick, false); // Mobile
+    } else {
+      freeModelMemory(scene);
+      // @ts-ignore
+      scene = null;
     }
   }, [loading]);
 
@@ -216,7 +205,7 @@ function Exhibit(
     offset = getClientXY(threeDom.current!, 'leftTop') as [number, number];
 
     camera = new THREE.PerspectiveCamera(60, width / height, NEAR, FAR);
-    const [x, y, z] = cameraConfig.position!;
+    const [x, y, z] = config?.cameraConfig?.position ?? [43, 405, 365];
     camera.position.set(x, y, z);
     scene.add(camera);
 
@@ -233,31 +222,32 @@ function Exhibit(
     }
     threeDom.current!.appendChild(renderer.domElement);
 
-    // 设置半球光
-    scene.add(new THREE.HemisphereLight(0xffffff, 0.5));
-
-    // 设置环境光
-    scene.add(new THREE.AmbientLight(0xffffff));
-
-    // 添加平面光
-    RectAreaLightUniformsLib.init();
-    const rectLight = new THREE.RectAreaLight(0xffffff, 1, 5000, 2000);
-    rectLight.position.set(0, 900, 1050);
-    rectLight.rotation.set(-Math.PI / 10, 0, 0);
-
-    scene.add(rectLight);
-    const rectLight2 = new THREE.RectAreaLight(0xffffff, 0.5, 5000, 2000);
-    rectLight2.position.set(0, 900, -1350);
-    // rectLight2.position.set(0, 1600, -1850);
-    // rectLight2.rotation.set(Math.PI / 4, Math.PI, 0);
-    rectLight2.rotation.set(Math.PI / 10, Math.PI, 0);
-    scene.add(rectLight2);
+    // 从配置中设置灯光
+    (config.lightConfig ?? []).forEach((l) => {
+      // const Constructor = THREE[l.type] as any
+      const light = new THREE[l.type]();
+      light.name = l.name;
+      light.intensity = l.intensity;
+      light.castShadow = l.castShadow;
+      light.visible = l.visible;
+      light.color.setStyle(l.color);
+      light.position.copy(new THREE.Vector3().fromArray(l.position));
+      // todo rotate
+      let radians = l.rotate.map((degree) => (degree * Math.PI) / 180);
+      light.rotation.x = radians[0];
+      light.rotation.y = radians[1];
+      light.rotation.z = radians[2];
+      // console.log(light)
+      scene.add(light);
+    });
 
     // 添加多通道渲染
     highlightModel();
 
     // 设置场景控制器
-    const [_x, _y, _z] = cameraConfig.orbitControlTarget!;
+    const [_x, _y, _z] = config?.cameraConfig?.orbitControlTarget ?? [
+      1, 192, 2,
+    ];
     orbitControl = new OrbitControls(camera, renderer.domElement);
     orbitControl.enableDamping = true;
     orbitControl.minDistance = NEAR;
@@ -375,40 +365,6 @@ function Exhibit(
     }
   }
 
-  // 管道液体流动(针对不同定制需要，做演示用)
-  function setFlow(checked: boolean) {
-    // 开水
-    if (!target) {
-      target = workbenchModel!.getObjectByName(
-        '3DXY_geometry_002',
-      ) as THREE.Mesh;
-
-      // 管道物体需要是 tubeGeometry
-      // const positionAttribute = target.geometry.getAttribute('position').array
-      // const path = new THREE.CatmullRomCurve3(arrayToVector3(positionAttribute))
-      // // const path = new THREE.QuadraticBezierCurve3(arrayToVector3(positionAttribute))
-      // target.geometry = new THREE.TubeGeometry(path)
-    }
-    if (checked) {
-      /**纹理坐标0~1之间随意定义*/
-      // const uvs = new Float32Array([
-      //   0, 0, //图片左下角
-      //   0.25, 0, //图片右下角
-      //   0.25, 0.25, //图片右上角
-      //   0, 0.25, //图片左上角
-      // ]);
-      // // 设置几何体attributes属性的位置normal属性
-      // target.geometry.attributes.uv = new THREE.BufferAttribute(uvs, 2); //2个为一组,表示一个顶点的纹理坐标
-      target.material = tubeMaterial;
-    } else {
-      // 关水
-      target.material = new THREE.MeshLambertMaterial({
-        color: '#000',
-      });
-    }
-    openFlow = checked;
-  }
-
   if (loading !== '') {
     return <Blank msg={loading} />;
   }
@@ -417,15 +373,6 @@ function Exhibit(
     <div className={style['stage-wrapper']}>
       <div className={style['container']}>
         <div ref={threeDom} className={style['main']}></div>
-        <div className={style['control-panel']}>
-          <Space direction="vertical">
-            <Switch
-              checkedChildren="开水"
-              unCheckedChildren="关水"
-              onChange={setFlow}
-            />
-          </Space>
-        </div>
       </div>
     </div>
   );
