@@ -118,7 +118,7 @@ function ToolBar(props: any) {
             },
           },
         });
-        window.open(`/stage/${window.projectId}`, '_blank');
+        // window.open(`/stage/${window.projectId}`, '_blank');
       })
       .catch(() => {
         message.error('工程发布失败');

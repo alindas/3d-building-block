@@ -14,6 +14,8 @@ import { getClientXY, isEmpty } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
 import Blank from './blank';
 import request from '@/service/request';
+import { sse } from '@/service/ipConfig';
+import { freeModelMemory } from '@/utils/threeD';
 
 export type TMode = 'translate' | 'rotate' | 'scale';
 
@@ -38,6 +40,7 @@ let scene: THREE.Scene,
 // 云端配置
 let config: TConfig = {};
 let workbenchModel: THREE.Object3D = new THREE.Group();
+let sseClient: EventSource;
 
 // 设置多通道，当选定模型组成部分时，高亮其边框
 function highlightModel() {
@@ -106,6 +109,30 @@ function Exhibit(
 
   // 初始化
   useEffect(() => {
+    // 如果浏览器不支持sse(没错，IE你这个垃圾, 说得就是你)
+    if (!('EventSource' in window)) {
+      alert('当前浏览器尚不支持sse 技术，请卸载它并安装Chrome 浏览器（推荐）');
+    } else {
+      // 开启sse 实时通讯用于接收服务端的动态信息
+      sseClient = new EventSource(`${sse}test/sse/status?projectId=${project}`);
+      sseClient.onopen = () => {
+        console.log('Connection Success');
+      };
+      // sse 连接出错处理
+      sseClient.onerror = (event) => {
+        console.log(`sse 连接出错--${event}`);
+      };
+      // 监听服务端实时更新的默认事件，并作出相应处理
+      sseClient.onmessage = (event) => {
+        console.log('event data', event.data);
+      };
+      // 监听服务端自定义事件，并作出相应处理
+      // 用户账号信息更新
+      sseClient.addEventListener(`${project}-status`, (event) => {
+        setLoading(JSON.parse(event.data) ? '' : '页面未开放');
+        console.log(event.type + ' 事件已响应，数据' + event.data);
+      });
+    }
     request
       .get('test/exhibit?project=' + project)
       .then((res: any) => {
@@ -127,6 +154,12 @@ function Exhibit(
       .catch(() => {
         setLoading('页面未开放');
       });
+
+    return () => {
+      if (typeof sseClient !== 'undefined') {
+        sseClient.close();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -135,6 +168,10 @@ function Exhibit(
       scene.add(workbenchModel);
       renderer.domElement.addEventListener('mouseup', onModelClick, true); // PC
       renderer.domElement.addEventListener('touchstart', onModelClick, false); // Mobile
+    } else {
+      freeModelMemory(scene);
+      // @ts-ignore
+      scene = null;
     }
   }, [loading]);
 
