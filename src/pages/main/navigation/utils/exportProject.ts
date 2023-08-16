@@ -1,12 +1,12 @@
 import { message } from 'antd';
 import JSZip from 'jszip';
-import { ColladaExporter } from '@/utils/correct-package/three/exporter/ColladaExporter'; //导出成dae方法
 import { ProjectState, getDvaApp } from 'umi';
 import request from '@/service/request';
 import saveProjectConfig from './saveProjectConfig';
+import { GLTFExporter } from '@/utils/correct-package/three/gltf/exporter';
 
 // 保存导出
-function ExportProject(type: 'save' | 'export', onDone: any) {
+async function ExportProject(type: 'save' | 'export', onDone: any) {
   // console.log('type', type);
   const store = getDvaApp()._store.getState();
   const { projectInfo } = store.project as ProjectState;
@@ -21,7 +21,7 @@ function ExportProject(type: 'save' | 'export', onDone: any) {
 
   const config = saveProjectConfig();
 
-  const exporter = new ColladaExporter();
+  const exporter = new GLTFExporter();
 
   const ZipData: any = [
     {
@@ -33,37 +33,59 @@ function ExportProject(type: 'save' | 'export', onDone: any) {
   ];
 
   const zip = new JSZip(); //初始化
-  const folder =
-    type === 'save' ? zip : zip.folder(projectInfo.name ?? '3D组态')!;
+  const folder = zip.folder(projectInfo.name ?? '3D组态')!;
 
   const workbenchModel = store.scene.workbenchModel as THREE.Object3D;
   // 3生成模型
   if (workbenchModel !== null) {
     try {
-      workbenchModel.children.forEach((o) => {
-        const result = exporter.parse(o, undefined, {
-          upAxis: 'Y_UP',
-          unitName: 'millimeter',
-          unitMeter: 0.0254,
-        });
-        let name = o.name.replace(/[<>:"/\\|?*]/g, ''); // 过滤非法限制
-        ZipData.push({
-          name: `model/${name}` + '.dae',
-          src: new Blob([result?.data]),
-        });
+      await new Promise((resolve) => {
+        let i = 0,
+          max = workbenchModel.children.length;
+        for (let o of workbenchModel.children) {
+          // const name = o.name.replace(/[<>:"/\\|?*]/g, '') // 过滤非法限制
+          const name = o.id; // 存在名字重合的情况
+          exporter.parse(
+            o,
+            function (gltf: any) {
+              let blob;
+              if (gltf instanceof ArrayBuffer) {
+                blob = new Blob([gltf], { type: 'application/octet-stream' });
+              } else {
+                const output = JSON.stringify(gltf, null, 2);
+                blob = new Blob([output], { type: 'text/plain' });
+              }
+              ZipData.push({
+                name: `model/${name}` + '.gltf',
+                src: blob,
+              });
+              i++;
+              if (i === max) {
+                resolve(undefined);
+              }
+            },
+            (e: any) => {
+              i++;
+              if (i === max) {
+                resolve(undefined);
+              }
+              throw new Error(JSON.stringify(e));
+            },
+            {},
+          );
+        }
       });
-    } catch {
+    } catch (e) {
       message.error('模型打包出错，请检查模型是否标准');
+      console.error(e);
     }
   }
-
   for (let data of ZipData) {
     folder.file(data.name, data.src);
   }
 
   zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
     if (type === 'save') {
-      // console.log(content)
       const formData = new FormData();
       formData.append('file', content, projectInfo.name ?? '3D组态');
       request

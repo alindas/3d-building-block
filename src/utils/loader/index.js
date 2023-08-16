@@ -1,6 +1,8 @@
 import { LoadingManager } from 'three';
 import { message } from 'antd';
 import FBXLoader from '../correct-package/three/fbxloader';
+// import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import getFileType from '../getFileType';
 import Loading from '@/components/Loading';
 
@@ -8,9 +10,34 @@ function getLoader(type) {
   switch (type) {
     case 'FBX':
       return FBXLoader;
+
+    case 'GLTF':
+      return GLTFLoader;
+
     default: {
       console.error('Loader: Invalid model type.');
       return null;
+    }
+  }
+}
+
+function LoaderModel(type, url, manager, cb) {
+  switch (type) {
+    case 'FBX':
+      new FBXLoader(manager).load(url, (model) => {
+        cb(model.children[0]?.type === 'Group' ? model.children[0] : model);
+      });
+      break;
+
+    case 'GLTF':
+      new GLTFLoader(manager).load(url, (model) => {
+        cb(model.scene.children[0]);
+      });
+      break;
+
+    default: {
+      message.error('不支持的3D模型：' + type);
+      console.error('Loader: Invalid model type.');
     }
   }
 }
@@ -57,26 +84,14 @@ class Loader {
         const modelURL = file?.url ?? window.URL.createObjectURL(file);
         if (file_name && file_type.type === 'model') {
           try {
-            const Loader = getLoader(file_type.value);
-            if (Loader === null) {
-              message.error('不支持的3D模型：' + file_type.value);
-              return;
-            }
-            const loader = new Loader(manager);
-
-            // 导入模拟模型
-            loader.load(modelURL, (model) => {
+            LoaderModel(file_type.value, modelURL, manager, (m) => {
               window.URL.revokeObjectURL(modelURL);
-
-              if (model.children[0]?.type === 'Group') {
-                model = model.children[0];
-              }
-
-              model.name = file_name.split('.')[0];
-              models.push(model);
+              m.name = file_name.split('.')[0];
+              models.push(m);
             });
-          } catch {
+          } catch (e) {
             message.error('未知错误');
+            console.error(e);
           }
         } else {
           message.error(file_name + '不是3D模型');
