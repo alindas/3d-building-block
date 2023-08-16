@@ -2,11 +2,8 @@ import { ModelType } from '@/common/type';
 
 type ProjectObj = {
   name: string;
-  models: {
-    name: string;
-    url: string;
-  }[];
-} | null;
+  open: boolean;
+};
 
 export type TConfig = {
   modelConfig?: {
@@ -32,6 +29,7 @@ export type TConfig = {
 };
 
 export interface ProjectState {
+  projectId: number;
   projectInfo: ProjectObj;
   lightConfig: TConfig['lightConfig'];
   cameraConfig: TConfig['cameraConfig'];
@@ -42,7 +40,11 @@ const ProjectState: ModelType<ProjectState> = {
   namespace: 'project',
 
   state: {
-    projectInfo: null, //工程信息
+    projectId: -1,
+    projectInfo: {
+      name: '',
+      open: false,
+    }, //工程信息
     lightConfig: [], // 工程灯光配置
     cameraConfig: {}, // 工程相机配置
     modelsConfig: {}, //工程模型配置
@@ -53,18 +55,18 @@ const ProjectState: ModelType<ProjectState> = {
   reducers: {
     // 保存工程信息，当新建工程时
     saveProject: (state, action) => {
-      const { config, ...rest } = action.payload;
-      window.projectInfo = rest;
+      const { id, config, ...rest } = action.payload;
+      window.projectId = id;
       return {
+        projectId: id,
         projectInfo: rest,
-        lightConfig: config.lightConfig,
-        cameraConfig: config.cameraConfig,
-        modelsConfig: config.modelsConfig,
+        lightConfig: config.lightConfig ?? [],
+        cameraConfig: config.cameraConfig ?? {},
+        modelsConfig: config.modelsConfig ?? {},
       };
     },
 
     updateProject: (state, action) => {
-      window.projectInfo = action.payload.projectInfo ?? window.projectInfo;
       return { ...state, ...action.payload };
     },
 

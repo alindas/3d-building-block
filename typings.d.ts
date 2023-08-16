@@ -34,7 +34,7 @@ interface Window {
   vector3: THREE.Vector3;
   quaternion: THREE.Quaternion;
   cmd: IProcess;
-  projectInfo: any;
+  projectId: number;
   loader: ILoader;
   modelUrl?: {
     value: string;

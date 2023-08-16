@@ -1,11 +1,10 @@
 import React from 'react';
-import { connect, ProjectState } from 'umi';
+import { connect } from 'umi';
 import { message, Modal } from 'antd';
 import * as THREE from 'three';
 
 // import { ColladaLoader } from '@/utils/ColladaLoader.js'; //导入ade模型
 import getFileType from '@/utils/getFileType'; //方法：根据文件名获取文件类型
-import { ConnectProps } from '@/common/type';
 import ExportProject from '../../utils/exportProject';
 import saveProjectConfig from '../../utils/saveProjectConfig';
 
@@ -28,18 +27,12 @@ function getProjectConfigData(file: any) {
   });
 }
 
-function ImpFiles(
-  props: ConnectProps<{
-    projectModel: ProjectState;
-  }>,
-) {
+function ImpFiles(props: any) {
   const { dispatch } = props;
-  const { projectInfo } = props.projectModel;
 
   const confirmBase = () => {
     // 点击导入按钮时，是否需要保存当前工程
-    console.log('confirm', projectInfo);
-    if (projectInfo !== null) {
+    if (window.projectId !== -1) {
       window.cmd.clear();
       Modal.confirm({
         title: '是否保存当前工程到本地?',
@@ -92,8 +85,9 @@ function ImpFiles(
       dispatch({
         type: 'project/saveProject',
         payload: {
+          id: new Date().valueOf(),
           name: project_name,
-          models: [],
+          open: false,
           config,
         },
       });
@@ -137,6 +131,4 @@ function ImpFiles(
   );
 }
 
-export default connect((state: any) => ({
-  projectModel: state.project,
-}))(ImpFiles);
+export default connect()(ImpFiles);

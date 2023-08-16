@@ -8,7 +8,7 @@ function NewProject() {
   const store = getDvaApp()._store;
 
   // 点击新建按钮时，是否需要保存当前工程
-  if (store.getState().project.projectInfo !== null) {
+  if (window.projectId !== -1) {
     window.cmd.clear();
     Modal.confirm({
       title: '是否保存当前工程到本地?',
@@ -31,8 +31,9 @@ function NewProject() {
   // 初始化新项目
   function initNewProject() {
     const initialProjectInfo = {
-      name: new Date().valueOf(),
-      models: {},
+      id: new Date().valueOf(),
+      name: new Date().valueOf() + '',
+      open: false,
       config: {},
     };
 

@@ -9,4 +9,5 @@ import '@/utils/correct-package/svelet-jsoneditor/themes/jse-theme-dark.css';
   window.cmd = new Process();
   window.loader = new Loader();
   window.autoSave = true;
+  window.projectId = -1;
 })();

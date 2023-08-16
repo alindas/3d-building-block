@@ -1,8 +1,8 @@
 import { Euler, MathUtils } from 'three';
-import { getDvaApp } from 'umi';
+import { getDvaApp, ProjectState } from 'umi';
 
 // 获取当前场景配置数据
-export function getConfig() {
+export function getConfig(): ProjectState {
   // console.log(window.scene)
   let position: number[] = [0, 0, 0];
   let lights = [];
@@ -36,6 +36,7 @@ export function getConfig() {
   }
 
   return {
+    // @ts-ignore
     lightConfig: lights,
     cameraConfig: {
       position,

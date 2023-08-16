@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'umi';
-import { Button, Modal } from 'antd';
+import { Button, Modal, message } from 'antd';
 import classnames from 'classnames';
 
 import style from './index.less';
@@ -12,6 +12,7 @@ import scaleBtn from '@/assets/tool-bar/scaleBtn.png';
 import rotateBtn from '@/assets/tool-bar/rotateBtn.png';
 import focusBtn from '@/assets/tool-bar/focusBtn.png';
 import exportProject from '@/pages/main/navigation/utils/exportProject';
+import request from '@/service/request';
 
 type TOptionMenu = {
   key: string;
@@ -105,7 +106,23 @@ function ToolBar(props: any) {
     setOpen(true);
     // todo 上传工程信息，在回调里打开新访问窗口
     await exportProject('save');
-    window.open(`/stage/${project.name}`, '_blank');
+    request
+      .post('test/updateProject', { projectId: window.projectId, open: true })
+      .then(() => {
+        dispatch({
+          type: 'project/updateProject',
+          payload: {
+            projectInfo: {
+              ...project,
+              open: true,
+            },
+          },
+        });
+        window.open(`/stage/${window.projectId}`, '_blank');
+      })
+      .catch(() => {
+        message.error('工程发布失败');
+      });
   }
 
   // 执行运行全屏展示界面
@@ -116,12 +133,33 @@ function ToolBar(props: any) {
         title: '复制链接访问查看',
         content: (
           <span style={{ color: '#1b92ff' }}>
-            {location.origin}/stage/{project.name}
+            {location.origin}/stage/{window.projectId}
           </span>
         ),
         transitionName: '',
         cancelText: '取消发布',
-        onCancel: () => setOpen(false),
+        onCancel: () => {
+          request
+            .post('test/updateProject', {
+              projectId: window.projectId,
+              open: false,
+            })
+            .then(() => {
+              dispatch({
+                type: 'project/updateProject',
+                payload: {
+                  projectInfo: {
+                    ...project,
+                    open: false,
+                  },
+                },
+              });
+              setOpen(false);
+            })
+            .catch(() => {
+              message.error('工程发布失败');
+            });
+        },
       });
 
       return;
@@ -133,7 +171,7 @@ function ToolBar(props: any) {
         <span>
           展示地址：
           <span style={{ color: '#1b92ff' }}>
-            {location.origin}/stage/{project.name}
+            {location.origin}/stage/{window.projectId}
           </span>
         </span>
       ),
@@ -176,7 +214,7 @@ function ToolBar(props: any) {
           type="primary"
           size="small"
           onClick={localRun}
-          disabled={project === null}
+          disabled={window.projectId === -1}
         >
           {open ? '展示地址' : '发布'}
         </Button>

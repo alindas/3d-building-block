@@ -11,7 +11,7 @@ async function ExportProject(type: 'save' | 'export', onDone: any) {
   const store = getDvaApp()._store.getState();
   const { projectInfo } = store.project as ProjectState;
 
-  if (projectInfo === null) {
+  if (window.projectId === -1) {
     message.info('无工程');
     onDone();
     return;
@@ -20,6 +20,7 @@ async function ExportProject(type: 'save' | 'export', onDone: any) {
   message.loading('执行中，请耐心等候...', 0);
 
   const config = saveProjectConfig();
+  config['projectInfo'] = projectInfo;
 
   const exporter = new GLTFExporter();
 
@@ -33,7 +34,8 @@ async function ExportProject(type: 'save' | 'export', onDone: any) {
   ];
 
   const zip = new JSZip(); //初始化
-  const folder = zip.folder(projectInfo.name ?? '3D组态')!;
+  const folder =
+    type === 'save' ? zip : zip.folder(projectInfo.name ?? '3D组态')!;
 
   const workbenchModel = store.scene.workbenchModel as THREE.Object3D;
   // 3生成模型
@@ -87,7 +89,8 @@ async function ExportProject(type: 'save' | 'export', onDone: any) {
   zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
     if (type === 'save') {
       const formData = new FormData();
-      formData.append('file', content, projectInfo.name ?? '3D组态');
+      formData.append('file', content);
+      formData.append('projectId', window.projectId + '');
       request
         .post('test/save', formData, {
           headers: {

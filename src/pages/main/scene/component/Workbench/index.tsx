@@ -223,7 +223,7 @@ function Workbench(
     renderer.domElement.addEventListener('drop', function (e) {
       e.stopPropagation();
       e.preventDefault();
-      if (isEmpty(window.projectInfo)) {
+      if (window.projectId === -1) {
         message.info('请先创建工程');
         return;
       }
