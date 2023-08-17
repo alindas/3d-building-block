@@ -45,60 +45,60 @@ function LoaderModel(type, url, manager, cb) {
 class Loader {
   constructor() {
     this.loading = false;
-
-    this.loadModel = (files, cb) => {
-      // console.log(files)
-      if (files.length === 0) {
-        cb([]);
-      }
-      const models = [];
-      const manager = new LoadingManager();
-      manager.onStart = () => {
-        this.loading = true;
-        Loading.start({ type: 'loading', msg: '模型加载中' });
-        // message.loading('模型导入中...');
-      };
-      manager.onLoad = () => {
-        this.loading = false;
-        // message.destroy();
-        Loading.done();
-        cb(models);
-      };
-      manager.onProgress = (url, loaded, total) => {
-        console.log('Loaded ' + loaded + ' of ' + total + ' files.');
-        Loading.refresh(
-          undefined,
-          `模型加载中 ${((loaded / total) * 100).toFixed(2)}%`,
-        );
-      };
-      manager.onError = (url) => {
-        window.URL.revokeObjectURL(url);
-        console.error('There was an error loading ' + url);
-        message.error('模型加载失败：' + url);
-      };
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const file_name = file?.name; //读取选中文件的文件名
-        const file_type = getFileType(file_name); //选中文件的类型
-        const modelURL = file?.url ?? window.URL.createObjectURL(file);
-        if (file_name && file_type.type === 'model') {
-          try {
-            LoaderModel(file_type.value, modelURL, manager, (m) => {
-              window.URL.revokeObjectURL(modelURL);
-              m.name = file_name.split('.')[0];
-              models.push(m);
-            });
-          } catch (e) {
-            message.error('未知错误');
-            console.error(e);
-          }
-        } else {
-          message.error(file_name + '不是3D模型');
-        }
-      }
-    };
   }
+
+  loadModel = (files, cb) => {
+    // console.log(files)
+    if (files.length === 0) {
+      cb([]);
+    }
+    const models = [];
+    const manager = new LoadingManager();
+    manager.onStart = () => {
+      this.loading = true;
+      Loading.start({ type: 'loading', msg: '模型加载中' });
+      // message.loading('模型导入中...');
+    };
+    manager.onLoad = () => {
+      this.loading = false;
+      // message.destroy();
+      Loading.done();
+      cb(models);
+    };
+    manager.onProgress = (url, loaded, total) => {
+      console.log('Loaded ' + loaded + ' of ' + total + ' files.');
+      Loading.refresh(
+        undefined,
+        `模型加载中 ${((loaded / total) * 100).toFixed(2)}%`,
+      );
+    };
+    manager.onError = (url) => {
+      window.URL.revokeObjectURL(url);
+      console.error('There was an error loading ' + url);
+      message.error('模型加载失败：' + url);
+    };
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const file_name = file?.name; //读取选中文件的文件名
+      const file_type = getFileType(file_name); //选中文件的类型
+      const modelURL = file?.url ?? window.URL.createObjectURL(file);
+      if (file_name && file_type.type === 'model') {
+        try {
+          LoaderModel(file_type.value, modelURL, manager, (m) => {
+            window.URL.revokeObjectURL(modelURL);
+            m.name = file_name.split('.')[0];
+            models.push(m);
+          });
+        } catch (e) {
+          message.error('未知错误');
+          console.error(e);
+        }
+      } else {
+        message.error(file_name + '不是3D模型');
+      }
+    }
+  };
 }
 
 export default Loader;

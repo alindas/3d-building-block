@@ -1,4 +1,4 @@
-declare interface IProcess {
+export default class Process {
   /**
    * @default 5
    */
@@ -28,6 +28,8 @@ declare interface IProcess {
    */
   canForward: boolean;
 
+  constructor(max?: number);
+
   /**
    * @default null
    */
@@ -44,3 +46,5 @@ declare interface IProcess {
 
   clear(): void;
 }
+
+export as namespace TProcess;

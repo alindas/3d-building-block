@@ -1,5 +1,3 @@
-// / <reference path="src/utils/process/process.d.ts" />
-
 declare module '*.css';
 declare module '*.less';
 declare module '*.png';
@@ -33,9 +31,9 @@ interface Window {
   transformControl: any;
   vector3: THREE.Vector3;
   quaternion: THREE.Quaternion;
-  cmd: IProcess;
+  cmd: TProcess.default;
   projectId: number;
-  loader: ILoader;
+  loader: TLoader.default;
   modelUrl?: {
     value: string;
     type: string;
