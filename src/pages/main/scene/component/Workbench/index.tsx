@@ -28,7 +28,10 @@ import { Object3D } from 'three';
 export type TMode = 'translate' | 'rotate' | 'scale';
 
 const NEAR = 0.1,
-  FAR = 20000;
+  FAR = 20000,
+  minDistance = 10,
+  maxDistance = 10000;
+
 let scene: THREE.Scene,
   viewHelper: any,
   orbitControl: any,
@@ -282,6 +285,7 @@ function Workbench(
               modelHash: TransformArrayToHash(model),
             },
           });
+          message.success('加载完成');
         },
       );
     });
@@ -457,8 +461,8 @@ function Workbench(
     // 设置场景控制器
     orbitControl = new OrbitControls(camera, renderer.domElement);
     orbitControl.enableDamping = true;
-    orbitControl.minDistance = NEAR;
-    orbitControl.maxDistance = FAR;
+    orbitControl.minDistance = minDistance;
+    orbitControl.maxDistance = maxDistance;
     // orbitControl.maxPolarAngle = Math.PI / 2;
 
     // 模型调整控制器

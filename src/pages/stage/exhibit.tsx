@@ -20,7 +20,10 @@ import { freeModelMemory } from '@/utils/threeD';
 export type TMode = 'translate' | 'rotate' | 'scale';
 
 const NEAR = 0.1,
-  FAR = 50000;
+  FAR = 20000,
+  minDistance = 10,
+  maxDistance = 10000;
+
 let scene: THREE.Scene,
   orbitControl: any,
   transformControl: any,
@@ -250,8 +253,8 @@ function Exhibit(
     ];
     orbitControl = new OrbitControls(camera, renderer.domElement);
     orbitControl.enableDamping = true;
-    orbitControl.minDistance = NEAR;
-    orbitControl.maxDistance = FAR;
+    orbitControl.minDistance = minDistance;
+    orbitControl.maxDistance = maxDistance;
     orbitControl.maxPolarAngle = Math.PI / 2;
     orbitControl.target.set(_x, _y, _z);
 

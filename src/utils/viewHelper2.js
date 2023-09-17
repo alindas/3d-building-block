@@ -34,7 +34,7 @@ class ViewHelper {
     this.control = new THREE.Vector3(0, 0, 0);
 
     let { width, height, left, top } = dom.getBoundingClientRect();
-    const { far, near } = camera;
+    // const { far, near } = camera;
     const size = width > height ? height : width;
     const axis_length = size * 0.325;
     const axis_width = size * 0.1625;
@@ -47,8 +47,6 @@ class ViewHelper {
       size / 2,
       size / 2,
       size / -2,
-      near,
-      far,
     );
     axesCamera.position.copy(camera.position);
     axesCamera.position.clampLength(size / 2, size / 2); // 限制成像大小
@@ -137,7 +135,12 @@ class ViewHelper {
     this.render = function (orbitControl) {
       this.control = orbitControl ?? this.control;
       // 坐标轴跟随移动, 需要减去 orbitControl 的控制中心
-      axesCamera.position.subVectors(camera.position, this.control);
+      // axesCamera.position.subVectors(camera.position, this.control);
+      // 保持恒定距离，
+      axesCamera.position
+        .subVectors(camera.position, this.control)
+        .normalize()
+        .multiplyScalar(100);
       axesCamera.lookAt(0, 0, 0);
       scene.quaternion.copy(camera.quaternion).invert();
 
