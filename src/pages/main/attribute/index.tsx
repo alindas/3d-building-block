@@ -6,6 +6,9 @@ import DataBind from './component/DataBind';
 import Editor from './component/Editor';
 import SelectedModel from './component/SelectedModel';
 import EnvConfig from './component/EnvConfig';
+import MyScript from './component/MyScript';
+
+const initialSort = ['属性', '环境', '脚本'];
 
 const Attribute = (props: any, ref: any) => {
   const { sequence, onSort, ...dragProps } = props;
@@ -14,10 +17,10 @@ const Attribute = (props: any, ref: any) => {
     // 结合本地排序
     try {
       let record = JSON.parse(localStorage.getItem('attribute') ?? '[]');
-      onSort(Array.from(new Set([...record, '属性', '环境'])));
+      onSort(Array.from(new Set([...record, ...initialSort])));
     } catch (error) {
       localStorage.removeItem('attribute');
-      onSort(['属性', '环境']);
+      onSort(initialSort);
     }
   }, []);
 
@@ -42,6 +45,15 @@ const Attribute = (props: any, ref: any) => {
               <Collapse title="环境" dragId={index} key={item} defaultExpand>
                 <div className={style['scene-config']}>
                   <EnvConfig />
+                </div>
+              </Collapse>
+            );
+          }
+          case '脚本': {
+            return (
+              <Collapse title="脚本" dragId={index} key={item} defaultExpand>
+                <div className={style['script-config']}>
+                  <MyScript />
                 </div>
               </Collapse>
             );

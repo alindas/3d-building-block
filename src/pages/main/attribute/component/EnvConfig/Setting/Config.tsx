@@ -2,6 +2,7 @@ import MyJSONEditor from '@/components/MyJSONEditor';
 import { useEffect, useMemo, useState } from 'react';
 import { connect, ProjectState } from 'umi';
 import { ConnectProps } from '@/common/type';
+import { message } from 'antd';
 
 import style from './config.less';
 import { handleMove } from '@/utils/common';
@@ -56,18 +57,23 @@ function Config(
   }
 
   function handleEdit() {
+    // 存在工程方可编辑
+    if (window.projectId === -1) {
+      message.info('请先创建工程');
+      return;
+    }
     if (!readOnly) {
       // todo 检查是否合法，去除不能被修改的地方
       if (hasWrong) {
         const node = document.querySelector('.ant-tabs-content-holder')!;
         node.scrollTop = node.scrollHeight;
         return;
-      } else {
+      } else if (typeof controlJSON === 'object') {
         let configObj;
         if (Reflect.has(controlJSON, 'json')) {
           // @ts-ignore
           configObj = controlJSON.json;
-        } else {
+        } else if (Reflect.has(controlJSON, 'text')) {
           // @ts-ignore
           configObj = JSON.parse(controlJSON.text);
         }

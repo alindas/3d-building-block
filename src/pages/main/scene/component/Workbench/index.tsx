@@ -23,6 +23,7 @@ import style from './index.less';
 import { isEmpty, getClientXY } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
 import { updateSelectedModel } from '@/models/proxy';
+import { Object3D } from 'three';
 
 export type TMode = 'translate' | 'rotate' | 'scale';
 
@@ -238,18 +239,21 @@ function Workbench(
       let files;
       let modelUrl = window.modelUrl;
       window.modelUrl = undefined;
+      mouse.x =
+        ((e.clientX - offset[0]) / threeDom.current!.offsetWidth) * 2 - 1;
+      mouse.y =
+        -((e.clientY - offset[1]) / threeDom.current!.offsetHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const enterPos =
+        raycaster.intersectObjects(scene.children)[0]?.point ??
+        new THREE.Vector3();
+
       if (modelUrl) {
         // 如果是从模型库拖入的，分析出其远端真实的模型url
         if (modelUrl.type === 'local') {
-          mouse.x =
-            ((e.clientX - offset[0]) / threeDom.current!.offsetWidth) * 2 - 1;
-          mouse.y =
-            -((e.clientY - offset[1]) / threeDom.current!.offsetHeight) * 2 + 1;
-
-          raycaster.setFromCamera(mouse, camera);
-          const intersects = raycaster.intersectObjects(scene.children);
           parseModelUrl(modelUrl.value, {
-            position: intersects[0].point,
+            position: enterPos,
           });
           dispatch({ type: 'effect/updateLightEffect' });
 
@@ -263,16 +267,23 @@ function Workbench(
           ];
         }
       }
-      window.loader.loadModel(files ?? e.dataTransfer!.files, (model: any) => {
-        dispatch({
-          type: 'scene/updateWorkbenchModel',
-          payload: {
-            model,
-            type: 'add',
-            modelHash: TransformArrayToHash(model),
-          },
-        });
-      });
+      window.loader.loadModel(
+        files ?? e.dataTransfer!.files,
+        (model: Object3D[]) => {
+          // 位置
+          model.forEach((m) => {
+            m.position.copy(enterPos);
+          });
+          dispatch({
+            type: 'scene/updateWorkbenchModel',
+            payload: {
+              model,
+              type: 'add',
+              modelHash: TransformArrayToHash(model),
+            },
+          });
+        },
+      );
     });
 
     const Performance = debounce(
@@ -324,7 +335,7 @@ function Workbench(
 
   useEffect(() => {
     if (workbenchModel !== null) {
-      // console.log('secene in workbench: ', scene);
+      // console.log('scene in workbench: ', scene);
       // console.log('workbenchModel---saveModelConfigList', saveModelConfigList);
 
       // console.log('oldModelId in workbench: ', oldModelId);
@@ -332,7 +343,7 @@ function Workbench(
       renderer.domElement.addEventListener('mouseup', onModelClick, true); // PC
       renderer.domElement.addEventListener('touchstart', onModelClick, false); // Mobile
 
-      updateCamera();
+      // updateCamera();
     }
 
     return () => {
@@ -395,6 +406,7 @@ function Workbench(
     // renderer.autoClear = false;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
+    // renderer.setClearAlpha(0); // 设置背景为透明
 
     if (threeDom.current!.children.length != 0) {
       threeDom.current!.removeChild(threeDom.current!.children[0]);

@@ -10,7 +10,7 @@ export default function EnvConfig() {
   return (
     <Tabs
       // onChange={onChange}
-      defaultActiveKey="set"
+      defaultActiveKey="scene"
       type="card"
       size="small"
     >

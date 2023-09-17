@@ -542,7 +542,7 @@ function RelationshipEditor(
             className="draggable-tree"
             draggable
             blockNode
-            defaultExpandedKeys={['0-0']}
+            // defaultExpandedKeys={['0-0']}
             selectedKeys={selectedKey}
             treeData={modelList}
             onDrop={onDrop}

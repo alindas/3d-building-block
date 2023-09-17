@@ -45,5 +45,61 @@
         "desc": "RB08"
       }
     ]
+  },
+  {
+    "group": "其他控件",
+    "type": "other",
+    "data": [
+      {
+        "cover": "/model/other/储液罐.png",
+        "url": "/model/other/储液罐.FBX",
+        "desc": "储液罐"
+      },
+      {
+        "cover": "/model/other/传送带.png",
+        "url": "/model/other/传送带.FBX",
+        "desc": "传送带"
+      },
+      {
+        "cover": "/model/other/管道接口环.png",
+        "url": "/model/other/设备管道接口环.FBX",
+        "desc": "管道接口环"
+      },
+      {
+        "cover": "/model/other/机器人.png",
+        "url": "/model/other/机器人.FBX",
+        "desc": "机器人"
+      },
+      {
+        "cover": "/model/other/送料.png",
+        "url": "/model/other/送料.FBX",
+        "desc": "送料"
+      },
+      {
+        "cover": "/model/other/弯管.png",
+        "url": "/model/other/弯管.FBX",
+        "desc": "弯管"
+      },
+      {
+        "cover": "/model/other/微波炉.png",
+        "url": "/model/other/微波炉.FBX",
+        "desc": "微波炉"
+      },
+      {
+        "cover": "/model/other/下料.png",
+        "url": "/model/other/下料.FBX",
+        "desc": "下料"
+      },
+      {
+        "cover": "/model/other/直管.png",
+        "url": "/model/other/直管.FBX",
+        "desc": "直管"
+      },
+      {
+        "cover": "/model/other/柱子和梁.png",
+        "url": "/model/other/柱子和梁.FBX",
+        "desc": "柱子和梁"
+      }
+    ]
   }
 ]

@@ -55,7 +55,7 @@ const SceneModel: ModelType<SceneState> = {
   reducers: {
     // 更改控制器模式
     modifyTransformControlMode: (state, action) => {
-      console.log('here', action);
+      // console.log('here', action);
       state.transformControlMode = action.payload;
     },
 
@@ -177,7 +177,7 @@ const SceneModel: ModelType<SceneState> = {
           window.scene.remove(state.outlinePassModel);
           freeModelMemory(state.outlinePassModel);
         }
-        console.log('payload', payload);
+        // console.log('payload', payload);
         if (payload === null || payload.isGroup) {
           state.outlinePassModel = null;
         } else {

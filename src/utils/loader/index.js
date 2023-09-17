@@ -25,7 +25,8 @@ function LoaderModel(type, url, manager, cb) {
   switch (type) {
     case 'FBX':
       new FBXLoader(manager).load(url, (model) => {
-        cb(model.children[0]?.type === 'Group' ? model.children[0] : model);
+        // cb(model.children[0]?.type === 'Group' ? model.children[0] : model);
+        cb(model);
       });
       break;
 

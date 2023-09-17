@@ -5,6 +5,8 @@ import RelationshipEditor from './component/RelationshipEditor';
 import style from './index.less';
 import ModelLibrary from './component/ModelLibrary';
 
+const initialSort = ['模型库', '模型'];
+
 const Wealth = (props: any, ref: any) => {
   const { sequence, onSort, ...dragProps } = props;
 
@@ -15,10 +17,10 @@ const Wealth = (props: any, ref: any) => {
   useEffect(() => {
     try {
       let record = JSON.parse(localStorage.getItem('wealth') ?? '[]');
-      onSort(Array.from(new Set([...record, '模型库', '模型'])));
+      onSort(Array.from(new Set([...record, ...initialSort])));
     } catch (error) {
       localStorage.removeItem('wealth');
-      onSort(['模型库', '模型']);
+      onSort(initialSort);
     }
   }, []);
 
