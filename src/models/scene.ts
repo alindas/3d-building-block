@@ -20,7 +20,6 @@ export interface SceneState {
   selectedModel: null | THREE.Object3D;
   multipleChoiceNodes: number[];
   multipleChoiceModels: any[];
-
   outlinePassModel: null | THREE.Object3D;
 
   allModelConfigList: [];

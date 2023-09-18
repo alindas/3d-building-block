@@ -33,7 +33,7 @@ const MATERIAL = {
   color: 'rgb(0, 0, 0)',
 };
 
-let rotation = [0, 0, 0];
+let rotation: (number | string)[] = [0, 0, 0];
 
 type TInput = {
   type: 'position' | 'scale' | 'rotate';
@@ -54,7 +54,7 @@ function getSide(id: 0 | 1 | 2) {
 }
 
 function Editor(props: any) {
-  console.log('Editer', props.selectedModel);
+  // console.log('Editer', props.selectedModel);
   const {
     position = XYZ,
     scale = XYZ,

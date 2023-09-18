@@ -10,4 +10,5 @@ import '@/utils/correct-package/svelet-jsoneditor/themes/jse-theme-dark.css';
   window.loader = new Loader();
   window.autoSave = true;
   window.projectId = -1;
+  window.multiple = false;
 })();

@@ -8,18 +8,18 @@ import ColorPicker from '@/components/ColorPicker';
 
 let euler = new Euler();
 
-let rotation = [0, 0, 0];
+let rotation: (string | number)[] = [0, 0, 0];
 
-export function setAngleFromQuaternion(quaternion: Quaternion) {
+export function setAngleFromQuaternion(quaternion: Quaternion, precision = 2) {
   if (!quaternion?.isQuaternion) {
     return [0, 0, 0];
   }
   // 使用四元数更新 Euler 对象
   try {
     euler.setFromQuaternion(quaternion, 'XYZ');
-    let rX = MathUtils.radToDeg(euler.x);
-    let rY = MathUtils.radToDeg(euler.y);
-    let rZ = MathUtils.radToDeg(euler.z);
+    let rX = MathUtils.radToDeg(euler.x).toFixed(2);
+    let rY = MathUtils.radToDeg(euler.y).toFixed(2);
+    let rZ = MathUtils.radToDeg(euler.z).toFixed(2);
     return [rX, rY, rZ];
   } catch (error) {
     console.error('角度转换报错，可能是参数缺失');
@@ -179,9 +179,9 @@ function SceneLight(props: any) {
             </div>
             <div className={style['attr-item-value']}>
               <span className={style['attr-item-pos']}>
-                <span>{rotation[0].toFixed(2)}°</span>
-                <span>{rotation[1].toFixed(2)}°</span>
-                <span>{rotation[2].toFixed(2)}°</span>
+                <span>{rotation[0]}°</span>
+                <span>{rotation[1]}°</span>
+                <span>{rotation[2]}°</span>
               </span>
             </div>
           </div>

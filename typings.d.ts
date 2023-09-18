@@ -34,6 +34,7 @@ interface Window {
   cmd: TProcess.default;
   projectId: number;
   loader: TLoader.default;
+  multiple: boolean;
   modelUrl?: {
     value: string;
     type: string;

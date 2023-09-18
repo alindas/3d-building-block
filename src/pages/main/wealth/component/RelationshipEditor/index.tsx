@@ -1,13 +1,13 @@
 import { connect, SceneState } from 'umi';
 import { useEffect, useRef, useState, useLayoutEffect } from 'react';
-import { Tree, Button, Modal, Input } from 'antd';
-import type { DataNode, TreeProps } from 'antd/lib/tree';
+import { Tree, Button, Modal, Input, message } from 'antd';
+import type { EventDataNode, DataNode, TreeProps } from 'antd/lib/tree';
 import {
   EditOutlined,
   CloseCircleOutlined,
   AppstoreAddOutlined,
 } from '@ant-design/icons';
-import { Vector3 } from 'three';
+import { Vector3, Group } from 'three';
 import style from './index.less';
 import { isEmpty } from '@/utils/common';
 import { TransformArrayToHash, updateModelFromName } from '@/utils/threeD';
@@ -84,6 +84,12 @@ function loopSetDelete(array: any[], lineArray: string | any[], index: number) {
   }
 }
 
+let stepfather: Group;
+
+interface Object3DNode extends EventDataNode<DataNode> {
+  id: number;
+}
+
 function RelationshipEditor(
   props: ConnectProps<{
     sceneModel: SceneState;
@@ -102,6 +108,13 @@ function RelationshipEditor(
   const [modelList, setModelList] = useState<any[]>([]);
   const [treeHeight, setTreeHeight] = useState<number>(0);
   const [selectedKey, setSelectedKey] = useState<string[]>([]);
+  const [checkedKeys, setCheckedKeys] = useState<
+    | {
+        checked: (string | number)[];
+        halfChecked: (string | number)[];
+      }
+    | (string | number)[]
+  >([]);
   const [rightMenuConfig, setRightMenuConfig] = useState<{
     visibility: boolean;
     position: [number, number];
@@ -365,8 +378,8 @@ function RelationshipEditor(
 
   // 左侧栏选择模型
   const onSelect = (key: any, info: any) => {
-    // 如果当前节点已被选中，则取消选择
-    if (key.length == 0 || selectedKey[0] === key[0]) {
+    // 如果当前节点已被选中，或是开启多选模式，则取消选择
+    if (key.length == 0 || selectedKey[0] === key[0] || ifMultiple) {
       return;
     }
 
@@ -381,7 +394,7 @@ function RelationshipEditor(
   };
 
   const onRightClick = ({ event, node }: { event: any; node: any }) => {
-    console.log('node in Relation', node);
+    // console.log('node in Relation', node);
     rightMenuSelectModelName.current = {
       key: node.key,
       initial: node.title,
@@ -499,8 +512,28 @@ function RelationshipEditor(
     e.target.value = '';
   }
 
+  // 开启或关闭多选模型时
   function handleMultipleChoice() {
+    // 关闭时释放已有包裹的模型
+    if (ifMultiple) {
+      // 移除会影响原数据
+      for (let i = stepfather.children.length - 1; i >= 0; i--) {
+        const child = stepfather.children[i];
+        child.userData.father.attach(child);
+        delete child.userData.father;
+      }
+      window.scene.remove(stepfather);
+    } else {
+      // 开启时清除已有选中的模型，
+      stepfather = new Group();
+      stepfather.name = '组合编辑';
+      window.scene.add(stepfather);
+    }
+
+    updateSelectedModel(null);
     setIfMultiple(!ifMultiple);
+    window.multiple = !ifMultiple;
+    setCheckedKeys([]);
     setRightMenuConfig({
       visibility: false,
       position: [0, 0],
@@ -509,6 +542,31 @@ function RelationshipEditor(
 
   const onCheck: TreeProps['onCheck'] = (checkedKeys, info) => {
     console.log('onCheck', checkedKeys, info);
+    const node = info.node as Object3DNode;
+    // 只允许最高一级的模型多选操作
+    if ((node.key as string).length > 3) {
+      message.warn('只允许对一级模型进行组合编辑');
+      return;
+    }
+
+    setCheckedKeys(checkedKeys);
+    if (!info.checked) {
+      // stepfather.remove(workbenchModelHash[node.id])
+      workbenchModelHash[node.id].userData.father.attach(
+        workbenchModelHash[node.id],
+      );
+      delete workbenchModelHash[node.id].userData.father;
+    } else {
+      // selectedModel 采用 group 包裹，实现统一管理
+      if (workbenchModelHash[node.id].isObject3D) {
+        workbenchModelHash[node.id].userData.father =
+          workbenchModelHash[node.id].parent;
+        stepfather.attach(workbenchModelHash[node.id]);
+      }
+    }
+    console.log(stepfather);
+
+    updateSelectedModel(stepfather);
   };
 
   return (
@@ -540,10 +598,11 @@ function RelationshipEditor(
             checkStrictly
             height={treeHeight}
             className="draggable-tree"
-            draggable
+            // draggable
             blockNode
             // defaultExpandedKeys={['0-0']}
             selectedKeys={selectedKey}
+            checkedKeys={checkedKeys}
             treeData={modelList}
             onDrop={onDrop}
             onSelect={onSelect}

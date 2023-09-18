@@ -497,7 +497,7 @@ function Workbench(
 
     window.addEventListener('mouseup', (e) => {
       // 如果键下的是鼠标右键
-      if (e.button == 2 && enableCatch) {
+      if (e.button == 2 && enableCatch && !window.multiple) {
         updateSelectedModel(null);
         // dispatch({
         //   type: 'scene/updateSelectedModel',
@@ -533,7 +533,7 @@ function Workbench(
 
   // 监听 3d 展示区域的点击
   function onModelClick(event: any) {
-    if (!enableCatch) {
+    if (!enableCatch || window.multiple) {
       return;
     }
 
