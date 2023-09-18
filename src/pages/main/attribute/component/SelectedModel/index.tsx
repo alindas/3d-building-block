@@ -10,7 +10,7 @@ function SelectedModel(props: any) {
       {props.children}
       <div
         className={style['selected-mask']}
-        style={props.selectedModel == null ? { bottom: 0 } : {}}
+        style={props.selectedModel == null ? { height: '150%' } : {}}
       ></div>
     </div>
   );

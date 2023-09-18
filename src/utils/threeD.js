@@ -1,6 +1,15 @@
 import * as THREE from 'three';
 import { message } from 'antd';
 
+/**
+ *
+ * @param {string | number} degress 角度值
+ * @returns 弧度值
+ */
+export function degreesToRadians(degress) {
+  return degress * (Math.PI / 180);
+}
+
 export function parseModelUrl(url, config) {
   switch (url) {
     case 'ambient': {

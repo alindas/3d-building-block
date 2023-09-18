@@ -1,8 +1,9 @@
-import { Mesh, MeshBasicMaterial, Group } from 'three';
+import { Mesh, MeshBasicMaterial, Group, Euler } from 'three';
 import {
   TransformArrayToHash,
   freeModelMemory,
   calculateWorldSet,
+  degreesToRadians,
 } from '@/utils/threeD';
 import { isEmpty } from '@/utils/common';
 import { ModelType } from '@/common/type';
@@ -245,6 +246,22 @@ const SceneModel: ModelType<SceneState> = {
           state.outlinePassModel !== null &&
             state.outlinePassModel.scale.copy(action.payload[attr]);
           break;
+        } else if (attr === 'rotate') {
+          const { x, y, z } = action.payload.rotate;
+          // 创建一个Euler对象
+          const euler = new Euler(
+            degreesToRadians(x),
+            degreesToRadians(y),
+            degreesToRadians(z),
+            'XYZ',
+          );
+
+          state.selectedModel!.quaternion.setFromEuler(euler);
+          state.outlinePassModel !== null &&
+            state.outlinePassModel.quaternion.copy(
+              state.selectedModel!.quaternion,
+            );
+          break;
         } else if (attr === 'material') {
           const { material } = action.payload;
           // @ts-ignore
@@ -269,7 +286,7 @@ const SceneModel: ModelType<SceneState> = {
             state.selectedModel.material = material;
           }
         } else {
-          // 其他模型暂且直接赋值
+          // 其他属性暂且直接赋值
           // @ts-ignore
           state.selectedModel[attr] = action.payload[attr];
         }

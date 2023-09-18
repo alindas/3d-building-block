@@ -7,16 +7,24 @@ import style from './index.less';
 import ColorPicker from '@/components/ColorPicker';
 
 let euler = new Euler();
-let rotationX = 0;
-let rotationY = 0;
-let rotationZ = 0;
 
-function setAngleFromQuaternion(quaternion: Quaternion) {
+let rotation = [0, 0, 0];
+
+export function setAngleFromQuaternion(quaternion: Quaternion) {
+  if (!quaternion?.isQuaternion) {
+    return [0, 0, 0];
+  }
   // 使用四元数更新 Euler 对象
-  euler.setFromQuaternion(quaternion, 'XYZ');
-  rotationX = MathUtils.radToDeg(euler.x);
-  rotationY = MathUtils.radToDeg(euler.y);
-  rotationZ = MathUtils.radToDeg(euler.z);
+  try {
+    euler.setFromQuaternion(quaternion, 'XYZ');
+    let rX = MathUtils.radToDeg(euler.x);
+    let rY = MathUtils.radToDeg(euler.y);
+    let rZ = MathUtils.radToDeg(euler.z);
+    return [rX, rY, rZ];
+  } catch (error) {
+    console.error('角度转换报错，可能是参数缺失');
+    return [0, 0, 0];
+  }
 }
 
 let _light: Light | null = null; // 当前编辑光源
@@ -43,7 +51,7 @@ function SceneLight(props: any) {
     window.transformControl.addEventListener('objectChange', () => {
       if (_light !== null && window.transformControl.object.id === _light.id) {
         if (window.transformControl.mode === 'rotate') {
-          setAngleFromQuaternion(_light.quaternion);
+          rotation = setAngleFromQuaternion(_light.quaternion);
         }
         rf((f) => !f);
       }
@@ -52,7 +60,7 @@ function SceneLight(props: any) {
 
   function selectLight(light: Light) {
     _light = light;
-    setAngleFromQuaternion(light.quaternion);
+    rotation = setAngleFromQuaternion(light.quaternion);
 
     // 设置 control
     window.transformControl.attach(light);
@@ -171,9 +179,9 @@ function SceneLight(props: any) {
             </div>
             <div className={style['attr-item-value']}>
               <span className={style['attr-item-pos']}>
-                <span>{rotationX.toFixed(2)}°</span>
-                <span>{rotationY.toFixed(2)}°</span>
-                <span>{rotationZ.toFixed(2)}°</span>
+                <span>{rotation[0].toFixed(2)}°</span>
+                <span>{rotation[1].toFixed(2)}°</span>
+                <span>{rotation[2].toFixed(2)}°</span>
               </span>
             </div>
           </div>

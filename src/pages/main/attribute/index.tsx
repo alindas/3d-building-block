@@ -6,9 +6,8 @@ import DataBind from './component/DataBind';
 import Editor from './component/Editor';
 import SelectedModel from './component/SelectedModel';
 import EnvConfig from './component/EnvConfig';
-import MyScript from './component/MyScript';
 
-const initialSort = ['属性', '环境', '脚本'];
+const initialSort = ['属性', '环境'];
 
 const Attribute = (props: any, ref: any) => {
   const { sequence, onSort, ...dragProps } = props;
@@ -49,15 +48,7 @@ const Attribute = (props: any, ref: any) => {
               </Collapse>
             );
           }
-          case '脚本': {
-            return (
-              <Collapse title="脚本" dragId={index} key={item} defaultExpand>
-                <div className={style['script-config']}>
-                  <MyScript />
-                </div>
-              </Collapse>
-            );
-          }
+
           default:
             return null;
         }

@@ -5,7 +5,7 @@ import Guide from './guide';
 let guideModal: any;
 let aboutModal: any;
 
-const base = {
+export const baseModalConfig = {
   // 内部方法，去除过渡动画
   transitionName: '',
   mask: false,
@@ -19,7 +19,7 @@ export const showGuide = () => {
     return;
   }
   guideModal = Modal.info({
-    ...base,
+    ...baseModalConfig,
     title: '操作说明',
     content: <Guide />,
     afterClose: () => (guideModal = undefined),
@@ -33,7 +33,7 @@ export const showAbout = () => {
     return;
   }
   aboutModal = Modal.info({
-    ...base,
+    ...baseModalConfig,
     title: '关于',
     content: <About />,
     afterClose: () => (aboutModal = undefined),

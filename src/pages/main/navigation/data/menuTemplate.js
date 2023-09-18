@@ -3,6 +3,7 @@ import SubMenu from '../component/SubMenu';
 import MenuItem from '../component/MenuItem';
 import exportProject from '../utils/exportProject';
 import { showGuide, showAbout } from '../component/Helper';
+import { showService, showScript } from '../component/Data';
 
 function importProject() {
   document.getElementById('import-btn').click();
@@ -119,6 +120,27 @@ const MenuTemplate = [
     ),
   },
   {
+    text: '数据',
+    menu: (
+      <SubMenu
+        items={[
+          {
+            key: 'service',
+            label: (
+              <MenuItem onclick={showService} text="云端" shortcut="Shift+C" />
+            ),
+          },
+          {
+            key: 'script',
+            label: (
+              <MenuItem onclick={showScript} text="脚本" shortcut="Shift+J" />
+            ),
+          },
+        ]}
+      />
+    ),
+  },
+  {
     text: '帮助',
     menu: (
       <SubMenu
@@ -171,6 +193,16 @@ document.addEventListener('keypress', (e) => {
 
       case 'R': {
         handleRightSideBar();
+        break;
+      }
+
+      case 'C': {
+        showService();
+        break;
+      }
+
+      case 'J': {
+        showScript();
         break;
       }
 

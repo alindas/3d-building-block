@@ -10,6 +10,7 @@ import {
   BackSide,
   DoubleSide,
   Color,
+  Euler,
 } from 'three';
 
 import style from './index.less';
@@ -22,17 +23,20 @@ import {
   modifySelectedModelMaterialSingle,
 } from '@/models/proxy';
 import ColorPicker from '@/components/ColorPicker';
+import { setAngleFromQuaternion } from '../EnvConfig/Light';
 
 const { Option } = Select;
 
-const XYZ = { x: '', y: '', z: '' };
+const XYZ = { x: '0', y: '0', z: '0' };
 const MATERIAL = {
   type: 'Basic',
   color: 'rgb(0, 0, 0)',
 };
 
+let rotation = [0, 0, 0];
+
 type TInput = {
-  type: 'position' | 'scale';
+  type: 'position' | 'scale' | 'rotate';
   key: string;
   value: number;
 };
@@ -50,9 +54,15 @@ function getSide(id: 0 | 1 | 2) {
 }
 
 function Editor(props: any) {
-  // console.log('Editer', props.selectedModel);
-  const { position = XYZ, scale = XYZ, material } = props.selectedModel ?? {};
+  console.log('Editer', props.selectedModel);
+  const {
+    position = XYZ,
+    scale = XYZ,
+    quaternion,
+    material,
+  } = props.selectedModel ?? {};
   const disableEdit = props.selectedModel === null ? true : false;
+  rotation = setAngleFromQuaternion(quaternion);
 
   const [materialCfg, setMaterialCfg] = useState<{
     side: number;
@@ -203,7 +213,7 @@ function Editor(props: any) {
   }
 
   function handleInputValueChange(option: TInput) {
-    // console.log(option);
+    console.log(option);
     const { type, key } = option;
     const value = parseFloat(option.value.toFixed(2));
 
@@ -212,9 +222,8 @@ function Editor(props: any) {
     }
 
     if (!isEmpty(value)) {
+      // 当前编辑的是缩放并且开启等比
       if (type === 'scale' && inputValue.current.equalRadio) {
-        // 当前编辑的是缩放并且开启等比
-
         if (value === 0) {
           return;
         }
@@ -223,6 +232,13 @@ function Editor(props: any) {
         inputValue.current.scale.x = scale.x * ratio;
         inputValue.current.scale.y = scale.y * ratio;
         inputValue.current.scale.z = scale.z * ratio;
+      } else if (type === 'rotate') {
+        inputValue.current.rotate = {
+          x: rotation[0],
+          y: rotation[1],
+          z: rotation[2],
+        };
+        inputValue.current.rotate[key] = value;
       } else {
         inputValue.current[type][key] = value;
       }
@@ -278,7 +294,9 @@ function Editor(props: any) {
         <div className={style['item-body']}>
           {['x', 'y', 'z'].map((o) => (
             <div className="flex-center" key={o}>
-              {o.toLocaleUpperCase()}
+              <span className={style['item-label']}>
+                {o.toLocaleUpperCase()}
+              </span>
               <InputNumber
                 value={position[o]}
                 disabled={disableEdit}
@@ -297,9 +315,40 @@ function Editor(props: any) {
           ))}
         </div>
       </div>
+
+      <div className={style['rotate']}>
+        <div className={style['item-title']}>
+          <span>角度</span>
+          <img src={attrRefresh} />
+        </div>
+        <div className={style['item-body']}>
+          {['x', 'y', 'z'].map((o, i) => (
+            <div className="flex-center" key={o}>
+              <span className={style['item-label']}>
+                {o.toLocaleUpperCase()}
+              </span>
+              <InputNumber
+                value={rotation[i]}
+                disabled={disableEdit}
+                precision={2}
+                controls={false}
+                // onPressEnter={updateModel}
+                onChange={(val) =>
+                  handleInputValueChange({
+                    type: 'rotate',
+                    key: o,
+                    value: val,
+                  })
+                }
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className={style['scale']}>
         <div className={style['item-title']}>
-          <span>缩放</span>
+          <span>尺寸</span>
           <img src={attrRefresh} />
         </div>
         <div className={style['item-body']}>
@@ -315,7 +364,9 @@ function Editor(props: any) {
           <div>
             {['x', 'y', 'z'].map((o) => (
               <div className="flex-center" key={o}>
-                {o.toLocaleUpperCase()}
+                <span className={style['item-label']}>
+                  {o.toLocaleUpperCase()}
+                </span>
                 <InputNumber
                   value={scale[o]}
                   disabled={disableEdit}
@@ -335,6 +386,7 @@ function Editor(props: any) {
           </div>
         </div>
       </div>
+
       <div className={style['material']}>
         <div className={style['item-title']}>
           <span>材质</span>
@@ -407,7 +459,7 @@ function Editor(props: any) {
         </div>
         <div
           className={style['item-body-mask']}
-          style={props.selectedModel?.isMesh ? {} : { bottom: 0 }}
+          style={props.selectedModel?.isMesh ? {} : { height: '150%' }}
         ></div>
       </div>
     </div>
