@@ -64,7 +64,9 @@ class Loader {
       this.loading = false;
       // message.destroy();
       Loading.done();
-      cb(models);
+      if (models.length > 0) {
+        cb(models);
+      }
     };
     manager.onProgress = (url, loaded, total) => {
       console.log('Loaded ' + loaded + ' of ' + total + ' files.');
