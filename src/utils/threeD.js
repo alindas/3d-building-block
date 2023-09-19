@@ -3,6 +3,26 @@ import { message } from 'antd';
 
 /**
  *
+ * @param {THREE.Object3D} obj
+ * @returns 深度克隆后的对象
+ */
+export function cloneObject3D(obj) {
+  const clone = new obj.constructor(obj.geometry.clone(), obj.material.clone());
+  clone.position.copy(obj.position);
+  clone.rotation.copy(obj.rotation);
+  clone.scale.copy(obj.scale);
+  clone.userData.id = obj.id;
+  clone.name = obj.name;
+
+  obj.children.forEach((child) => {
+    clone.add(cloneObject3D(child));
+  });
+
+  return clone;
+}
+
+/**
+ *
  * @param {string | number} degress 角度值
  * @returns 弧度值
  */

@@ -6,6 +6,7 @@ import {
   EditOutlined,
   CloseCircleOutlined,
   AppstoreAddOutlined,
+  CopyOutlined,
 } from '@ant-design/icons';
 import { Vector3, Group } from 'three';
 import style from './index.less';
@@ -502,6 +503,41 @@ function RelationshipEditor(
     setModelList([...modelList]);
   };
 
+  const cloneModel = () => {
+    setRightMenuConfig({
+      visibility: false,
+      position: [0, 0],
+    });
+
+    const cloneObj = [];
+    if (ifMultiple) {
+      if (stepfather.children.length === 0) {
+        return;
+      }
+      stepfather.children.forEach((child) => {
+        const clone = workbenchModelHash[child.id].clone();
+        clone.userData.id = clone.id;
+        clone.position.addScalar(20);
+        cloneObj.push(clone);
+      });
+    } else {
+      const clone =
+        workbenchModelHash[rightMenuSelectModelName.current.id].clone();
+      clone.userData.id = clone.id;
+      clone.position.addScalar(20);
+      cloneObj.push(clone);
+    }
+
+    dispatch({
+      type: 'scene/updateWorkbenchModel',
+      payload: {
+        model: cloneObj,
+        type: 'add',
+        modelHash: TransformArrayToHash(cloneObj),
+      },
+    });
+  };
+
   //添加单个模型到scene下
   function addModelToWorkbench(e: any) {
     if (!window.loader.loading) {
@@ -549,7 +585,7 @@ function RelationshipEditor(
   }
 
   const onCheck: TreeProps['onCheck'] = (checkedKeys, info) => {
-    console.log('onCheck', checkedKeys, info);
+    // console.log('onCheck', checkedKeys, info);
     const node = info.node as Object3DNode;
     // 只允许最高一级的模型多选操作
     if ((node.key as string).length > 3) {
@@ -572,7 +608,6 @@ function RelationshipEditor(
         stepfather.attach(workbenchModelHash[node.id]);
       }
     }
-    console.log(stepfather);
 
     updateSelectedModel(stepfather);
   };
@@ -634,6 +669,12 @@ function RelationshipEditor(
             label: '重命名',
             onClick: renameModel,
             icon: <EditOutlined />,
+          },
+          {
+            key: 'copy',
+            label: '拷贝',
+            onClick: cloneModel,
+            icon: <CopyOutlined />,
           },
           {
             key: 'delete',
