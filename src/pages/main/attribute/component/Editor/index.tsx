@@ -213,7 +213,7 @@ function Editor(props: any) {
   }
 
   function handleInputValueChange(option: TInput) {
-    console.log(option);
+    // console.log(option);
     const { type, key } = option;
     const value = parseFloat(option.value.toFixed(2));
 

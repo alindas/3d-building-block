@@ -150,7 +150,6 @@ function RelationshipEditor(
 
   // 构建工作台模型关系树
   useEffect(() => {
-    // console.log(workbenchModel?.children);
     // console.log(generateData(workbenchModel?.children));
 
     setModelList(generateData(workbenchModel?.children));
@@ -404,9 +403,13 @@ function RelationshipEditor(
     };
     event.preventDefault();
     event.stopPropagation();
+    const posY =
+      event.clientY > window.screen.availHeight - 120
+        ? window.screen.availHeight - 120
+        : event.clientY;
     setRightMenuConfig({
       visibility: true,
-      position: [event.clientX, event.clientY],
+      position: [event.clientX, posY],
     });
     rightMenuVisibility.current = true;
   };
@@ -515,16 +518,18 @@ function RelationshipEditor(
         return;
       }
       stepfather.children.forEach((child) => {
-        const clone = workbenchModelHash[child.id].clone();
+        const clone = child.clone();
         clone.userData.id = clone.id;
         clone.position.addScalar(20);
+        clone.removeFromParent();
         cloneObj.push(clone);
       });
+      handleMultipleChoice(); // 关闭多选
     } else {
       const clone =
         workbenchModelHash[rightMenuSelectModelName.current.id].clone();
       clone.userData.id = clone.id;
-      clone.position.addScalar(20);
+      clone.position.addScalar(40);
       cloneObj.push(clone);
     }
 
