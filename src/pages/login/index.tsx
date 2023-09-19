@@ -10,9 +10,10 @@ const Login = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    const loginName = localStorage.getItem('user');
+    const loginName = localStorage.getItem('user') ?? 'admin';
     form.setFieldsValue({
       name: loginName,
+      pwd: 'admin',
     });
   }, []);
 
