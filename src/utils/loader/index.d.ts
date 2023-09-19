@@ -12,6 +12,9 @@ export default class Loader {
   loadModel(
     files: File[] | FileList | { name: string; url: string }[],
     callback: (model: THREE.Object3D[]) => void,
+    config?: {
+      mode?: 'online' | 'local';
+    },
   ): void;
 }
 

@@ -26,6 +26,9 @@ export type TConfig = {
     castShadow: boolean;
     visible: boolean;
   }[];
+  interactive?: {
+    [id: string]: (number | string)[];
+  };
 };
 
 export interface ProjectState {

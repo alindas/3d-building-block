@@ -149,7 +149,23 @@ function Exhibit(
           window.loader.loadModel(
             config?.modelConfig?.files ?? [],
             (models) => {
-              models.forEach((o) => workbenchModel.add(o));
+              models.forEach((o) => {
+                workbenchModel.add(o);
+                // 是否需要加载脚本
+                o.traverse((child) => {
+                  console.log(child);
+                  if (Reflect.has(config.interactive!, child.userData?.id)) {
+                    console.log('here');
+                    window.myScript.bind(
+                      child,
+                      config.interactive![child.userData?.id],
+                    );
+                  }
+                });
+              });
+            },
+            {
+              mode: 'online',
             },
           );
         }
@@ -365,6 +381,8 @@ function Exhibit(
         type: 'scene/updateSelectedModel',
         payload: intersects[0].object,
       });
+      // 响应 model click 脚本
+      window.globalEnv.events.click.validate(intersects[0].object.id);
     }
   }
 

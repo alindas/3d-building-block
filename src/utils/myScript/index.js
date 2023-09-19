@@ -9,34 +9,37 @@ class MyScript {
   }
 
   bind(model, sc) {
-    if (Reflect.has(this.store, model.id)) {
-      this.store[model.id].push(sc);
-    } else {
-      this.store[model.id] = [sc];
-    }
-    // 触发对应的脚本
-    myScripts.find((o) => {
-      if (o.id === sc) {
-        try {
-          if (Reflect.has(this.controls, model.id)) {
-            this.controls[model.id][sc] = o.ctx(
-              window.globalEnv,
-              window.myService,
-              model,
-            );
-          } else {
-            this.controls[model.id] = {};
-            this.controls[model.id][sc] = o.ctx(
-              window.globalEnv,
-              window.myService,
-              model,
-            );
-          }
-        } catch (error) {
-          message.warn(error.message);
-          console.log(error);
-        }
+    let _sc = Array.isArray(sc) ? sc : [sc];
+    _sc.forEach((key) => {
+      if (Reflect.has(this.store, model.id)) {
+        this.store[model.id].push(key);
+      } else {
+        this.store[model.id] = [key];
       }
+      // 触发对应的脚本
+      myScripts.find((o) => {
+        if (o.id === key) {
+          try {
+            if (Reflect.has(this.controls, model.id)) {
+              this.controls[model.id][key] = o.ctx(
+                window.globalEnv,
+                window.myService,
+                model,
+              );
+            } else {
+              this.controls[model.id] = {};
+              this.controls[model.id][key] = o.ctx(
+                window.globalEnv,
+                window.myService,
+                model,
+              );
+            }
+          } catch (error) {
+            message.warn(error.message);
+            console.log(error);
+          }
+        }
+      });
     });
   }
 
@@ -48,6 +51,10 @@ class MyScript {
 
   getSc(id) {
     return this.store[id];
+  }
+
+  save() {
+    return JSON.stringify(this.store);
   }
 
   clear() {

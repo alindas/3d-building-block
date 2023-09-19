@@ -19,15 +19,24 @@ async function ExportProject(type: 'save' | 'export', onDone: any) {
 
   message.loading('执行中，请耐心等候...', 0);
 
+  // 1. config 数据
   const config = saveProjectConfig();
   config['projectInfo'] = projectInfo;
 
+  // 2. 脚本数据
+  const interactive = window.myScript.save();
   const exporter = new GLTFExporter();
 
   const ZipData: any = [
     {
       name: 'projectConfig.json',
       src: new Blob([JSON.stringify(config)], {
+        type: 'text/json;charset=utf-8',
+      }),
+    },
+    {
+      name: 'interactive.json',
+      src: new Blob([interactive], {
         type: 'text/json;charset=utf-8',
       }),
     },
@@ -73,7 +82,9 @@ async function ExportProject(type: 'save' | 'export', onDone: any) {
               }
               throw new Error(JSON.stringify(e));
             },
-            {},
+            {
+              includeCustomExtensions: true, // 导出 userData 数据
+            },
           );
         }
       });

@@ -48,7 +48,7 @@ class Loader {
     this.loading = false;
   }
 
-  loadModel = (files, cb) => {
+  loadModel = (files, cb, config) => {
     // console.log(files)
     if (files.length === 0) {
       cb([]);
@@ -65,6 +65,13 @@ class Loader {
       // message.destroy();
       Loading.done();
       if (models.length > 0) {
+        if (config?.mode !== 'online') {
+          models.forEach((m) => {
+            m.traverse((child) => {
+              child.userData.id = child.id;
+            });
+          });
+        }
         cb(models);
       }
     };
