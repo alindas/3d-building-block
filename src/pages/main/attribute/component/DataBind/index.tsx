@@ -1,17 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Select } from 'antd';
 import { connect } from 'umi';
 
 import style from './index.less';
 import { scriptOps } from '@/scripts';
 
-const DataBind: React.FC<any> = (props) => {
+const DataBind: React.FC<any> = ({ selectedModel }) => {
+  const [scs, setSC] = useState<(string | number)[]>([]);
+
+  useEffect(() => {
+    setSC(window.myScript.getSc(selectedModel?.id) ?? []);
+  }, [selectedModel]);
+
   function bindService(val, ops) {
     console.log(val, ops);
   }
 
-  function bindScript(val, ops) {
-    console.log(val, ops);
+  function bindScript(val: string | number) {
+    window.myScript.bind(selectedModel, val);
+    setSC([...window.myScript.getSc(selectedModel.id)]);
+  }
+
+  function unbindScript(val: string | number) {
+    window.myScript.unbind(selectedModel.id, val);
+    setSC([...window.myScript.getSc(selectedModel.id)]);
   }
 
   return (
@@ -36,14 +48,15 @@ const DataBind: React.FC<any> = (props) => {
           showArrow={true}
           bordered={false}
           mode="multiple"
+          value={scs}
           options={scriptOps}
-          onChange={bindScript}
+          onSelect={bindScript}
+          onDeselect={unbindScript}
         ></Select>
       </div>
     </div>
   );
 };
 export default connect((state: any) => ({
-  sceneModel: state.scene,
-  attributeModel: state.attribute,
+  selectedModel: state.scene.selectedModel,
 }))(DataBind);

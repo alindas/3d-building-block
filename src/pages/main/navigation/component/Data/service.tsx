@@ -3,23 +3,14 @@ import { Collapse, Segmented } from 'antd';
 import style from './index.less';
 import Empty from '@/components/Empty';
 import Question from '@/components/Question';
+import cloud, { cloudTypes } from '@/cloud';
 
 const { Panel } = Collapse;
-
-const data = [
-  {
-    id: 1,
-    type: 'Static',
-    title: '内置环境变量',
-    desc: 'test',
-    ctx: '',
-  },
-];
 
 let isEmpty = 0;
 
 export default function Service() {
-  const [type, setType] = useState<string | number>('Static');
+  const [type, setType] = useState<string | number>('Local');
 
   function changeType(t: string | number) {
     isEmpty = 0;
@@ -32,14 +23,10 @@ export default function Service() {
         接口配置
         <Question link="guidebook" />
       </div>
-      <Segmented
-        options={['Static', 'Post', 'Get', 'WebSocket', 'Mqtt']}
-        value={type}
-        onChange={changeType}
-      />
+      <Segmented options={cloudTypes} value={type} onChange={changeType} />
       <div className={style['data-container']}>
         <Collapse accordion>
-          {data.map((o) => {
+          {cloud.map((o) => {
             if (o.type === type) {
               isEmpty++;
               return (

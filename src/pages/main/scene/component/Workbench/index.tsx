@@ -567,10 +567,8 @@ function Workbench(
 
     if (intersects.length > 0) {
       updateSelectedModel(intersects[0].object);
-      // dispatch({
-      //   type: 'scene/updateSelectedModel',
-      //   payload: intersects[0].object,
-      // });
+      // 响应 model click 脚本
+      window.globalEnv.events.click.validate(intersects[0].object.id);
     }
   }
 

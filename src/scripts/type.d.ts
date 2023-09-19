@@ -5,5 +5,5 @@ export interface ScriptObject {
   type: typeof scriptTypes[number];
   title: string;
   desc: string;
-  ctx: (local: any, self: THREE.Object3D) => void;
+  ctx: (local: any, services: any, self: THREE.Object3D) => void;
 }

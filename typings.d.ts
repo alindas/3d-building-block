@@ -35,6 +35,10 @@ interface Window {
   projectId: number;
   loader: TLoader.default;
   multiple: boolean;
+  globalEnv: any; // 脚本本地变量
+  cloudEnv: any; // 云端数据
+  myScript: any; // 脚本绑定
+  myService: any; // 接口更新
   modelUrl?: {
     value: string;
     type: string;

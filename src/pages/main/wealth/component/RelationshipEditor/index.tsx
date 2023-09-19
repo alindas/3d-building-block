@@ -411,6 +411,10 @@ function RelationshipEditor(
   };
 
   const renameModel = () => {
+    if (ifMultiple) {
+      message.warning('多选下暂不支持');
+      return;
+    }
     setRightMenuConfig({
       visibility: false,
       position: [0, 0],
@@ -475,6 +479,10 @@ function RelationshipEditor(
   };
 
   const deleteModel = () => {
+    if (ifMultiple) {
+      message.warning('多选下暂不支持');
+      return;
+    }
     setRightMenuConfig({
       visibility: false,
       position: [0, 0],

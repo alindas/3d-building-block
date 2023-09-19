@@ -120,14 +120,14 @@ const MenuTemplate = [
     ),
   },
   {
-    text: '数据',
+    text: '资源',
     menu: (
       <SubMenu
         items={[
           {
             key: 'service',
             label: (
-              <MenuItem onclick={showService} text="云端" shortcut="Shift+C" />
+              <MenuItem onclick={showService} text="数据" shortcut="Shift+C" />
             ),
           },
           {
