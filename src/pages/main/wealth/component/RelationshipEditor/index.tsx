@@ -9,13 +9,13 @@ import {
   CopyOutlined,
 } from '@ant-design/icons';
 import { Vector3, Group } from 'three';
+
 import style from './index.less';
 import { isEmpty } from '@/utils/common';
 import { TransformArrayToHash, updateModelFromName } from '@/utils/threeD';
-
 import RightMenu from '@/components/RightMenu';
 import { ConnectProps } from '@/common/type';
-import { updateSelectedModel } from '@/models/proxy';
+import { updateSelectedModel, updateWorkbenchModel } from '@/models/proxy';
 
 const generateData = (originalData: any, prevKey?: string): any[] => {
   const result: any[] = [];
@@ -384,10 +384,6 @@ function RelationshipEditor(
     }
 
     updateSelectedModel(workbenchModelHash[info.node.id]);
-    // dispatch({
-    //   type: 'scene/updateSelectedModel',
-    //   payload: workbenchModelHash[info.node.id],
-    // });
 
     // 添加受控节点
     setSelectedKey(key);
@@ -492,12 +488,9 @@ function RelationshipEditor(
       position: [0, 0],
     });
     // console.log('currentOp', rightMenuSelectModelName.current);
-    dispatch({
-      type: 'scene/updateWorkbenchModel',
-      payload: {
-        type: 'delete',
-        id: rightMenuSelectModelName.current.id,
-      },
+    updateWorkbenchModel({
+      type: 'delete',
+      id: rightMenuSelectModelName.current.id,
     });
     // console.log(modelList);
     const line = rightMenuSelectModelName.current.key.split('-');
@@ -533,13 +526,10 @@ function RelationshipEditor(
       cloneObj.push(clone);
     }
 
-    dispatch({
-      type: 'scene/updateWorkbenchModel',
-      payload: {
-        model: cloneObj,
-        type: 'add',
-        modelHash: TransformArrayToHash(cloneObj),
-      },
+    updateWorkbenchModel({
+      model: cloneObj,
+      type: 'add',
+      modelHash: TransformArrayToHash(cloneObj),
     });
   };
 
@@ -579,7 +569,11 @@ function RelationshipEditor(
       window.scene.add(stepfather);
     }
 
-    updateSelectedModel(null);
+    dispatch({
+      type: 'scene/updateSelectedModel',
+      payload: null,
+    });
+
     setIfMultiple(!ifMultiple);
     window.multiple = !ifMultiple;
     setCheckedKeys([]);
@@ -590,7 +584,7 @@ function RelationshipEditor(
   }
 
   const onCheck: TreeProps['onCheck'] = (checkedKeys, info) => {
-    console.log('onCheck', checkedKeys, info);
+    // console.log('onCheck', checkedKeys, info);
     const node = info.node as Object3DNode;
     // 只允许最高一级的模型多选操作
     if ((node.key as string).split('-').length > 3) {

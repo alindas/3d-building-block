@@ -15,6 +15,17 @@ export function updateSelectedModel(payload: any) {
   );
 }
 
+export function updateWorkbenchModel(payload: any) {
+  window.cmd.executeCommand(
+    () =>
+      dispatch({
+        type: 'scene/updateWorkbenchModel',
+        payload,
+      }),
+    payload?.type === 'update' ? undefined : () => null,
+  );
+}
+
 // 修改复合材质
 export function modifySelectedModelMaterialMultiple(payload: any) {
   window.cmd.executeCommand(() =>

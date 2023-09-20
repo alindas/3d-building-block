@@ -498,11 +498,10 @@ function Workbench(
     window.addEventListener('mouseup', (e) => {
       // 如果键下的是鼠标右键
       if (e.button == 2 && enableCatch && !window.multiple) {
-        updateSelectedModel(null);
-        // dispatch({
-        //   type: 'scene/updateSelectedModel',
-        //   payload: null,
-        // });
+        dispatch({
+          type: 'scene/updateSelectedModel',
+          payload: null,
+        });
       }
     });
 

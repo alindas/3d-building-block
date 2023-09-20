@@ -1,6 +1,28 @@
 declare module '*.css';
 declare module '*.less';
 declare module '*.png';
+
+interface Window {
+  autoSave: boolean;
+  scene: THREE.Scene;
+  orbitControl: any;
+  transformControl: any;
+  vector3: THREE.Vector3;
+  quaternion: THREE.Quaternion;
+  cmd: TProcess.default;
+  projectId: number;
+  loader: TLoader.default;
+  multiple: boolean;
+  globalEnv: any; // 脚本本地变量
+  cloudEnv: any; // 云端数据
+  myScript: TMyScript.default; // 脚本绑定
+  myService: TMyServices.default; // 接口更新
+  modelUrl?: {
+    value: string;
+    type: string;
+  };
+}
+
 declare module '*.svg' {
   export function ReactComponent(
     props: React.SVGProps<SVGSVGElement>,
@@ -22,25 +44,4 @@ declare module '*.jpeg' {
 declare module 'three-fbxloader-offical' {
   const src: any;
   export default src;
-}
-
-interface Window {
-  autoSave: boolean;
-  scene: THREE.Scene;
-  orbitControl: any;
-  transformControl: any;
-  vector3: THREE.Vector3;
-  quaternion: THREE.Quaternion;
-  cmd: TProcess.default;
-  projectId: number;
-  loader: TLoader.default;
-  multiple: boolean;
-  globalEnv: any; // 脚本本地变量
-  cloudEnv: any; // 云端数据
-  myScript: any; // 脚本绑定
-  myService: any; // 接口更新
-  modelUrl?: {
-    value: string;
-    type: string;
-  };
 }

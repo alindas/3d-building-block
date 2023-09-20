@@ -38,7 +38,7 @@ export default class Process {
   /**
    * @describe 添加一条命令
    */
-  executeCommand(command: () => any): void;
+  executeCommand(command: () => any, invoke?: () => any): void;
 
   backup(): number;
 

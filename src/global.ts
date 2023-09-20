@@ -1,4 +1,6 @@
 import { Quaternion, Vector3 } from 'three';
+import 'nprogress/nprogress.css';
+
 import Process from './utils/process';
 import Loader from '@/utils/loader';
 import '@/utils/correct-package/svelet-jsoneditor/themes/jse-theme-dark.css';

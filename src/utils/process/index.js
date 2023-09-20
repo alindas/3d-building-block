@@ -1,3 +1,5 @@
+import nProgress from 'nprogress';
+
 /** 操作状态历史 */
 class Process {
   constructor(max = 5) {
@@ -17,6 +19,7 @@ class Process {
       console.error('The command should be a function');
       return;
     }
+    nProgress.start();
     const command = {
       p: this.p + 1,
       n: this.p,
@@ -34,24 +37,27 @@ class Process {
     this.canBack = this.p > this._base;
     this.canForward = this.p + 1 < this._base + this.history.length;
     this.onChange?.();
+    nProgress.done();
   }
 
   backup() {
     // 存在操作
     this.canBack = this.p > this._base;
     if (this.canBack) {
+      nProgress.start();
       this.canForward = true;
       this.p--;
       this.canBack = this.p > this._base;
       let cmd = this.history.find((h) => h.p === this.p);
-      if (typeof cmd.invoke === 'function') {
+      if (typeof cmd?.invoke === 'function') {
         console.log('invoke');
         cmd.invoke();
       } else {
         console.log('execute', cmd);
-        cmd.execute();
+        cmd?.execute();
       }
       this.onChange?.();
+      nProgress.done();
     }
     // 返回新的当前指针
     return this.p;
@@ -60,11 +66,13 @@ class Process {
   forward() {
     this.canForward = this.p + 1 < this._base + this.history.length;
     if (this.canForward) {
+      nProgress.start();
       this.canBack = true;
       this.p++;
       this.canForward = this.p + 1 < this._base + this.history.length;
       this.history.find((h) => h.p === this.p).execute();
       this.onChange?.();
+      nProgress.done();
     }
     return this.p;
   }
