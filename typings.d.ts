@@ -18,6 +18,7 @@ interface Window {
   myScript: TMyScript.default; // 脚本绑定
   myService: TMyServices.default; // 接口更新
   modelUrl?: {
+    name: string;
     value: string;
     type: string;
   };

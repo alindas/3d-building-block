@@ -264,8 +264,8 @@ function Workbench(
         } else {
           files = [
             {
-              name: modelUrl.value,
-              url: modelUrl.value,
+              name: modelUrl.name,
+              url: encodeURIComponent(modelUrl.value),
             },
           ];
         }
