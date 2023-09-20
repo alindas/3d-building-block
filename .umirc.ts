@@ -1,7 +1,7 @@
 import { defineConfig } from 'umi';
 
 export default defineConfig({
-  favicon: '/favicon.png',
+  favicon: '/favicon.ico',
   nodeModulesTransform: {
     type: 'none',
   },

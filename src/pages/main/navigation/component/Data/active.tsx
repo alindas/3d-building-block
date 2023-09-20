@@ -21,7 +21,7 @@ export default function Active() {
     <div className={style['data-config-wrapper']}>
       <div className={style['config-title']}>
         脚本配置
-        <Question link="guidebook" />
+        <Question link="/doc/guide.pdf" />
       </div>
       <Segmented options={scriptTypes} value={type} onChange={changeType} />
       <div className={style['data-container']}>
