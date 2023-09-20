@@ -142,7 +142,7 @@ function Exhibit(
         if (res === 'no exit') {
           setLoading('页面未开放');
         } else {
-          console.log(res); // 按道理是配置文件和模型资源
+          // console.log(res); // 按道理是配置文件和模型资源
           config = res;
           setLoading('');
           // 从云资源里加载 model 和配置文件
@@ -153,9 +153,7 @@ function Exhibit(
                 workbenchModel.add(o);
                 // 是否需要加载脚本
                 o.traverse((child) => {
-                  console.log(child);
                   if (Reflect.has(config.interactive!, child.userData?.id)) {
-                    console.log('here');
                     window.myScript.bind(
                       child,
                       config.interactive![child.userData?.id],

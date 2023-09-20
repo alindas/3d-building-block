@@ -38,7 +38,7 @@ let rotation: (number | string)[] = [0, 0, 0];
 type TInput = {
   type: 'position' | 'scale' | 'rotate';
   key: string;
-  value: number;
+  value: string | number;
 };
 
 function getSide(id: 0 | 1 | 2) {
@@ -215,7 +215,13 @@ function Editor(props: any) {
   function handleInputValueChange(option: TInput) {
     // console.log(option);
     const { type, key } = option;
-    const value = parseFloat(option.value.toFixed(2));
+    if (isEmpty(option.value)) {
+      return;
+    }
+    const value =
+      typeof option.value === 'string'
+        ? parseFloat(option.value)
+        : parseFloat(option.value.toFixed(2));
 
     if (isEmpty(inputValue.current[type])) {
       inputValue.current[type] = {};

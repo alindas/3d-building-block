@@ -148,8 +148,19 @@ export function freeModelMemory(model) {
   model.traverse((child) => {
     if (child.isMesh) {
       child.geometry.dispose(); // 删除几何体
-      if (child.material.dispose instanceof Function) {
-        child.material.dispose(); // 删除材质
+
+      if (child.material instanceof Array) {
+        for (let i = 0; i < child.material.length; i++) {
+          if (child.material[i].dispose instanceof Function) {
+            child.material[i].map?.dispose(); // 删除材质贴图
+            child.material[i].dispose(); // 删除材质
+          }
+        }
+      } else {
+        if (child.material.dispose instanceof Function) {
+          child.material.map?.dispose(); // 删除材质贴图
+          child.material.dispose(); // 删除材质
+        }
       }
     }
   });

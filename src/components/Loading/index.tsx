@@ -31,7 +31,10 @@ export default function Loading(props: ILoading) {
     // 避免抖动，在 .05s 开启
     let t = setTimeout(() => setVisible(true), 50);
     // 刷新信息
-    let r = setInterval(() => setMsg(Loading.closer[props.id].msg ?? msg), 300);
+    let r = setInterval(
+      () => setMsg(Loading.closer[props.id]?.msg ?? msg),
+      300,
+    );
     switch (props.type) {
       case 'loading': {
         type = 0;

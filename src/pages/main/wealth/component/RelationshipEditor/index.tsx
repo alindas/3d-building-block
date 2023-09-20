@@ -404,8 +404,8 @@ function RelationshipEditor(
     event.preventDefault();
     event.stopPropagation();
     const posY =
-      event.clientY > window.screen.availHeight - 120
-        ? window.screen.availHeight - 120
+      Math.abs(event.clientY - window.innerHeight) < 120
+        ? window.innerHeight - 130
         : event.clientY;
     setRightMenuConfig({
       visibility: true,
@@ -590,10 +590,10 @@ function RelationshipEditor(
   }
 
   const onCheck: TreeProps['onCheck'] = (checkedKeys, info) => {
-    // console.log('onCheck', checkedKeys, info);
+    console.log('onCheck', checkedKeys, info);
     const node = info.node as Object3DNode;
     // 只允许最高一级的模型多选操作
-    if ((node.key as string).length > 3) {
+    if ((node.key as string).split('-').length > 3) {
       message.warn('只允许对一级模型进行组合编辑');
       return;
     }
