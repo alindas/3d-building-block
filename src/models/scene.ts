@@ -258,7 +258,7 @@ const SceneModel: ModelType<SceneState> = {
           state.selectedModel!.quaternion.setFromEuler(euler);
           state.outlinePassModel !== null &&
             state.outlinePassModel.quaternion.copy(
-              state.selectedModel!.quaternion,
+              state.selectedModel!.getWorldQuaternion(window.quaternion),
             );
           break;
         } else if (attr === 'material') {
