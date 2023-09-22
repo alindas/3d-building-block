@@ -85,6 +85,7 @@ function render() {
 }
 
 function autoRefresh() {
+  window.TWEEN.update();
   // 使用通道渲染
   render();
 

@@ -9,7 +9,6 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
-import TWEEN from '@tweenjs/tween.js';
 
 import { OutlinePass } from '@/utils/correct-package/three/outlinePass';
 import {
@@ -62,7 +61,7 @@ function animateCamera(
   target1: THREE.Vector3,
   target2: THREE.Vector3,
 ) {
-  new TWEEN.Tween({
+  new window.TWEEN.Tween({
     px: position1.x, // 相机位置
     py: position1.y,
     pz: position1.z,
@@ -96,7 +95,7 @@ function animateCamera(
     //   // orbitControl.enabled = true;
     //   // target && orbitControl.target.copy(target);
     // })
-    .easing(TWEEN.Easing.Cubic.InOut)
+    .easing(window.TWEEN.Easing.Cubic.InOut)
     .start();
 }
 
@@ -155,7 +154,7 @@ function render() {
 }
 
 function autoRefresh() {
-  TWEEN.update();
+  window.TWEEN.update();
   // 使用通道渲染
   render();
 

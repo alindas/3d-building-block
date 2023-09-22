@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from 'three';
 import 'nprogress/nprogress.css';
+import TWEEN from '@tweenjs/tween.js';
 
 import Process from './utils/process';
 import Loader from '@/utils/loader';
@@ -10,6 +11,7 @@ import MyServices from './utils/myServices';
 import CloudEnv from './utils/myServices/cloud';
 
 (async () => {
+  window.TWEEN = TWEEN;
   window.vector3 = new Vector3();
   window.quaternion = new Quaternion();
   window.cmd = new Process();

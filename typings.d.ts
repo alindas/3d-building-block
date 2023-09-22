@@ -3,6 +3,7 @@ declare module '*.less';
 declare module '*.png';
 
 interface Window {
+  TWEEN: any;
   autoSave: boolean;
   scene: THREE.Scene;
   orbitControl: any;

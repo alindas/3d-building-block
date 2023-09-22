@@ -32,8 +32,6 @@
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
     "@tweenjs/tween.js": "^18.6.4",
-    "@types/nprogress": "^0.2.0",
-    "@types/three": "^0.141.0",
     "axios": "^0.27.2",
     "jszip": "^3.10.0",
     "nprogress": "^0.2.0",
@@ -45,6 +43,7 @@
     "umi": "^3.5.27"
   },
   "devDependencies": {
+    "@types/nprogress": "^0.2.0",
     "@types/lodash": "^4.14.195",
     "@types/react": "^17.0.0",
     "@types/react-beautiful-dnd": "^13.1.2",
