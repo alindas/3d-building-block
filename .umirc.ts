@@ -41,6 +41,7 @@ export default defineConfig({
     },
   ],
   fastRefresh: {},
+  // mfsu: {},
   locale: {
     default: 'zh-CN',
     antd: true,

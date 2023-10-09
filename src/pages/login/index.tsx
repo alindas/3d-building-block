@@ -24,9 +24,9 @@ const Login = () => {
       localStorage.setItem('user', value.name);
       localStorage.setItem('token', new Date().valueOf() + '');
       setTimeout(() => {
+        setLoading(false);
         message.success('登录成功');
         history.push('/');
-        setLoading(false);
       }, 1000);
     });
   };

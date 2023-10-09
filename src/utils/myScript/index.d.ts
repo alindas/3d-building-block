@@ -19,7 +19,7 @@ export default class MyScript {
   /**
    * @describe 输出字符串化的所有记录
    */
-  save(): void;
+  save(): string;
 }
 
 export as namespace TMyScript;

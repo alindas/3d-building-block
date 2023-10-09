@@ -1,7 +1,7 @@
 import { LoadingManager } from 'three';
 import { message } from 'antd';
 import FBXLoader from '../correct-package/three/fbxloader';
-// import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader';
+// import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import getFileType from '../getFileType';
 import Loading from '@/components/Loading';
