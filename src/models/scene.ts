@@ -30,29 +30,39 @@ export interface SceneState {
   forceUpdateModel: boolean;
 }
 
+const original: SceneState = {
+  transformControlMode: 'disable', // 控制器模式
+  transformStatus: {}, // 模型初始偏移
+  workbenchModel: null, // 当前工作台的模型
+  workbenchModelHash: {}, // 当前工作台模型的哈希结构
+  selectedModel: null, // 选中的模型
+  multipleChoiceNodes: [], // 多选模型的 id 列表
+  multipleChoiceModels: [], // 多选模型列表
+
+  outlinePassModel: null, // 给 outlinePass 使用的模型，绑定 selectedModel
+  allModelConfigList: [],
+  cfgFileMdlUniqueKey: '',
+  sceneEnv: '', // 场景环境贴图url
+  customSceneEnvList: [], // 环境贴图列表
+  sceneRefreshTrigger: 0, // 用于刷新模型属性面板
+  forceUpdateModel: true, // workbenchModel 强制刷新
+};
+
 const SceneModel: ModelType<SceneState> = {
   namespace: 'scene',
 
-  state: {
-    transformControlMode: 'disable', // 控制器模式
-    transformStatus: {}, // 模型初始偏移
-    workbenchModel: null, // 当前工作台的模型
-    workbenchModelHash: {}, // 当前工作台模型的哈希结构
-    selectedModel: null, // 选中的模型
-    multipleChoiceNodes: [], // 多选模型的 id 列表
-    multipleChoiceModels: [], // 多选模型列表
-
-    outlinePassModel: null, // 给 outlinePass 使用的模型，绑定 selectedModel
-    allModelConfigList: [],
-    cfgFileMdlUniqueKey: '',
-    sceneEnv: '', // 场景环境贴图url
-    customSceneEnvList: [], // 环境贴图列表
-    sceneRefreshTrigger: 0, // 用于刷新模型属性面板
-    forceUpdateModel: true, // workbenchModel 强制刷新
-  },
+  state: original,
 
   effects: {},
   reducers: {
+    // 清除缓存，还原数据
+    clear: (state) => {
+      freeModelMemory(state.workbenchModel);
+      freeModelMemory(state.outlinePassModel);
+
+      return original;
+    },
+
     // 更改控制器模式
     modifyTransformControlMode: (state, action) => {
       // console.log('here', action);

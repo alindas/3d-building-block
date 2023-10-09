@@ -3,6 +3,7 @@ import { Modal } from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import exportProject from '../../utils/exportProject';
+import { useDispatch } from 'umi';
 
 export default function Avatar() {
   const UserInfo = new String(
@@ -10,6 +11,7 @@ export default function Avatar() {
   )[0].toLocaleUpperCase();
 
   const history = useHistory();
+  const dispatch = useDispatch();
   const [info, setInfo] = useState<React.ReactNode>(UserInfo);
 
   function confirmLogout() {
@@ -22,8 +24,21 @@ export default function Avatar() {
     });
   }
 
+  function clearCache() {
+    dispatch({
+      type: 'scene/clear',
+    });
+    dispatch({
+      type: 'project/clear',
+    });
+    window.autoSave = true;
+    window.projectId = -1;
+    window.multiple = false;
+  }
+
   async function logout() {
     await exportProject('save');
+    clearCache();
     localStorage.removeItem('token');
     history.push('/login');
   }

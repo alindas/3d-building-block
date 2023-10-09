@@ -39,23 +39,30 @@ export interface ProjectState {
   modelsConfig: TConfig['modelConfig'];
 }
 
+const original: ProjectState = {
+  projectId: -1,
+  projectInfo: {
+    name: '',
+    open: false,
+  }, //工程信息
+  lightConfig: [], // 工程灯光配置
+  cameraConfig: {}, // 工程相机配置
+  modelsConfig: {}, //工程模型配置
+};
+
 const ProjectState: ModelType<ProjectState> = {
   namespace: 'project',
 
-  state: {
-    projectId: -1,
-    projectInfo: {
-      name: '',
-      open: false,
-    }, //工程信息
-    lightConfig: [], // 工程灯光配置
-    cameraConfig: {}, // 工程相机配置
-    modelsConfig: {}, //工程模型配置
-  },
+  state: original,
 
   effects: {},
 
   reducers: {
+    // 清除缓存，还原数据
+    clear: () => {
+      return original;
+    },
+
     // 保存工程信息，当新建工程时
     saveProject: (state, action) => {
       const { id, config, ...rest } = action.payload;
