@@ -73,7 +73,7 @@ function SceneLight(props: any) {
   }
 
   function changeShadow(e: any) {
-    _light!.name = e.target.checked;
+    _light!.castShadow = e.target.checked;
   }
 
   function changeVisible(e: any) {

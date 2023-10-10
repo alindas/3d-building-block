@@ -1,6 +1,6 @@
 import { getDvaApp } from 'umi';
 
-/** 需要为上命令记录的 model 操作 */
+/** 需要上记录的 model 操作 */
 let dispatch: any;
 window.onload = () => {
   dispatch = getDvaApp()._store.dispatch;

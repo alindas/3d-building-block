@@ -13,12 +13,19 @@ type ModelData = THREE.Group | THREE.Mesh;
 //该文件中所有 @ts-ignore 注释都是用于解决由于无法准确定位外部导入模型的 ts 类型导致的类型推论错误问题
 
 export interface SceneState {
-  transformControlMode: 'disable' | 'translate' | 'rotate' | 'scale' | 'focus';
+  transformControlMode:
+    | 'disable'
+    | 'translate'
+    | 'rotate'
+    | 'scale'
+    | 'focus'
+    | 'selectRect'
+    | 'selectCurve';
   transformStatus: any;
   workbenchModel: null | THREE.Object3D;
   workbenchModelHash: { [k: string]: THREE.Object3D };
   selectedModel: null | THREE.Object3D;
-  multipleChoiceNodes: number[];
+  multipleChoiceNodes: { [k: number]: 1 };
   multipleChoiceModels: any[];
   outlinePassModel: null | THREE.Object3D;
 
@@ -36,7 +43,7 @@ const original: SceneState = {
   workbenchModel: null, // 当前工作台的模型
   workbenchModelHash: {}, // 当前工作台模型的哈希结构
   selectedModel: null, // 选中的模型
-  multipleChoiceNodes: [], // 多选模型的 id 列表
+  multipleChoiceNodes: {}, // 多选模型的 id 列表
   multipleChoiceModels: [], // 多选模型列表
 
   outlinePassModel: null, // 给 outlinePass 使用的模型，绑定 selectedModel
@@ -61,6 +68,10 @@ const SceneModel: ModelType<SceneState> = {
       freeModelMemory(state.outlinePassModel);
 
       return original;
+    },
+
+    updateMultipleChoiceNodes: (state, action) => {
+      state.multipleChoiceNodes = action.payload;
     },
 
     // 更改控制器模式

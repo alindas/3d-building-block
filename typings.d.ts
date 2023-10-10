@@ -14,6 +14,7 @@ interface Window {
   projectId: number;
   loader: TLoader.default;
   multiple: boolean;
+  enableSelect: boolean;
   globalEnv: any; // 脚本本地变量
   cloudEnv: any; // 云端数据
   myScript: TMyScript.default; // 脚本绑定

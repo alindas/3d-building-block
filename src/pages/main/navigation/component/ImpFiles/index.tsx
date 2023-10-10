@@ -106,7 +106,7 @@ function ImpFiles(props: any) {
   const loadModels = (files: File[]) => {
     return new Promise((resolve) => {
       window.loader.loadModel(files, (models) => {
-        let group = new THREE.Group();
+        const group = new THREE.Group();
         models.forEach((o) => group.add(o));
         dispatch({
           type: 'scene/initWorkbenchModel',

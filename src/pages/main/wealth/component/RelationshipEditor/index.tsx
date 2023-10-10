@@ -103,6 +103,7 @@ function RelationshipEditor(
     workbenchModelHash,
     selectedModel,
     forceUpdateModel,
+    multipleChoiceNodes,
   } = props.sceneModel;
 
   const treeContainerRef = useRef<HTMLDivElement | null>(null);
@@ -151,7 +152,6 @@ function RelationshipEditor(
   // 构建工作台模型关系树
   useEffect(() => {
     // console.log(generateData(workbenchModel?.children));
-
     setModelList(generateData(workbenchModel?.children));
   }, [forceUpdateModel]);
 
@@ -165,6 +165,31 @@ function RelationshipEditor(
       setSelectedKey([]);
     }
   }, [selectedModel]);
+
+  // 框选
+  useEffect(() => {
+    // console.log(modelList)
+    if (Object.keys(multipleChoiceNodes).length > 0) {
+      if (!ifMultiple) {
+        handleMultipleChoice();
+      }
+      const currentChecked = Array.isArray(checkedKeys)
+        ? checkedKeys
+        : checkedKeys.checked;
+      modelList.forEach((m) => {
+        if (multipleChoiceNodes[m.id] && !currentChecked.includes(m.key)) {
+          currentChecked.push(m.key);
+          if (workbenchModelHash[m.id].isObject3D) {
+            workbenchModelHash[m.id].userData.father =
+              workbenchModelHash[m.id].parent;
+            stepfather.attach(workbenchModelHash[m.id]);
+          }
+        }
+      });
+      setCheckedKeys([...currentChecked]);
+      updateSelectedModel(stepfather);
+    }
+  }, [multipleChoiceNodes]);
 
   const loopSetModel = (obj: any, dragNode: any, parent?: string) => {
     let originalData = workbenchModelHash[obj.id];
@@ -535,6 +560,10 @@ function RelationshipEditor(
 
   //添加单个模型到scene下
   function addModelToWorkbench(e: any) {
+    if (window.multiple) {
+      message.warning('多选模式下暂不支持导入模型新模型');
+      return;
+    }
     if (!window.loader.loading) {
       window.loader.loadModel(e.target.files, (model) => {
         dispatch({
@@ -587,7 +616,7 @@ function RelationshipEditor(
     // console.log('onCheck', checkedKeys, info);
     const node = info.node as Object3DNode;
     // 只允许最高一级的模型多选操作
-    if ((node.key as string).split('-').length > 3) {
+    if ((node.key as string).split('-').length > 2) {
       message.warn('只允许对一级模型进行组合编辑');
       return;
     }

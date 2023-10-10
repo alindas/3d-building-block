@@ -22,7 +22,7 @@ import style from './index.less';
 import { isEmpty, getClientXY } from '@/utils/common';
 import { ConnectProps } from '@/common/type';
 import { updateSelectedModel } from '@/models/proxy';
-import { Object3D } from 'three';
+import Selection from '@/utils/correct-package/three/selection';
 
 export type TMode = 'translate' | 'rotate' | 'scale';
 
@@ -43,7 +43,7 @@ let scene: THREE.Scene,
   outlinePass: any,
   effectFXAA: any,
   renderer: THREE.WebGLRenderer,
-  spotLight: THREE.SpotLight,
+  BS: any, // 框选渲染器
   enableCatch = true,
   offset: [number, number],
   width: number,
@@ -99,17 +99,14 @@ function animateCamera(
     .start();
 }
 
-/**
- * 定位机器人，显示选中信息
- * @param model
- */
-function locateModel(model: any, config: any) {
-  const realID = model.material.name;
-  if (realID in config) {
-    message.success(`${config[realID].curValue}-${config[realID].api}`);
-  } else if (model.parent !== null) {
-    locateModel(model.parent, config);
+function updateTransformControl(enable: boolean) {
+  if (transformControl.enabled && enable) {
+    return;
   }
+  transformControl.enabled = enable;
+  transformControl.showX = enable;
+  transformControl.showY = enable;
+  transformControl.showZ = enable;
 }
 
 // 设置多通道，当选定模型组成部分时，高亮其边框
@@ -237,6 +234,10 @@ function Workbench(
         message.info('任务正在处理');
         return;
       }
+      if (window.multiple) {
+        message.warning('多选模式下暂不支持导入模型新模型');
+        return;
+      }
       // check file
       let files;
       let modelUrl = window.modelUrl;
@@ -271,7 +272,7 @@ function Workbench(
       }
       window.loader.loadModel(
         files ?? e.dataTransfer!.files,
-        (model: Object3D[]) => {
+        (model: THREE.Object3D[]) => {
           // 位置
           model.forEach((m) => {
             m.position.copy(enterPos);
@@ -306,28 +307,40 @@ function Workbench(
     };
   }, []);
 
-  // 模型控制器
+  // 模型控制器变换
   useEffect(() => {
     if (
       transformControlMode === 'disable' ||
-      transformControlMode === 'focus'
+      transformControlMode === 'focus' ||
+      transformControlMode === 'selectRect' ||
+      transformControlMode === 'selectCurve'
     ) {
-      transformControl.enabled = false;
-      transformControl.showX = false;
-      transformControl.showY = false;
-      transformControl.showZ = false;
+      updateTransformControl(false);
     } else {
-      if (transformControl.enabled === false) {
-        transformControl.enabled = true;
-        transformControl.showX = true;
-        transformControl.showY = true;
-        transformControl.showZ = true;
-      }
+      updateTransformControl(true);
       transformControl.setMode(transformControlMode);
     }
 
     if (transformControlMode === 'focus' && !isEmpty(selectedModel)) {
       focusSelectedModel();
+    }
+
+    if (/select/.test(transformControlMode)) {
+      orbitControl.touches.ONE = THREE.TOUCH.PAN;
+      orbitControl.mouseButtons.LEFT = THREE.MOUSE.PAN;
+      orbitControl.touches.TWO = THREE.TOUCH.ROTATE;
+      orbitControl.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
+      orbitControl.enablePan = false;
+      window.enableSelect = true;
+      // console.log('框选模式')
+    } else {
+      orbitControl.touches.ONE = THREE.TOUCH.ROTATE;
+      orbitControl.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+      orbitControl.touches.TWO = THREE.TOUCH.PAN;
+      orbitControl.mouseButtons.RIGHT = THREE.MOUSE.PAN;
+      orbitControl.enablePan = true;
+      window.enableSelect = false;
+      // console.log('还原')
     }
   }, [transformControlMode]);
 
@@ -348,6 +361,8 @@ function Workbench(
 
       // updateCamera();
     }
+
+    BS.update(workbenchModel);
 
     return () => {
       renderer.domElement.removeEventListener('mouseup', onModelClick, true); // PC
@@ -382,6 +397,13 @@ function Workbench(
     }
   }, [selectedModel]);
 
+  const selectByBox = (ids: { [k: number]: 1 }) => {
+    dispatch({
+      type: 'scene/updateMultipleChoiceNodes',
+      payload: ids,
+    });
+  };
+
   const initScene = () => {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x333333);
@@ -406,6 +428,7 @@ function Workbench(
       antialias: true,
       logarithmicDepthBuffer: true,
     });
+    // renderer.shadowMap.enabled = true;
     // renderer.autoClear = false;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
@@ -416,46 +439,34 @@ function Workbench(
     }
     threeDom.current!.appendChild(renderer.domElement);
 
-    // 设置半球光
-    // scene.add(new THREE.HemisphereLight(0xffffff, 0.5));
-
     // 设置环境光
     scene.add(new THREE.AmbientLight(0xffffff, 1.8));
 
     // 设置相机灯光
     camera.add(new THREE.PointLight(0xffffff, 0.1));
 
-    // 设置默认摄像机跟随灯光
-    // spotLight = new THREE.SpotLight(0xffffff, 1);
-    // spotLight.position.copy(camera.position);
-    // spotLight.angle = Math.PI / 2; // 从聚光灯的位置以弧度表示聚光灯的最大范围
-    // spotLight.penumbra = 0.1; // 聚光锥的半影衰减百分比
-    // spotLight.decay = 1; // 沿着光照距离的衰减量
-    // spotLight.distance = FAR; // 从光源发出光的最大距离
-    // scene.add(spotLight);
-
-    // 添加平面光
-    // RectAreaLightUniformsLib.init();
-    // const rectLight = new THREE.RectAreaLight(0xffffff, 1, 5000, 2000);
-    // rectLight.position.set(0, 900, 1050);
-    // rectLight.rotation.set(-Math.PI / 10, 0, 0);
-
-    // scene.add(rectLight);
-    // const rectLight2 = new THREE.RectAreaLight(0xffffff, 0.5, 5000, 2000);
-    // rectLight2.position.set(0, 900, -1350);
-    // // rectLight2.position.set(0, 1600, -1850);
-    // // rectLight2.rotation.set(Math.PI / 4, Math.PI, 0);
-    // rectLight2.rotation.set(Math.PI / 10, Math.PI, 0);
-    // scene.add(rectLight2);
-
-    // const rectLightHelper = new RectAreaLightHelper(rectLight);
-    // rectLight.add(rectLightHelper);
-
-    // const rectLightHelper2 = new RectAreaLightHelper(rectLight2);
-    // rectLight2.add(rectLightHelper2);
-
     // 添加多通道渲染
     highlightModel();
+
+    // 场景框选
+    BS = new Selection(
+      scene,
+      camera,
+      renderer,
+      style['selectBox'],
+      selectByBox,
+    );
+
+    // 接收阴影
+    // const shadowPlane = new THREE.Mesh(
+    //   new THREE.PlaneBufferGeometry(),
+    //   new THREE.ShadowMaterial( { color: 0, opacity: 0.2, depthWrite: false } )
+    // );
+    // shadowPlane.position.y = - 2.74;
+    // shadowPlane.rotation.x = - Math.PI / 2;
+    // shadowPlane.scale.setScalar( 20 );
+    // shadowPlane.receiveShadow = true;
+    // scene.add( shadowPlane );
 
     // 设置场景控制器
     orbitControl = new OrbitControls(camera, renderer.domElement);
@@ -571,17 +582,8 @@ function Workbench(
   }
 
   function cancelModelSelect() {
-    console.log('cancel');
     transformControl.detach();
     outlinePass.selectedObjects = [];
-  }
-
-  //取消本地运行
-  function cancelLocalRun() {
-    dispatch({
-      type: 'scene/changeRunState',
-      payload: false,
-    });
   }
 
   // 动态添加模型时，调整相机使其展示整个模型全景

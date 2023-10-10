@@ -11,6 +11,8 @@ import translateBtn from '@/assets/tool-bar/translateBtn.png';
 import scaleBtn from '@/assets/tool-bar/scaleBtn.png';
 import rotateBtn from '@/assets/tool-bar/rotateBtn.png';
 import focusBtn from '@/assets/tool-bar/focusBtn.png';
+import rectBtn from '@/assets/tool-bar/rectBtn.png';
+import curveBtn from '@/assets/tool-bar/curveBtn.png';
 import exportProject from '@/pages/main/navigation/utils/exportProject';
 import request from '@/service/request';
 
@@ -90,6 +92,28 @@ function ToolBar(props: any) {
           dispatch({
             type: 'scene/modifyTransformControlMode',
             payload: 'focus',
+          }),
+      },
+    ],
+    [
+      {
+        key: 'selectRect',
+        title: '框选对象-矩形',
+        icon: <img src={rectBtn} />,
+        click: () =>
+          dispatch({
+            type: 'scene/modifyTransformControlMode',
+            payload: 'selectRect',
+          }),
+      },
+      {
+        key: 'selectCurve',
+        title: '框选对象-曲线',
+        icon: <img src={curveBtn} />,
+        click: () =>
+          dispatch({
+            type: 'scene/modifyTransformControlMode',
+            payload: 'selectCurve',
           }),
       },
     ],
@@ -197,7 +221,7 @@ function ToolBar(props: any) {
               ((item.key === 'revoke' && window.cmd.canBack) ||
                 (item.key === 'redo' && window.cmd.canForward)),
             [style['selected-btn']]:
-              index === 1 && transformControlMode === item.key,
+              index > 0 && transformControlMode === item.key,
           })}
         >
           {item.icon}
