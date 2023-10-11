@@ -163,7 +163,7 @@ const MenuTemplate = [
   },
 ];
 
-document.addEventListener('keypress', (e) => {
+function bindShortcut(e) {
   if (e.shiftKey) {
     switch (e.key) {
       case 'N': {
@@ -220,6 +220,14 @@ document.addEventListener('keypress', (e) => {
         break;
     }
   }
-});
+}
+
+export function registerShortcut() {
+  document.addEventListener('keypress', bindShortcut);
+}
+
+export function cancelShortcut() {
+  document.removeEventListener('keypress', bindShortcut);
+}
 
 export default MenuTemplate;

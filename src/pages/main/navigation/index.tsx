@@ -4,10 +4,22 @@ import Menu from './component/Menu/index';
 import Avatar from './component/Avatar/index';
 import ImpFiles from './component/ImpFiles/index';
 
-import MenuTemplate from './data/menuTemplate';
+import MenuTemplate, {
+  cancelShortcut,
+  registerShortcut,
+} from './data/menuTemplate';
 import ProjectName from './component/ProjectName';
+import { useEffect } from 'react';
 
 export default function Navigation() {
+  useEffect(() => {
+    registerShortcut();
+
+    return () => {
+      cancelShortcut();
+    };
+  }, []);
+
   return (
     <div className={styles.navigation}>
       {/* 登录用户 */}
