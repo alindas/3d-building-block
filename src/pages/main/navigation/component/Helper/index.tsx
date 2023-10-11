@@ -1,3 +1,4 @@
+import Question from '@/components/Question';
 import { Modal } from 'antd';
 import About from './about';
 import Guide from './guide';
@@ -20,7 +21,12 @@ export const showGuide = () => {
   }
   guideModal = Modal.info({
     ...baseModalConfig,
-    title: '操作说明',
+    title: (
+      <>
+        操作说明
+        <Question link="/doc/guide.pdf" />
+      </>
+    ),
     content: <Guide />,
     afterClose: () => (guideModal = undefined),
   });
