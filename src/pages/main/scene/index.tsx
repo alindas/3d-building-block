@@ -1,3 +1,5 @@
+import ErrorBoundary from '@/components/ErrorBoundary';
+import SafetyPants from '@/components/SafetyPants';
 import ToolBar from './component/ToolBar';
 import Workbench from './component/Workbench';
 import styles from './index.less';
@@ -9,7 +11,9 @@ function Scene() {
         <ToolBar />
       </div>
       <div className={styles['workbench']}>
-        <Workbench />
+        <ErrorBoundary FallbackComponent={SafetyPants}>
+          <Workbench />
+        </ErrorBoundary>
       </div>
     </div>
   );

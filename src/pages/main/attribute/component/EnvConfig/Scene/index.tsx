@@ -43,7 +43,7 @@ function SceneMap(props: ConnectProps<SceneState>) {
 
   useEffect(() => {
     // 设置环境贴图
-    if (typeof sceneEnv == 'string') {
+    if (Reflect.has(window, 'scene') && typeof sceneEnv == 'string') {
       if (sceneEnv === '') {
         window.scene.background = new Color(bgColor);
         window.scene.environment = null;

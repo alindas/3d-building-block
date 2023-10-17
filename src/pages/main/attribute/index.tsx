@@ -6,6 +6,8 @@ import DataBind from './component/DataBind';
 import Editor from './component/Editor';
 import SelectedModel from './component/SelectedModel';
 import EnvConfig from './component/EnvConfig';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import SafetyPants from '@/components/SafetyPants';
 
 const initialSort = ['属性', '环境'];
 
@@ -31,10 +33,12 @@ const Attribute = (props: any, ref: any) => {
             return (
               <Collapse title="属性" dragId={index} key={item} defaultExpand>
                 <div className={style['model-config']}>
-                  <SelectedModel>
-                    <DataBind />
-                    <Editor />
-                  </SelectedModel>
+                  <ErrorBoundary FallbackComponent={SafetyPants}>
+                    <SelectedModel>
+                      <DataBind />
+                      <Editor />
+                    </SelectedModel>
+                  </ErrorBoundary>
                 </div>
               </Collapse>
             );
@@ -43,7 +47,9 @@ const Attribute = (props: any, ref: any) => {
             return (
               <Collapse title="环境" dragId={index} key={item} defaultExpand>
                 <div className={style['scene-config']}>
-                  <EnvConfig />
+                  <ErrorBoundary FallbackComponent={SafetyPants}>
+                    <EnvConfig />
+                  </ErrorBoundary>
                 </div>
               </Collapse>
             );

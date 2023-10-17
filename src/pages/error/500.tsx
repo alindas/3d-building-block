@@ -1,6 +1,7 @@
+import { ErrorFallback } from '@/components/ErrorBoundary';
 import styles from './500.less';
 
-export default function WB(props: { error: string }) {
+export default function InternalError(props: ErrorFallback) {
   const handleSubmit = (event: any) => {
     event.preventDefault();
     // 处理表单提交逻辑
@@ -11,7 +12,7 @@ export default function WB(props: { error: string }) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-        <div className={styles.content}>{props.error}</div>
+        <div className={styles.content}>{props.error?.message}</div>
         <div className={styles.form}>
           <div className={styles.title}>内部错误</div>
           <form onSubmit={handleSubmit}>

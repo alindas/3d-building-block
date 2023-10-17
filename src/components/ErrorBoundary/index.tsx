@@ -22,9 +22,13 @@ export interface ErrorBoundaryProps {
 }
 
 export interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error | undefined | null;
+  error: Error | null;
 }
+
+export type ErrorFallback = {
+  error: Error;
+  resetErrorBoundary: () => void;
+};
 
 export default class ErrorBoundary extends Component<
   ErrorBoundaryProps,
@@ -35,16 +39,17 @@ export default class ErrorBoundary extends Component<
     super(props);
     this.updatedWithError = false;
     this.state = {
-      hasError: false,
       error: null,
     };
   }
 
+  // 渲染备用  UI
   static getDerivedStateFromError(error: Error) {
     // 更新 state 使下一次渲染能够显示降级后的 UI
     return { error };
   }
 
+  // 处理错误信息
   componentDidCatch(error: Error, errorInfo: any) {
     // 你同样可以将错误日志上报给服务器
     if (this.props.onError) {
@@ -87,7 +92,7 @@ export default class ErrorBoundary extends Component<
     const { error } = this.state;
     // 多种 fallback 的判断
     if (error !== null) {
-      const fallbackProps = {
+      const fallbackProps: ErrorFallback = {
         error,
         // 将 resetErrorBoundary 传入 fallback
         resetErrorBoundary: this.resetErrorBoundary,

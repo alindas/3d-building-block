@@ -6,6 +6,8 @@ import Scene from './scene';
 import Wealth from './wealth';
 import Attribute from './attribute';
 import './index.less';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import ErrorFallback from '@/pages/error/500';
 
 type ListProps = {
   listId: string;
@@ -112,4 +114,12 @@ function MainPage() {
   );
 }
 
-export default MainPage;
+function MainIndex() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <MainPage></MainPage>
+    </ErrorBoundary>
+  );
+}
+
+export default MainIndex;

@@ -4,6 +4,8 @@ import Collapse from '@/components/Collapse';
 import RelationshipEditor from './component/RelationshipEditor';
 import style from './index.less';
 import ModelLibrary from './component/ModelLibrary';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import SafetyPants from '@/components/SafetyPants';
 
 const initialSort = ['模型库', '模型'];
 
@@ -54,9 +56,11 @@ const Wealth = (props: any, ref: any) => {
                 }
                 defaultExpand
               >
-                <RelationshipEditor
-                  changeTrigger={wrapperHeightChangeTrigger}
-                />
+                <ErrorBoundary FallbackComponent={SafetyPants}>
+                  <RelationshipEditor
+                    changeTrigger={wrapperHeightChangeTrigger}
+                  />
+                </ErrorBoundary>
               </Collapse>
             );
           }
