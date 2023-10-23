@@ -1,10 +1,13 @@
 import { getDvaApp } from 'umi';
 
 /** 需要上记录的 model 操作 */
-let dispatch: any;
-window.onload = () => {
-  dispatch = getDvaApp()._store.dispatch;
-};
+// 拆包下失效
+// let dispatch: any;
+// window.onload = () => {
+//   dispatch = getDvaApp()._store.dispatch;
+// };
+
+const dispatch = getDvaApp()._store.dispatch;
 
 export function updateSelectedModel(payload: any) {
   window.cmd.executeCommand(() =>
