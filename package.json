@@ -11,7 +11,8 @@
     "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
     "stylelint": "stylelint --cache --fix \"**/*.{less,postcss,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/",
     "test": "umi-test",
-    "test:coverage": "umi-test --coverage"
+    "test:coverage": "umi-test --coverage",
+    "deploy": "gh-pages -d dist"
   },
   "lint-staged": {
     "*.{less,css}": [
@@ -69,7 +70,7 @@
     "stylelint": "^14.16.1",
     "stylelint-config-prettier": "^9.0.5",
     "stylelint-config-rational-order": "^0.1.2",
-    "stylelint-less": "^1.0.6",
+    "stylelint-less": "1.0.6",
     "typescript": "^4.1.2",
     "yorkie": "^2.0.0"
   }
